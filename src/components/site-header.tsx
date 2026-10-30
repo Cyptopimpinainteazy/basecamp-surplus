@@ -7,6 +7,7 @@ const nav = [
   { href: "/c/jackets", label: "Jackets" },
   { href: "/poles", label: "Tent poles" },
   { href: "/shop?condition=used", label: "Pre-owned" },
+  { href: "/reviews", label: "Reviews" },
   { href: "/shop", label: "All gear" },
 ];
 

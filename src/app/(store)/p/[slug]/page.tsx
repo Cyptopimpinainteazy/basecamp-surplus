@@ -8,6 +8,7 @@ import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
 import { money, savingsPercent, truncate } from "@/lib/format";
 import { getProductBySlug, relatedProducts } from "@/lib/products";
+import { reviewForProduct } from "@/lib/articles";
 
 type Props = { params: Promise<{ slug: string }> };
 export const revalidate = 300;
@@ -34,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p || p.status === "draft" || p.status === "archived") notFound();
-  const related = await relatedProducts(p);
+  const [related, review] = await Promise.all([relatedProducts(p), reviewForProduct(`${p.title} ${p.model}`)]);
   const cat = getCategory(p.category);
   const cond = getCondition(p.condition);
   const available = p.status === "active" && p.quantity > 0;
@@ -147,6 +148,19 @@ export default async function ProductPage({ params }: Props) {
                 : "This one sold. Similar pieces are below."}
             </p>
           </div>
+
+          {review && (
+            <Link
+              href={`/reviews/${review.slug}`}
+              className="mt-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-spruce/20 bg-snow p-4 hover:border-spruce"
+            >
+              <span>
+                <span className="block text-sm text-granite">Read our review</span>
+                <span className="font-semibold">{review.title}</span>
+              </span>
+              <span className="display shrink-0 text-2xl text-blaze-deep">{Math.max(1, Math.round(review.body.split(/\s+/).length / 230))} min</span>
+            </Link>
+          )}
 
           {p.fitment.length > 0 && (
             <div className="mt-8 rounded-[var(--radius-tag)] bg-snow p-5">

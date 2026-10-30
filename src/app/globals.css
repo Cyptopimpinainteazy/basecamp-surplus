@@ -181,3 +181,68 @@
 .no-scrollbar {
   scrollbar-width: none;
 }
+
+/* Long-form review typography */
+.prose-review {
+  font-size: 1.075rem;
+  line-height: 1.7;
+}
+.prose-review > * + * {
+  margin-top: 1.05em;
+}
+.prose-review h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1;
+  margin-top: 2.2em;
+  scroll-margin-top: 6rem;
+  text-wrap: balance;
+}
+.prose-review h3 {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-top: 1.8em;
+}
+.prose-review a {
+  color: var(--color-spruce);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--color-blaze);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.prose-review ul {
+  list-style: none;
+  padding: 0;
+}
+.prose-review ul li {
+  position: relative;
+  padding-left: 1.4em;
+}
+.prose-review ul li + li {
+  margin-top: 0.5em;
+}
+.prose-review ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 0.7em;
+  height: 0.22em;
+  background: var(--color-blaze);
+}
+.prose-review strong {
+  font-weight: 700;
+}
+.prose-review table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-review th,
+.prose-review td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-ice);
+}

@@ -15,6 +15,7 @@ Storefront, AI listing intake, multi-marketplace selling, shipping labels and AI
 | Google / Meta / Pinterest | `/feeds/products.xml` (Google Merchant RSS). One feed URL powers Google Shopping free listings, Facebook & Instagram Shops (and Marketplace where Meta approves), and Pinterest catalogs. |
 | Poshmark, Mercari, Depop, Geartrade | No public listing APIs (Poshmark bans automation), so each product gets a copy pack with fee-adjusted pricing, plus a crosslister CSV for Vendoo/List Perfectly. Sold-out items show on the Today screen to remove there. |
 | Shipping | Per order: pick a box preset, get Shippo rates, buy a 4×6 label, tracking emailed automatically (or uploaded to eBay). |
+| Reviews | `/reviews` long-form gear reviews with a verdict box, pros/cons, specs and sources, Article schema, and an in-stock box that links each review to matching products (and products back to their review). Admin → Reviews → *Write a review* has Claude research a model on the web and draft one for you to edit and publish. Starter reviews live in `content/reviews/*.json` and load on deploy. |
 | Support | Help chat on every page answers from live inventory and policies, looks up orders (order number + email), and opens tickets for returns/damage. Tickets land in `/admin/support`; you reply by email from there. |
 
 ## Setup

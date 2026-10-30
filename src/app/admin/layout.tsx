@@ -11,6 +11,7 @@ const nav = [
   { href: "/admin/intake", label: "Add item" },
   { href: "/admin/products", label: "Inventory" },
   { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/reviews", label: "Reviews" },
   { href: "/admin/support", label: "Support" },
   { href: "/admin/channels", label: "Channels" },
 ];

@@ -229,3 +229,42 @@ export type ChannelListing = typeof channelListings.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type SupportTicket = typeof supportTickets.$inferSelect;
 export type Channel = (typeof channelEnum.enumValues)[number];
+
+// ---------- Reviews (long-form gear articles) ----------
+
+export const articleStatus = pgEnum("article_status", ["draft", "published"]);
+export type ArticleSource = { title: string; url: string };
+
+export const articles = pgTable(
+  "articles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    status: articleStatus("status").notNull().default("draft"),
+    title: text("title").notNull(),
+    dek: text("dek").notNull().default(""),
+    /** Product family the review covers, e.g. "The North Face Wawona 4". Drives the in-stock box. */
+    subject: text("subject").notNull(),
+    /** Search terms that find matching stock, e.g. "Wawona 4". */
+    stockQuery: text("stock_query").notNull().default(""),
+    category: text("category").notNull().default("tents"),
+    verdict: text("verdict").notNull().default(""),
+    bestFor: text("best_for").notNull().default(""),
+    notFor: text("not_for").notNull().default(""),
+    pros: jsonb("pros").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    cons: jsonb("cons").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    specs: jsonb("specs").$type<Spec[]>().notNull().default(sql`'[]'::jsonb`),
+    body: text("body").notNull().default(""),
+    heroImage: text("hero_image"),
+    sources: jsonb("sources").$type<ArticleSource[]>().notNull().default(sql`'[]'::jsonb`),
+    seoTitle: text("seo_title").notNull().default(""),
+    seoDescription: text("seo_description").notNull().default(""),
+    keywords: jsonb("keywords").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("articles_slug_idx").on(t.slug), index("articles_status_idx").on(t.status, t.publishedAt)],
+);
+
+export type Article = typeof articles.$inferSelect;

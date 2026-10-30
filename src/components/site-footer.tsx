@@ -30,6 +30,7 @@ export function SiteFooter() {
         <div>
           <p className="mb-3 font-semibold text-glacier">Help</p>
           <ul className="space-y-2">
+            <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
             <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
             <li><Link href="/help#returns" className="hover:text-glacier hover:underline">Returns</Link></li>
             <li><Link href="/help#authenticity" className="hover:text-glacier hover:underline">Authenticity</Link></li>

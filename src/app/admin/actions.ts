@@ -274,3 +274,77 @@ export async function clearNeedsDelist(productId: string, channel: Channel) {
     .where(and(eq(channelListings.productId, productId), eq(channelListings.channel, channel)));
   revalidatePath("/admin");
 }
+
+// ---------- reviews ----------
+
+export async function saveArticle(_: unknown, form: FormData) {
+  await requireAdmin();
+  const id = String(form.get("id"));
+  const { articles } = await import("@/lib/db/schema");
+  const [current] = await db.select().from(articles).where(eq(articles.id, id));
+  if (!current) return { error: "Review not found." };
+  const title = String(form.get("title") ?? "").trim();
+  if (title.length < 10) return { error: "Add a headline." };
+  const body = String(form.get("body") ?? "").trim();
+  if (body.length < 200) return { error: "The article body is too short to publish." };
+  const sources = lines(form.get("sources"))
+    .map((l) => {
+      const m = l.match(/^(.*?)\s*\|\s*(https?:\/\/\S+)$/);
+      return m ? { title: m[1].trim(), url: m[2] } : null;
+    })
+    .filter((s): s is { title: string; url: string } => Boolean(s));
+  const specs = lines(form.get("specs"))
+    .map((l) => {
+      const [label, ...rest] = l.split(":");
+      return { label: label.trim(), value: rest.join(":").trim() };
+    })
+    .filter((s) => s.label && s.value);
+  const publish = String(form.get("intent")) === "publish";
+  const slug = slugify(String(form.get("slug") ?? "")) || current.slug;
+
+  const [updated] = await db
+    .update(articles)
+    .set({
+      title,
+      slug,
+      dek: String(form.get("dek") ?? "").trim(),
+      subject: String(form.get("subject") ?? "").trim() || current.subject,
+      stockQuery: String(form.get("stockQuery") ?? "").trim(),
+      category: String(form.get("category") ?? current.category),
+      verdict: String(form.get("verdict") ?? "").trim(),
+      bestFor: String(form.get("bestFor") ?? "").trim(),
+      notFor: String(form.get("notFor") ?? "").trim(),
+      pros: lines(form.get("pros")),
+      cons: lines(form.get("cons")),
+      specs,
+      body,
+      heroImage: String(form.get("heroImage") ?? "").trim() || null,
+      sources,
+      seoTitle: String(form.get("seoTitle") ?? "").trim().slice(0, 70),
+      seoDescription: String(form.get("seoDescription") ?? "").trim().slice(0, 170),
+      keywords: commaList(form.get("keywords")),
+      status: publish ? "published" : current.status,
+      publishedAt: publish && !current.publishedAt ? new Date() : current.publishedAt,
+      updatedAt: new Date(),
+    })
+    .where(eq(articles.id, id))
+    .returning();
+  revalidatePath("/reviews");
+  revalidatePath(`/reviews/${updated.slug}`);
+  if (current.slug !== updated.slug) revalidatePath(`/reviews/${current.slug}`);
+  revalidatePath("/", "layout");
+  return { ok: publish && current.status !== "published" ? "Published. It's live under Reviews." : "Saved." };
+}
+
+export async function setArticleStatus(id: string, status: "draft" | "published") {
+  await requireAdmin();
+  const { articles } = await import("@/lib/db/schema");
+  const [a] = await db
+    .update(articles)
+    .set({ status, updatedAt: new Date(), ...(status === "published" ? { publishedAt: new Date() } : {}) })
+    .where(eq(articles.id, id))
+    .returning();
+  revalidatePath("/reviews");
+  revalidatePath(`/reviews/${a.slug}`);
+  revalidatePath(`/admin/reviews/${id}`);
+}

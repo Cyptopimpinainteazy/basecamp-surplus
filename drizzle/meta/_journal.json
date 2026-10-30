@@ -8,6 +8,13 @@
       "when": 1793379727019,
       "tag": "0000_hot_lyja",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793391368874,
+      "tag": "0001_articles",
+      "breakpoints": true
     }
   ]
 }

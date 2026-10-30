@@ -121,6 +121,15 @@ const rows: NewProduct[] = [
     images: img("wawona-6", "Green Wawona 6 tent"), priceCents: 34900, msrpCents: 50000, quantity: 2, weightOz: 320, packagePreset: "large-box",
   }),
   item({
+    key: "tnf-wawona-4",
+    title: "The North Face Wawona 4 Camping Tent 4-Person NWT",
+    brand: "The North Face", brandSlug: "the-north-face", model: "Wawona 4", category: "tents", productType: "Camping tent",
+    condition: "new_with_tags", description: "The Wawona 4 car-camping tent with a 75-inch peak and a 27.6 sq ft front vestibule. New with tags.",
+    specs: [{ label: "Sleeps", value: "4" }, { label: "Peak height", value: "75 in" }, { label: "Floor area", value: "58.1 sq ft" }],
+    seoTitle: "The North Face Wawona 4 Tent NWT", seoDescription: "New The North Face Wawona 4 person camping tent. Below retail, ships from Denver.",
+    images: img("wawona-6", "Green Wawona 4 tent"), priceCents: 32900, msrpCents: 48500, quantity: 3, weightOz: 208, packagePreset: "large-box",
+  }),
+  item({
     key: "tnf-assault-2",
     title: "The North Face Assault 2 Futurelight 4-Season Tent NWT",
     brand: "The North Face", brandSlug: "the-north-face", model: "Assault 2 Futurelight", category: "tents", productType: "Mountaineering tent",

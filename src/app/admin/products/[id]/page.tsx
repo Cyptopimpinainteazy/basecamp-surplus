@@ -30,6 +30,8 @@ export default async function EditProduct({ params, searchParams }: Props) {
             <Link href={`/p/${p.slug}`} className="underline" target="_blank">View on site</Link>
           </>
         )}
+        {" · "}
+        <Link href={`/admin/reviews/new?subject=${encodeURIComponent(`${p.brand} ${p.model}`.trim())}`} className="underline">Write a review of this model</Link>
       </p>
       <h1 className="display text-5xl">{p.title}</h1>
       <p className="mt-1 text-granite">
