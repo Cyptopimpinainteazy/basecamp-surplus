@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+/*
+  Basecamp Surplus design tokens
+  spruce  #1F3A32  deep forest: hero, header, primary surfaces
+  ink     #13201C  text
+  glacier #EEF3F4  page background, like snowfield light
+  granite #5B6670  secondary text, rules
+  blaze   #FF7A00  hunter-orange trail blaze: prices, primary actions
+  lichen  #C9D3A3  pre-owned marker, soft highlights
+*/
+@theme {
+  --color-spruce: #1f3a32;
+  --color-spruce-2: #2a4b41;
+  --color-ink: #13201c;
+  --color-glacier: #eef3f4;
+  --color-ice: #dde6e8;
+  --color-granite: #5b6670;
+  --color-blaze: #ff7a00;
+  --color-blaze-deep: #c95a00;
+  --color-lichen: #c9d3a3;
+  --color-snow: #ffffff;
+
+  --font-display: "Big Shoulders Display", "Archivo Variable", system-ui, sans-serif;
+  --font-sans: "Archivo Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-tag: 10px;
+}
+
+@layer base {
+  html {
+    color: var(--color-ink);
+    background: var(--color-glacier);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    background: var(--color-glacier);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-blaze);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--color-blaze);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -0.005em;
+  }
+  .prose-gear p {
+    margin: 0 0 1em;
+    max-width: 68ch;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: 6px;
+    font-weight: 650;
+    font-variation-settings: "wdth" 100;
+    transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+  .btn-blaze {
+    background: var(--color-blaze);
+    color: var(--color-ink);
+  }
+  .btn-blaze:hover {
+    background: #ff8f26;
+  }
+  .btn-spruce {
+    background: var(--color-spruce);
+    color: var(--color-glacier);
+  }
+  .btn-spruce:hover {
+    background: var(--color-spruce-2);
+  }
+  .btn-line {
+    border: 1.5px solid currentColor;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 6px;
+    border: 1.5px solid var(--color-ice);
+    background: var(--color-snow);
+    color: var(--color-ink);
+  }
+  .field:focus {
+    border-color: var(--color-spruce);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(31 58 50 / 0.15);
+  }
+  .label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-granite);
+    margin-bottom: 0.3rem;
+  }
+
+  /* Hang-tag product card: the punched hole is the one decorative device. */
+  .tag-card {
+    position: relative;
+    background: var(--color-snow);
+    border-radius: var(--radius-tag);
+  }
+  .tag-hole {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    background: var(--color-glacier);
+    box-shadow: inset 0 1px 2px rgb(19 32 28 / 0.35);
+    z-index: 2;
+  }
+}
+
+/* Hero: headline rises from behind the ridge once, on load. */
+@keyframes rise {
+  from {
+    transform: translateY(38%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.hero-rise {
+  animation: rise 1.1s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+/* The featured hang tag settles with one damped swing after the headline rises. */
+@keyframes swing {
+  0% { transform: rotate(9deg); opacity: 0; }
+  25% { opacity: 1; }
+  45% { transform: rotate(-5deg); }
+  70% { transform: rotate(2.5deg); }
+  100% { transform: rotate(-1.5deg); }
+}
+.hero-tag {
+  animation: swing 1.6s 0.5s cubic-bezier(0.3, 0.6, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-tag {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+.topo-lines {
+  background-image: url("/topo.svg");
+  background-size: 900px auto;
+  background-repeat: repeat;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
