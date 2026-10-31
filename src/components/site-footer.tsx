@@ -35,6 +35,7 @@ export function SiteFooter() {
               <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
               <li><Link href="/returns" className="hover:text-glacier hover:underline">Returns</Link></li>
               <li><Link href="/poles/size" className="hover:text-glacier hover:underline">Find a pole by size</Link></li>
+              <li><Link href="/poles/photo" className="hover:text-glacier hover:underline">Match a pole from a photo</Link></li>
               <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
             </ul>
           </div>

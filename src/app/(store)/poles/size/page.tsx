@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PoleSizeForm } from "@/components/pole-size-form";
 import { PolesTabs } from "@/components/poles-tabs";
-import { ProductCard } from "@/components/product-card";
-import { cmToIn, matchLabel, matchPoles } from "@/lib/pole-match";
+import { PoleMatchGrid } from "@/components/pole-match-grid";
+import { cmToIn, matchPoles } from "@/lib/pole-match";
 import { TentCandidates } from "@/components/tent-candidates";
 import { StockAlert } from "@/components/stock-alert";
 
@@ -62,19 +62,7 @@ export default async function FindBySize({ searchParams }: Props) {
                   {sp.sections ? `, ${sp.sections} sections` : ""}
                   {sp.diameter ? `, ${sp.diameter} mm` : ""}.
                 </p>
-                <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
-                  {matches.map((m) => (
-                    <li key={m.product.id} className="flex flex-col">
-                      <p className={`mb-1.5 text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-spruce" : "text-granite"}`}>
-                        {matchLabel(m)}
-                        {m.lengthDiff !== null && m.lengthDiff !== 0 && (
-                          <span className="font-normal"> · {m.lengthDiff > 0 ? "+" : ""}{m.lengthDiff} in</span>
-                        )}
-                      </p>
-                      <ProductCard p={m.product} />
-                    </li>
-                  ))}
-                </ul>
+                <PoleMatchGrid matches={matches} />
               </>
             ) : (
               <div className="rounded-[var(--radius-tag)] bg-snow p-8">
@@ -120,7 +108,7 @@ export default async function FindBySize({ searchParams }: Props) {
           </ol>
           <p className="mt-4 text-granite">
             A pole within half an inch and with the same sections and diameter usually fits. Longer differences change how tight
-            the tent pitches. Know your tent model? <Link href="/poles" className="font-semibold text-ink underline">Search by tent</Link> instead.
+            the tent pitches. Know your tent model? <Link href="/poles" className="font-semibold text-ink underline">Search by tent</Link> instead, or <Link href="/poles/photo" className="font-semibold text-ink underline">match from a photo</Link>.
           </p>
         </section>
       </div>

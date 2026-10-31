@@ -308,3 +308,44 @@ export const stockAlerts = pgTable(
   ],
 );
 export type StockAlert = typeof stockAlerts.$inferSelect;
+
+/** What the photo pole matcher read from one customer's photos. Photos themselves are never stored. */
+export type PolePhotoRead = {
+  isTentPole: boolean;
+  brand: string | null;
+  tentModel: string | null;
+  shape: "straight" | "prebent" | "hub" | null;
+  hubArms: number | null;
+  sections: number | null;
+  lengthIn: number | null;
+  diameterMm: number | null;
+  colorCode: string | null;
+  material: string | null;
+  readFromLabels: string[];
+  notes: string[];
+};
+
+/** The customer's own measurements, which win over anything read from the photo. */
+export type PolePhotoInput = {
+  tent?: string;
+  lengthIn?: number;
+  sections?: number;
+  diameterMm?: number;
+  shape?: "straight" | "prebent" | "hub";
+  hubArms?: number;
+};
+
+export const polePhotoChecks = pgTable(
+  "pole_photo_checks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ip: text("ip").notNull(),
+    photoCount: integer("photo_count").notNull(),
+    input: jsonb("input").$type<PolePhotoInput>().notNull(),
+    read: jsonb("read").$type<PolePhotoRead>(),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("pole_photo_checks_ip_idx").on(t.ip, t.createdAt), index("pole_photo_checks_created_idx").on(t.createdAt)],
+);
+export type PolePhotoCheck = typeof polePhotoChecks.$inferSelect;
