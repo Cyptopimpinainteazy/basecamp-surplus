@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { ProductCard } from "@/components/product-card";
 import { getCategory, site } from "@/lib/config";
-import { getArticle, readingMinutes, renderArticle } from "@/lib/articles";
+import { getArticle, mentionsModel, readingMinutes, renderArticle } from "@/lib/articles";
 import { money } from "@/lib/format";
 import { listProducts } from "@/lib/products";
 
@@ -40,7 +40,9 @@ export default async function ReviewPage({ params }: Props) {
   const a = await getArticle(slug);
   if (!a || a.status !== "published") notFound();
   const { html, toc } = renderArticle(a.body);
-  const stock = a.stockQuery ? await listProducts({ q: a.stockQuery, limit: 6 }) : [];
+  const stock = a.stockQuery
+    ? (await listProducts({ q: a.stockQuery, limit: 24 })).filter((p) => mentionsModel(`${p.title} ${p.model} ${p.fitment.join(" ")}`, a.stockQuery))
+    : [];
   // Poles that fit this model also match the stock query; keep the main item first.
   const main = stock.filter((p) => p.category === a.category);
   const parts = stock.filter((p) => p.category !== a.category);
@@ -177,7 +179,7 @@ export default async function ReviewPage({ params }: Props) {
             {main.length > 0 ? (
               <p className="mt-1 text-sm text-glacier/75">From our Denver stock, below retail.</p>
             ) : (
-              <p className="mt-1 text-sm text-glacier/75">The {a.subject} isn&apos;t in stock right now. These are.</p>
+              <p className="mt-1 text-sm text-glacier/75">{/^the /i.test(a.subject) ? a.subject : `The ${a.subject}`} isn&apos;t in stock right now. These are.</p>
             )}
             <ul className="mt-4 space-y-3">
               {(main.length ? main : fallback).slice(0, 3).map((p) => (

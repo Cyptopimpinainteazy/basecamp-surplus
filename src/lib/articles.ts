@@ -23,11 +23,22 @@ export async function getArticleById(id: string) {
   return a ?? null;
 }
 
+/**
+ * True when text mentions the model as a whole token, so "Tadpole 2" does not
+ * match "Tadpole 23" and "Rock 22" does not match "Rock 220".
+ */
+export function mentionsModel(text: string, model: string) {
+  if (!model.trim()) return false;
+  const esc = model.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+  // Allow a trailing "P" (Wawona 4P = Wawona 4).
+  return new RegExp(`(^|[^a-z0-9])${esc}p?($|[^a-z0-9])`, "i").test(text);
+}
+
 /** Published review whose stock query matches a product, for "Read our review" links. */
 export async function reviewForProduct(text: string) {
   const rows = await db.select().from(articles).where(and(eq(articles.status, "published")));
-  const hay = text.toLowerCase();
-  return rows.find((a) => a.stockQuery && hay.includes(a.stockQuery.toLowerCase())) ?? null;
+  // Longest query first, so "Wawona 4" wins over a hypothetical "Wawona".
+  return rows.sort((a, b) => b.stockQuery.length - a.stockQuery.length).find((a) => mentionsModel(text, a.stockQuery)) ?? null;
 }
 
 export type TocItem = { id: string; text: string };
