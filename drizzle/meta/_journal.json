@@ -22,6 +22,13 @@
       "when": 1793469600000,
       "tag": "0002_stock_adjustments",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793473200000,
+      "tag": "0003_order_tasks",
+      "breakpoints": true
     }
   ]
 }

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getPackagePreset, packagePresets } from "@/lib/config";
 import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
+import { products, orderTasks } from "@/lib/db/schema";
 import { money } from "@/lib/format";
 import { getOrder } from "@/lib/orders";
 import { shippoConfigured } from "@/lib/shipping";
+import { retryOrderFollowups } from "../../actions";
 import { ShipPanel } from "./ship-panel";
 import { OrderStatusButtons } from "./status-buttons";
 
@@ -21,6 +22,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const itemWeight = o.items.reduce((s, i) => s + (rows.find((r) => r.id === i.productId)?.weightOz ?? 24) * i.quantity, 0);
   const preset = o.packagePreset ?? rows.map((r) => getPackagePreset(r.packagePreset)).sort((a, b) => b.length * b.width * b.height - a.length * a.width * a.height)[0]?.id ?? "medium-box";
   const a = o.shippingAddress;
+  const pendingTasks = (await db.select().from(orderTasks).where(eq(orderTasks.orderId,o.id))).filter(t=>!t.completedAt);
 
   return (
     <div>
@@ -54,6 +56,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </ul>
             <dl className="mt-3 space-y-1 text-sm">
               <div className="flex justify-between"><dt>Shipping paid</dt><dd>{money(o.shippingCents)}</dd></div>
+              {o.items.some(i => (i.lineDiscountCents ?? 0) > 0) && <div className="flex justify-between"><dt>Discount</dt><dd>−{money(o.items.reduce((sum,i)=>sum+(i.lineDiscountCents ?? 0),0))}</dd></div>}
               {o.taxCents > 0 && <div className="flex justify-between"><dt>Tax</dt><dd>{money(o.taxCents)}</dd></div>}
               <div className="flex justify-between font-semibold"><dt>Total</dt><dd>{money(o.totalCents)}</dd></div>
               {o.labelCostCents != null && <div className="flex justify-between text-granite"><dt>Label cost</dt><dd>{money(o.labelCostCents)}</dd></div>}
@@ -70,6 +73,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             )}
             <p className="mt-2 text-sm">{o.email}</p>
           </section>
+          {pendingTasks.length > 0 && <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+            <h2 className="display text-3xl">Pending follow-ups</h2>
+            <ul className="mt-3 space-y-2 text-sm">{pendingTasks.map(t=><li key={t.id}><strong>{t.kind.replaceAll("_"," ")}</strong> · {t.attempts} attempts{t.lastError && <p className="text-granite">{t.lastError}</p>}</li>)}</ul>
+            <form action={retryOrderFollowups.bind(null,o.id)} className="mt-4"><button className="btn btn-line">Retry follow-ups</button></form>
+          </section>}
           <OrderStatusButtons id={o.id} status={o.status} stripePi={o.stripePaymentIntentId} />
         </div>
 

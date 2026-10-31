@@ -50,3 +50,6 @@ python scripts/check-seo-build.py
 ```
 
 Tests cover unit distinction/count boundaries, unknown-unit checkout blocking, price validation and duplicate cart rejection. Live database, Stripe payment/webhook, eBay and packing/email end-to-end checks still require configured services.
+
+
+The stacked `fix/atomic-paid-orders` change addresses the webhook claim/stock race, original paid-price snapshots and cart metadata size. See [ORDER-SAFETY.md](ORDER-SAFETY.md) for migration, verification and remaining live-service checks.

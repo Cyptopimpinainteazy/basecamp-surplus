@@ -66,7 +66,7 @@ export async function POST(req: Request) {
           name: p.title,
           description: p.category === "poles" ? poleSaleLabel(p.poleSpec)! : undefined,
           images: p.images.slice(0, 1).map((i) => i.url).filter((u) => u.startsWith("https://")),
-          metadata: { sku: p.sku, product_id: p.id },
+          metadata: { sku: p.sku, product_id: p.id, ...(p.category === "poles" ? {sale_unit: poleSaleLabel(p.poleSpec)!} : {}) },
         },
         tax_behavior: "exclusive",
       },
@@ -77,8 +77,7 @@ export async function POST(req: Request) {
     automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === "true" },
     allow_promotion_codes: true,
     metadata: {
-      items: JSON.stringify(lines.map((l) => ({ id: l.p.id, q: l.qty }))),
-      ...Object.fromEntries(lines.filter(l => l.p.category === "poles").map(l => [`u_${l.p.id}`, poleSaleLabel(l.p.poleSpec)!])),
+      schema_version: "2",
       shipping_method: shipping,
       package: pkg.id,
     },

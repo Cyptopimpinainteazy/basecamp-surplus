@@ -141,6 +141,10 @@ export type OrderItem = {
   quantity: number;
   unitCents: number;
   saleUnitLabel?: string;
+  lineSubtotalCents?: number;
+  lineDiscountCents?: number;
+  lineTaxCents?: number;
+  lineTotalCents?: number;
   image?: string;
 };
 export type Address = {
@@ -291,3 +295,17 @@ export const stockAdjustments = pgTable("stock_adjustments", {
   reason: text("reason").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("stock_adjustments_product_idx").on(t.productId, t.createdAt)]);
+
+
+/** Durable follow-up jobs; a failed remote call must not cause another stock deduction. */
+export const orderTasks=pgTable("order_tasks",{
+  id:uuid("id").primaryKey().defaultRandom(),
+  orderId:uuid("order_id").notNull().references(()=>orders.id),
+  kind:text("kind").notNull(),
+  attempts:integer("attempts").notNull().default(0),
+  leaseToken:uuid("lease_token"),
+  lockedUntil:timestamp("locked_until",{withTimezone:true}),
+  completedAt:timestamp("completed_at",{withTimezone:true}),
+  lastError:text("last_error"),
+  createdAt:timestamp("created_at",{withTimezone:true}).notNull().defaultNow(),
+},t=>[uniqueIndex("order_tasks_order_kind_idx").on(t.orderId,t.kind),index("order_tasks_pending_idx").on(t.completedAt,t.lockedUntil)]);

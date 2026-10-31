@@ -241,6 +241,7 @@ export async function purchaseLabel(orderId: string, rateId: string, presetId: s
   await requireAdmin();
   const [o] = await db.select().from(orders).where(eq(orders.id, orderId));
   if (!o) return { error: "Order not found." };
+  if (o.status !== "paid") return { error: "Resolve inventory and mark this order ready to ship before buying a label." };
   if (o.labelUrl) return { error: "A label was already bought for this order." };
   try {
     const rate = await getRate(rateId);
@@ -488,4 +489,12 @@ export async function attachProductPhotos(id: string, urls: string[]) {
   if (result.error) return { error: result.error };
   revalidateProduct(result.slug!);
   return { images: result.images };
+}
+
+/** Retry only durable follow-ups; this never allocates stock or creates another order. */
+export async function retryOrderFollowups(orderId: string) {
+  await requireAdmin();
+  const { runOrderTasks } = await import("@/lib/order-tasks");
+  await runOrderTasks(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
 }

@@ -3,6 +3,8 @@ import type Stripe from "stripe";
 import { createOrderFromCheckout } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) return new Response("STRIPE_WEBHOOK_SECRET not set", { status: 500 });

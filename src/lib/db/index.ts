@@ -2,7 +2,8 @@ import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-type DB = PostgresJsDatabase<typeof schema>;
+export type StoreDatabase = PostgresJsDatabase<typeof schema>;
+type DB = StoreDatabase;
 const globalForDb = globalThis as unknown as { pg?: ReturnType<typeof postgres>; db?: DB };
 
 // Connect lazily so importing this module (e.g. during `next build`) never needs the database.
