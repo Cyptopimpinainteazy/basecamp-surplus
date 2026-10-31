@@ -4,6 +4,7 @@ import { PoleSizeForm } from "@/components/pole-size-form";
 import { PolesTabs } from "@/components/poles-tabs";
 import { ProductCard } from "@/components/product-card";
 import { cmToIn, matchLabel, matchPoles } from "@/lib/pole-match";
+import { TentCandidates } from "@/components/tent-candidates";
 
 type SP = { shape?: string; arms?: string; length?: string; unit?: string; sections?: string; diameter?: string };
 type Props = { searchParams: Promise<SP> };
@@ -84,6 +85,12 @@ export default async function FindBySize({ searchParams }: Props) {
               </div>
             )}
           </>
+        )}
+
+        {matches && (
+          <div className="mt-10 max-w-3xl">
+            <TentCandidates diameterMm={num(sp.diameter)} shape={sp.shape} linkBase="/poles?model=" />
+          </div>
         )}
 
         <section className="mt-14 max-w-3xl" aria-labelledby="how">

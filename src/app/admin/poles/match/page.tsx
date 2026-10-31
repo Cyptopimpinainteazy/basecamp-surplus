@@ -3,6 +3,7 @@ import { PoleSizeForm } from "@/components/pole-size-form";
 import { money } from "@/lib/format";
 import { cmToIn, matchLabel, matchPoles } from "@/lib/pole-match";
 import { AddLoose, UnmatchedForm } from "./controls";
+import { TentCandidates } from "@/components/tent-candidates";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Match a loose pole" };
@@ -78,7 +79,10 @@ export default async function MatchLoosePole({ searchParams }: { searchParams: P
               </ul>
             )}
           </section>
-          <UnmatchedForm values={sp} />
+          <div className="space-y-6">
+            <TentCandidates diameterMm={num(sp.diameter)} shape={sp.shape} linkBase="/admin/products?q=" />
+            <UnmatchedForm values={sp} />
+          </div>
         </div>
       )}
     </div>

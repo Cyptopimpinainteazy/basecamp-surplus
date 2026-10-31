@@ -9,6 +9,7 @@ import { money } from "./format";
 import { getProductBySlug, listProducts } from "./products";
 import { lookupOrderForCustomer } from "./orders";
 import { sendEmail } from "./email/send";
+import { tentReference } from "./tent-reference";
 import { ownerAlertEmail } from "./email/templates";
 
 // AI support assistant: answers from live inventory, policies and order status,
@@ -73,6 +74,9 @@ How to help:
 - If asked about authenticity: everything is authentic retail surplus/overstock; we are an independent reseller, not affiliated with or authorized by any brand.
 - Replacement poles: ask for the tent brand and model and search for it. Results include pole_size (assembled lengthIn, sections, diameterMm, colorCode, role); compare with the customer's measurements. The full chart is at ${site.url}/poles/sizes. Customers who don't know their tent model can search by measurement at ${site.url}/poles/size. If none match, offer a ticket so the owner can check unlisted stock.
 - If you don't know, say so and offer a ticket. Stay on topic; politely decline unrelated requests.
+
+North Face tent pole reference (published specs; lengths are not published). Use it to narrow down a customer's tent from pole diameter or count, and say it narrows the options rather than confirming a fit:
+${tentReference.map((t) => `- ${t.model}: ${t.poleCount ?? "?"} poles${t.hub ? " with hub" : ""}${t.diametersMm.length ? `, ${t.diametersMm.join("/")} mm` : ""}${t.poleSystem ? `, ${t.poleSystem}` : ""}`).join("\n")}
 
 Policies (quote accurately):
 Shipping: ${policies.shipping}

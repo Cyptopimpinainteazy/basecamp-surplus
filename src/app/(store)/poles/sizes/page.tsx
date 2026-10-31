@@ -5,6 +5,7 @@ import { buildSafe } from "@/lib/build-safe";
 import { money, slugify } from "@/lib/format";
 import { poleSizeChart } from "@/lib/products";
 import { SizeFilter } from "./size-filter";
+import { confidenceLabel, tentReference } from "@/lib/tent-reference";
 
 export const revalidate = 600;
 
@@ -122,6 +123,47 @@ export default async function PoleSizesPage() {
             </div>
           </>
         )}
+
+        <section className="mt-16" aria-labelledby="ref">
+          <h2 id="ref" className="display text-4xl">North Face tent pole reference</h2>
+          <p className="mt-2 max-w-3xl text-granite">
+            Pole count, diameter and pole system for North Face tents, from archived manufacturer specs and retailer listings.
+            Diameter is the quickest way to narrow down an unlabeled pole. The North Face doesn&apos;t publish pole lengths, so
+            lengths come from the measured stock above.
+          </p>
+          <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+            <table className="w-full min-w-[820px] text-left text-sm [font-variant-numeric:tabular-nums]">
+              <thead className="border-b border-ice text-granite">
+                <tr>
+                  <th scope="col" className="p-3 font-medium">Tent</th>
+                  <th scope="col" className="p-3 font-medium">Sleeps</th>
+                  <th scope="col" className="p-3 font-medium">Poles</th>
+                  <th scope="col" className="p-3 font-medium">Diameter</th>
+                  <th scope="col" className="p-3 font-medium">Pole system</th>
+                  <th scope="col" className="p-3 font-medium">Notes</th>
+                  <th scope="col" className="p-3 font-medium">Source</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-ice">
+                {tentReference.map((t) => (
+                  <tr key={t.model} className="align-top">
+                    <th scope="row" className="p-3 text-left font-semibold">
+                      <Link href={`/poles?model=${encodeURIComponent(t.model)}`} className="hover:underline">{t.model.replace(/^The North Face /, "")}</Link>
+                    </th>
+                    <td className="p-3">{t.capacity ?? "–"}</td>
+                    <td className="p-3">{t.poleCount ?? "–"}{t.hub ? " + hub" : ""}</td>
+                    <td className="p-3">{t.diametersMm.length ? `${t.diametersMm.join(" / ")} mm` : "–"}</td>
+                    <td className="p-3">{t.poleSystem || "–"}</td>
+                    <td className="max-w-xs p-3 text-granite">{t.notes}</td>
+                    <td className="p-3">
+                      <a href={t.source.url} target="_blank" rel="noopener nofollow" className="underline">{confidenceLabel[t.confidence]}</a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <section className="mt-16 max-w-3xl" aria-labelledby="measure">
           <h2 id="measure" className="display text-4xl">How to measure a tent pole</h2>
