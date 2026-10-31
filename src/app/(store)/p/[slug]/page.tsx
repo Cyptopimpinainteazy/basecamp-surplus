@@ -10,6 +10,7 @@ import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, si
 import { money, savingsPercent, truncate } from "@/lib/format";
 import { getProductBySlug, relatedProducts } from "@/lib/products";
 import { reviewForProduct } from "@/lib/articles";
+import { toModel } from "@/lib/models";
 
 type Props = { params: Promise<{ slug: string }> };
 export const revalidate = 300;
@@ -177,7 +178,9 @@ export default async function ProductPage({ params }: Props) {
               <h2 className="display text-3xl">Fits these tents</h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 {p.fitment.map((f) => (
-                  <li key={f}>{f}</li>
+                  <li key={f}>
+                    <Link href={`/parts/${toModel(f).slug}`} className="underline underline-offset-2 hover:text-blaze-deep">{f}</Link>
+                  </li>
                 ))}
               </ul>
               {p.poleSpec?.role && <p className="mt-2 text-granite">Position: {p.poleSpec.role}</p>}

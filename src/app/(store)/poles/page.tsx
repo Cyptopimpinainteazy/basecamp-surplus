@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
+import { permanentRedirect } from "next/navigation";
+import { modelForQuery } from "@/lib/models";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
 import { PolesTabs } from "@/components/poles-tabs";
@@ -58,6 +60,11 @@ function partGroups(items: Product[]) {
 
 export default async function PolesPage({ searchParams }: Props) {
   const { model } = await searchParams;
+  // Known models have a permanent parts page; send searches there.
+  if (model) {
+    const known = await modelForQuery(model);
+    if (known) permanentRedirect(`/parts/${known.slug}`);
+  }
   const [index, results, all] = await Promise.all([
     poleFitmentIndex(),
     model ? polesForModel(model) : Promise.resolve(null),

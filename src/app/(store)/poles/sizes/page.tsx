@@ -7,6 +7,7 @@ import { poleSizeChart } from "@/lib/products";
 import { SizeFilter } from "./size-filter";
 import { confidenceLabel, tentReference } from "@/lib/tent-reference";
 import { reviewLinker } from "@/lib/articles";
+import { toModel } from "@/lib/models";
 
 export const revalidate = 600;
 
@@ -68,7 +69,7 @@ export default async function PoleSizesPage() {
                   <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
                     <h2 id={`h-${slugify(g.tent)}`} className="display text-4xl">{g.tent}</h2>
                     {g.tent !== "Unmatched poles" && (
-                      <Link href={`/poles?model=${encodeURIComponent(g.tent)}`} className="text-sm font-semibold underline underline-offset-4">
+                      <Link href={`/parts/${toModel(g.tent).slug}`} className="text-sm font-semibold underline underline-offset-4">
                         Shop poles for this tent
                       </Link>
                     )}
@@ -151,7 +152,7 @@ export default async function PoleSizesPage() {
                 {tentReference.map((t) => (
                   <tr key={t.model} className="align-top">
                     <th scope="row" className="p-3 text-left font-semibold">
-                      <Link href={`/poles?model=${encodeURIComponent(t.model)}`} className="hover:underline">{t.model.replace(/^The North Face /, "")}</Link>
+                      <Link href={`/parts/${toModel(t.model).slug}`} className="hover:underline">{t.model.replace(/^The North Face /, "")}</Link>
                     </th>
                     <td className="p-3">{t.capacity ?? "–"}</td>
                     <td className="p-3">{t.poleCount ?? "–"}{t.hub ? " + hub" : ""}</td>
