@@ -1,18 +1,14 @@
 import { inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { checkoutBody, orderableProblem } from "@/lib/checkout-rules";
+import { poleSaleLabel } from "@/lib/pole-sale";
 import { getPackagePreset, shippingPolicy, site } from "@/lib/config";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { stripe } from "@/lib/stripe";
 
-const body = z.object({
-  items: z.array(z.object({ id: z.string().uuid(), qty: z.number().int().min(1).max(20) })).min(1).max(30),
-  shipping: z.enum(["standard", "expedited"]).default("standard"),
-});
-
 export async function POST(req: Request) {
-  const parsed = body.safeParse(await req.json().catch(() => null));
+  const parsed = checkoutBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Your cart couldn't be read. Refresh and try again." }, { status: 400 });
   const { items, shipping } = parsed.data;
 
@@ -24,6 +20,8 @@ export async function POST(req: Request) {
       problems.push(`${p?.title ?? "An item"} just sold. Remove it from your cart to continue.`);
       return [];
     }
+    const problem = orderableProblem(p);
+    if (problem) { problems.push(`${p.title}: ${problem}`); return []; }
     if (p.quantity < i.qty) {
       problems.push(`Only ${p.quantity} left of ${p.title}. Lower the quantity to continue.`);
       return [];
@@ -66,6 +64,7 @@ export async function POST(req: Request) {
         unit_amount: p.priceCents,
         product_data: {
           name: p.title,
+          description: p.category === "poles" ? poleSaleLabel(p.poleSpec)! : undefined,
           images: p.images.slice(0, 1).map((i) => i.url).filter((u) => u.startsWith("https://")),
           metadata: { sku: p.sku, product_id: p.id },
         },
@@ -79,6 +78,7 @@ export async function POST(req: Request) {
     allow_promotion_codes: true,
     metadata: {
       items: JSON.stringify(lines.map((l) => ({ id: l.p.id, q: l.qty }))),
+      ...Object.fromEntries(lines.filter(l => l.p.category === "poles").map(l => [`u_${l.p.id}`, poleSaleLabel(l.p.poleSpec)!])),
       shipping_method: shipping,
       package: pkg.id,
     },

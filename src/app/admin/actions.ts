@@ -14,6 +14,7 @@ import { buyLabel, getRate, getRates } from "@/lib/shipping";
 import { markOrderShipped } from "@/lib/orders";
 import { requireAdmin } from "@/lib/require-admin";
 import { pushToEbay, syncStock, upsertListing } from "@/lib/channels/sync";
+import { parsePoleSale } from "@/lib/pole-sale";
 import { parseStockCount } from "@/lib/stock-rules";
 import { slugify } from "@/lib/format";
 import { importEbayOrders } from "@/lib/orders";
@@ -83,9 +84,14 @@ export async function saveProduct(_: unknown, form: FormData) {
     return Number.isFinite(n) && n > 0 ? n : undefined;
   };
   const txt = (k: string) => String(form.get(k) ?? "").trim() || undefined;
+  const poleSale = parsePoleSale(form.get("poleSaleUnit"), form.get("poleAssemblies"));
+  const publishing = String(form.get("intent")) === "publish" || current.status === "active";
+  if (category === "poles" && publishing && !poleSale) return { error: "Confirm whether this listing sells a loose section, one assembly or a full set. Full sets need an assembly count (1–100)." };
   const poleSpec =
     category === "poles"
       ? {
+          saleUnit: poleSale?.saleUnit,
+          assembliesIncluded: poleSale?.assembliesIncluded,
           lengthIn: num("poleLengthIn"),
           sections: num("poleSections"),
           packedLengthIn: num("polePackedIn"),

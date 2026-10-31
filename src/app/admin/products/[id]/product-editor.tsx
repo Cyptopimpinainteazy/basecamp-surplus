@@ -154,7 +154,12 @@ export function ProductEditor({
         )}
         {p.category === "poles" && (
           <fieldset className="rounded-md border-[1.5px] border-ice p-4">
-            <legend className="px-1 text-sm font-semibold">Pole size (shows in the public Pole sizes chart)</legend>
+            <legend className="px-1 text-sm font-semibold">Pole sale unit & measurements</legend>
+            <div className="mb-5 grid gap-4 sm:grid-cols-2">
+              <Select label="What does one purchase include?" name="poleSaleUnit" defaultValue={p.poleSpec?.saleUnit ?? ""} options={[{value:"",label:"Choose before publishing"},{value:"section",label:"One loose pole section"},{value:"assembly",label:"One complete pole assembly"},{value:"set",label:"Full tent pole set"}]} />
+              <Field label="Assemblies in a full set" name="poleAssemblies" type="number" defaultValue={p.poleSpec?.assembliesIncluded} hint="Full sets only. Count complete assemblies, not individual sections." />
+            </div>
+            <p className="mb-4 text-sm text-granite">Stock quantity counts the sale units chosen above. Do not list a full set and its component poles as separate available stock at the same time. Splitting a set requires removing it from set inventory first.</p>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <label className="label" htmlFor="poleShape">Type</label>

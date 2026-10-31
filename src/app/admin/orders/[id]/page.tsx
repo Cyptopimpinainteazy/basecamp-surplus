@@ -46,6 +46,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   <div>
                     <p className="font-semibold">{i.quantity} × {i.title}</p>
                     <p className="font-mono text-xs text-granite">{i.sku}</p>
+                    {i.saleUnitLabel && <p className="mt-1 text-sm font-semibold">{i.saleUnitLabel}</p>}
                   </div>
                   <span className="ml-auto">{money(i.unitCents * i.quantity)}</span>
                 </li>

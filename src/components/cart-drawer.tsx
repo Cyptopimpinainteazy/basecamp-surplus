@@ -109,6 +109,7 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
                     <Link href={`/p/${l.slug}`} onClick={() => setOpen(false)} className="line-clamp-2 font-semibold hover:underline">
                       {l.title}
                     </Link>
+                    {l.saleUnitLabel && <p className="mt-1 text-xs text-granite">{l.saleUnitLabel}</p>}
                     <p className="mt-1 font-semibold">{fmt(l.priceCents)}</p>
                     <div className="mt-2 flex items-center gap-3 text-sm">
                       {l.max > 1 ? (

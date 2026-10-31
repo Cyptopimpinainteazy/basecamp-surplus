@@ -20,7 +20,7 @@ function itemsTable(order: Order) {
   const rows = order.items
     .map(
       (i) =>
-        `<tr><td style="padding:8px 0;border-bottom:1px solid #e3e8ea">${esc(i.title)}${i.quantity > 1 ? ` × ${i.quantity}` : ""}</td><td align="right" style="padding:8px 0;border-bottom:1px solid #e3e8ea">${money(i.unitCents * i.quantity)}</td></tr>`,
+        `<tr><td style="padding:8px 0;border-bottom:1px solid #e3e8ea">${esc(i.title)}${i.saleUnitLabel ? `<br><small>${esc(i.saleUnitLabel)}</small>` : ""}${i.quantity > 1 ? ` × ${i.quantity}` : ""}</td><td align="right" style="padding:8px 0;border-bottom:1px solid #e3e8ea">${money(i.unitCents * i.quantity)}</td></tr>`,
     )
     .join("");
   return `<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px">${rows}

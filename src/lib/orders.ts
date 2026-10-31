@@ -40,7 +40,7 @@ export async function createOrderFromCheckout(session: Stripe.Checkout.Session) 
   const items: OrderItem[] = cart.map((c) => {
     const p = rows.find((r) => r.id === c.id);
     if (!p) throw new Error(`Product ${c.id} in session ${session.id} no longer exists`);
-    return { productId: p.id, sku: p.sku, title: p.title, quantity: c.q, unitCents: p.priceCents, image: p.images[0]?.url };
+    return { productId: p.id, sku: p.sku, title: p.title, quantity: c.q, unitCents: p.priceCents, saleUnitLabel: session.metadata?.[`u_${p.id}`] || undefined, image: p.images[0]?.url };
   });
 
   const ship = session.collected_information?.shipping_details;

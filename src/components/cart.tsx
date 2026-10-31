@@ -8,6 +8,7 @@ export type CartLine = {
   title: string;
   priceCents: number;
   image?: string;
+  saleUnitLabel?: string;
   qty: number;
   max: number;
 };

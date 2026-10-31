@@ -43,6 +43,9 @@ export const ticketStatus = pgEnum("ticket_status", ["open", "waiting", "closed"
 export type ProductImage = { url: string; alt: string; width?: number; height?: number };
 export type Spec = { label: string; value: string };
 export type PoleSpec = {
+  /** One sale unit: a loose section, a complete assembly, or a full tent set. */
+  saleUnit?: "section" | "assembly" | "set";
+  assembliesIncluded?: number;
   sections?: number;
   /** Assembled length, tip to tip, measured straight. */
   lengthIn?: number;
@@ -137,6 +140,7 @@ export type OrderItem = {
   title: string;
   quantity: number;
   unitCents: number;
+  saleUnitLabel?: string;
   image?: string;
 };
 export type Address = {

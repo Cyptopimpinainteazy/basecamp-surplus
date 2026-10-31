@@ -1,4 +1,6 @@
 import "server-only";
+import { orderableProblem } from "../checkout-rules";
+import { poleSaleLabel } from "../pole-sale";
 import { productIdentifiers } from "../product-identifiers";
 import { getCategory, getCondition, shippingPolicy, site } from "../config";
 import type { Product } from "../db/schema";
@@ -12,7 +14,7 @@ const genderMap: Record<string, string> = { mens: "male", womens: "female", unis
 
 export function productFeedXml(items: Product[]) {
   const entries = items
-    .filter((p) => p.images.length > 0 && p.priceCents > 0)
+    .filter((p) => p.images.length > 0 && p.priceCents > 0 && !orderableProblem(p))
     .map((p) => {
       const identifiers = productIdentifiers(p.specs ?? []);
       const cat = getCategory(p.category);
@@ -21,7 +23,7 @@ export function productFeedXml(items: Product[]) {
       const inStock = p.status === "active" && p.quantity > 0;
       const bulky = shippingPolicy.bulkyCategories.includes(p.category);
       const shipCents = p.priceCents >= shippingPolicy.freeThresholdCents ? 0 : bulky ? shippingPolicy.standardCents.bulky : shippingPolicy.standardCents.light;
-      const description = [p.description, p.conditionNotes && `Condition: ${p.conditionNotes}`, p.fitment.length && `Fits: ${p.fitment.join(", ")}`]
+      const description = [p.category === "poles" ? `One purchase includes: ${poleSaleLabel(p.poleSpec)}` : "", p.description, p.conditionNotes && `Condition: ${p.conditionNotes}`, p.fitment.length && `Fits: ${p.fitment.join(", ")}`]
         .filter(Boolean)
         .join("\n\n");
       const fields: [string, string | undefined][] = [

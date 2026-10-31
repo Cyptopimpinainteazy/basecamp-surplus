@@ -1,3 +1,4 @@
+import { poleSaleLabel } from "../pole-sale";
 import { getCategory, getCondition, site } from "../config";
 import type { Product } from "../db/schema";
 import { truncate } from "../format";
@@ -30,6 +31,7 @@ export function listingPack(p: Product, channel: ManualChannelId) {
   const ch = manualChannels.find((c) => c.id === channel)!;
   const cond = getCondition(p.condition);
   const lines = [
+    p.category === "poles" ? `One purchase includes: ${poleSaleLabel(p.poleSpec) ?? "UNCONFIRMED — do not publish until reviewed"}` : "",
     p.description,
     p.highlights.length ? p.highlights.map((h) => `• ${h}`).join("\n") : "",
     `Condition: ${cond.label}${p.conditionNotes ? `. ${p.conditionNotes}` : ""}`,

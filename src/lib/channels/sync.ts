@@ -1,4 +1,5 @@
 import "server-only";
+import { orderableProblem } from "../checkout-rules";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { channelListings, products, type Channel, type Product } from "../db/schema";
@@ -25,6 +26,8 @@ export async function upsertListing(
 }
 
 export async function pushToEbay(p: Product) {
+  const problem = orderableProblem(p);
+  if (problem) return {ok:false as const,error:problem};
   const [existing] = await db
     .select()
     .from(channelListings)

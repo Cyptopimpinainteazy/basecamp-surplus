@@ -8,6 +8,8 @@ import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
 import { money, savingsPercent, truncate } from "@/lib/format";
 import { complementaryProducts, getProductBySlug, relatedProducts } from "@/lib/products";
+import { poleSaleLabel } from "@/lib/pole-sale";
+import { orderableProblem } from "@/lib/checkout-rules";
 import { productIdentifiers } from "@/lib/product-identifiers";
 import { reviewForProduct } from "@/lib/articles";
 
@@ -40,6 +42,8 @@ export default async function ProductPage({ params }: Props) {
   const cat = getCategory(p.category);
   const cond = getCondition(p.condition);
   const available = p.status === "active" && p.quantity > 0;
+  const saleLabel = p.category === "poles" ? poleSaleLabel(p.poleSpec) : null;
+  const purchaseProblem = orderableProblem(p);
   const save = savingsPercent(p.priceCents, p.msrpCents);
   const url = `${site.url}/p/${p.slug}`;
   const bulky = shippingPolicy.bulkyCategories.includes(p.category);
@@ -68,7 +72,7 @@ export default async function ProductPage({ params }: Props) {
               url,
               priceCurrency: "USD",
               price: (p.priceCents / 100).toFixed(2),
-              availability: available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+              availability: available && !purchaseProblem ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
               itemCondition: isNewCondition(p.condition) ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
               seller: { "@type": "Organization", name: site.name },
               shippingDetails: {
@@ -138,10 +142,12 @@ export default async function ProductPage({ params }: Props) {
           </div>
           <p className="mt-3 text-granite">{p.conditionNotes || cond.detail}</p>
 
+          {p.category === "poles" && <div className="mt-5 rounded-md border border-spruce/20 bg-lichen/30 p-4"><p className="text-xs font-semibold uppercase tracking-widest text-granite">One purchase includes</p><p className="mt-2 font-semibold">{saleLabel ?? "Sale unit needs confirmation"}</p><p className="mt-2 text-sm text-granite">{saleLabel ? "Quantity 1 buys the unit described above. Check the included-parts photos and model generation." : "Ask us to confirm whether this listing is a section, one assembly or a full tent set before ordering."}</p></div>}
           <div className="mt-6">
             <AddToCart
-              disabled={!available}
-              line={{ id: p.id, slug: p.slug, title: p.title, priceCents: p.priceCents, image: p.images[0]?.url, max: p.quantity }}
+              disabled={!available || Boolean(purchaseProblem)}
+              disabledLabel={available && purchaseProblem ? "Listing needs confirmation" : "Sold out"}
+              line={{ id: p.id, slug: p.slug, title: p.title, priceCents: p.priceCents, image: p.images[0]?.url, max: p.quantity, saleUnitLabel: saleLabel ?? undefined }}
             />
             <p className="mt-3 text-sm text-granite">
               {available
