@@ -101,10 +101,10 @@ export default async function PolesPage({ searchParams }: Props) {
         {review && (
           <Link
             href={`/reviews/${review.slug}`}
-            className="mb-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-spruce/20 bg-snow p-4 hover:border-spruce"
+            className="mb-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-accent/20 bg-card p-4 hover:border-accent"
           >
             <span>
-              <span className="block text-sm text-granite">Read our review</span>
+              <span className="block text-sm text-muted">Read our review</span>
               <span className="font-semibold">{review.title}</span>
             </span>
             <span className="shrink-0 text-sm font-semibold text-blaze-deep">Specs, poles &amp; fit</span>
@@ -128,9 +128,9 @@ export default async function PolesPage({ searchParams }: Props) {
                 </div>
               </>
             ) : (
-              <div className="rounded-[var(--radius-tag)] bg-snow p-8">
+              <div className="rounded-[var(--radius-tag)] bg-card p-8">
                 <p className="text-lg font-semibold">Nothing listed for “{model}” yet.</p>
-                <p className="mt-1 max-w-xl text-granite">
+                <p className="mt-1 max-w-xl text-muted">
                   We&apos;re still listing about a thousand pole sets plus flies, footprints and stakes. Open the Help chat with
                   your tent model and a photo of what you need, and we&apos;ll check the unlisted stock.
                 </p>
@@ -154,9 +154,9 @@ export default async function PolesPage({ searchParams }: Props) {
                 <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                   {index.map((m) => (
                     <li key={m.model}>
-                      <Link href={`/poles?model=${encodeURIComponent(m.model)}`} className="flex justify-between gap-4 border-b border-ice py-2 hover:text-blaze-deep">
+                      <Link href={`/poles?model=${encodeURIComponent(m.model)}`} className="flex justify-between gap-4 border-b border-line py-2 hover:text-blaze-deep">
                         <span>{m.model}</span>
-                        <span className="text-granite">{m.count}</span>
+                        <span className="text-muted">{m.count}</span>
                       </Link>
                     </li>
                   ))}
@@ -164,7 +164,7 @@ export default async function PolesPage({ searchParams }: Props) {
               </section>
             )}
             <h2 className="display mb-5 text-4xl">All poles in stock</h2>
-            {all.length > 0 ? <ProductGrid items={all} /> : <p className="text-granite">Poles are being sorted and photographed now.</p>}
+            {all.length > 0 ? <ProductGrid items={all} /> : <p className="text-muted">Poles are being sorted and photographed now.</p>}
           </>
         )}
 
@@ -174,7 +174,7 @@ export default async function PolesPage({ searchParams }: Props) {
             <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
               {guides.map((g) => (
                 <li key={g.slug}>
-                  <Link href={`/reviews/${g.slug}`} className="block border-b border-ice py-2 hover:text-blaze-deep">{g.subject.replace(/^The North Face /, "")}</Link>
+                  <Link href={`/reviews/${g.slug}`} className="block border-b border-line py-2 hover:text-blaze-deep">{g.subject.replace(/^The North Face /, "")}</Link>
                 </li>
               ))}
             </ul>
@@ -183,13 +183,13 @@ export default async function PolesPage({ searchParams }: Props) {
 
         <section className="mt-16 max-w-3xl" aria-labelledby="faq">
           <h2 id="faq" className="display text-4xl">Matching a replacement pole</h2>
-          <div className="prose-gear mt-4 text-granite">
+          <div className="prose-gear mt-4 text-muted">
             <p>Most tent poles carry a printed sleeve or tag with the tent model and the pole&apos;s position (main, brow, fly). Search that model above.</p>
             <p>No tag? Measure the assembled length and count the sections, then send both through the Help chat with a photo. We&apos;ll match it.</p>
           </div>
         </section>
         {polesHost && (
-          <p className="mt-10 text-granite">
+          <p className="mt-10 text-muted">
             {site.polesName} is the tent pole shop of <a href={site.url} className="underline">{site.name}</a>, shipping from Denver.
           </p>
         )}

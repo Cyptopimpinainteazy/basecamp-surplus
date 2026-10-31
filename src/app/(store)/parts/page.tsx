@@ -37,9 +37,9 @@ export default async function PartsIndex() {
         <ul className="grid gap-x-8 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
           {models.map((m, i) => (
             <li key={m.slug}>
-              <Link href={`/parts/${m.slug}`} className="flex justify-between gap-4 border-b border-ice py-2.5 hover:text-blaze-deep">
+              <Link href={`/parts/${m.slug}`} className="flex justify-between gap-4 border-b border-line py-2.5 hover:text-blaze-deep">
                 <span>{m.display}</span>
-                <span className="text-granite">{counts[i] ? `${counts[i]} in stock` : ""}</span>
+                <span className="text-muted">{counts[i] ? `${counts[i]} in stock` : ""}</span>
               </Link>
             </li>
           ))}

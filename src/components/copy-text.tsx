@@ -19,7 +19,7 @@ export function CopyText({ text }: { text: string }) {
             /* clipboard unavailable: text is still selectable */
           }
         }}
-        className="rounded-md border-[1.5px] border-ice px-2.5 py-0.5 text-sm hover:border-spruce"
+        className="rounded-md border-[1.5px] border-line px-2.5 py-0.5 text-sm hover:border-accent"
       >
         {done ? "Copied" : "Copy"}
       </button>

@@ -36,25 +36,25 @@ export default async function CompareIndex() {
       </section>
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
         {list.length === 0 ? (
-          <p className="text-granite">Comparisons appear here once both tents&apos; reviews are published.</p>
+          <p className="text-muted">Comparisons appear here once both tents&apos; reviews are published.</p>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="reveal-stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((c) => (
               <li key={c.slug}>
                 <Link href={`/compare/${c.slug}`} className="tag-card flex h-full flex-col p-6 transition hover:-translate-y-0.5">
                   <span className="display text-3xl">
                     {c.A.short} <span className="text-blaze">vs</span> {c.B.short}
                   </span>
-                  <span className="mt-2 flex-1 text-granite">{c.summary}</span>
+                  <span className="mt-2 flex-1 text-muted">{c.summary}</span>
                   <span className="mt-4 text-sm font-semibold underline underline-offset-4">Compare</span>
                 </Link>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-10 text-granite">
-          Looking at one tent? Read the <Link href="/reviews" className="font-semibold text-ink underline">tent reviews</Link> or find{" "}
-          <Link href="/parts" className="font-semibold text-ink underline">poles and parts by model</Link>.
+        <p className="mt-10 text-muted">
+          Looking at one tent? Read the <Link href="/reviews" className="font-semibold text-fg underline">tent reviews</Link> or find{" "}
+          <Link href="/parts" className="font-semibold text-fg underline">poles and parts by model</Link>.
         </p>
       </div>
     </>

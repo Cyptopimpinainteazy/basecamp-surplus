@@ -34,7 +34,7 @@ export default async function EditProduct({ params, searchParams }: Props) {
         <Link href={`/admin/reviews/new?subject=${encodeURIComponent(`${p.brand} ${p.model}`.trim())}`} className="underline">Write a review of this model</Link>
       </p>
       <h1 className="display text-5xl">{p.title}</h1>
-      <p className="mt-1 text-granite">
+      <p className="mt-1 text-muted">
         <span className="font-mono">{p.sku}</span> · <span className="capitalize">{p.status.replace("_", " ")}</span>
       </p>
 

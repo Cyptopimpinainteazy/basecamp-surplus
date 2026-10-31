@@ -134,11 +134,11 @@ export function PolePhotoForm({ defaults }: { defaults?: { tent?: string } }) {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="sm:col-span-2 lg:col-span-3">
             <label htmlFor="tent" className={label}>Tent name, if you know it</label>
-            <input id="tent" name="tent" maxLength={80} defaultValue={defaults?.tent} className="field h-12 text-ink" placeholder="Stormbreak 2" />
+            <input id="tent" name="tent" maxLength={80} defaultValue={defaults?.tent} className="field h-12 text-fg" placeholder="Stormbreak 2" />
           </div>
           <div>
             <label htmlFor="shape" className={label}>Type</label>
-            <select id="shape" name="shape" value={shape} onChange={(e) => setShape(e.target.value)} className="field h-12 text-ink">
+            <select id="shape" name="shape" value={shape} onChange={(e) => setShape(e.target.value)} className="field h-12 text-fg">
               <option value="">Not sure</option>
               <option value="straight">Straight pole</option>
               <option value="prebent">Pre-bent pole</option>
@@ -148,8 +148,8 @@ export function PolePhotoForm({ defaults }: { defaults?: { tent?: string } }) {
           <div>
             <label htmlFor="length" className={label}>Assembled length</label>
             <div className="flex gap-2">
-              <input id="length" name="length" type="number" step="0.1" min="5" max="600" className="field h-12 text-ink" placeholder="141" />
-              <select name="unit" defaultValue="in" aria-label="Unit" className="field h-12 w-20 text-ink">
+              <input id="length" name="length" type="number" step="0.1" min="5" max="600" className="field h-12 text-fg" placeholder="141" />
+              <select name="unit" defaultValue="in" aria-label="Unit" className="field h-12 w-20 text-fg">
                 <option value="in">in</option>
                 <option value="cm">cm</option>
               </select>
@@ -157,16 +157,16 @@ export function PolePhotoForm({ defaults }: { defaults?: { tent?: string } }) {
           </div>
           <div>
             <label htmlFor="sections" className={label}>Sections</label>
-            <input id="sections" name="sections" type="number" min="1" max="20" className="field h-12 text-ink" placeholder="9" />
+            <input id="sections" name="sections" type="number" min="1" max="20" className="field h-12 text-fg" placeholder="9" />
           </div>
           <div>
             <label htmlFor="diameter" className={label}>Diameter (mm)</label>
-            <input id="diameter" name="diameter" type="number" step="0.05" min="3" max="25" className="field h-12 text-ink" placeholder="9.5" />
+            <input id="diameter" name="diameter" type="number" step="0.05" min="3" max="25" className="field h-12 text-fg" placeholder="9.5" />
           </div>
           {shape === "hub" && (
             <div>
               <label htmlFor="arms" className={label}>Hub legs</label>
-              <input id="arms" name="arms" type="number" min="2" max="8" className="field h-12 text-ink" placeholder="4" />
+              <input id="arms" name="arms" type="number" min="2" max="8" className="field h-12 text-fg" placeholder="4" />
             </div>
           )}
         </div>

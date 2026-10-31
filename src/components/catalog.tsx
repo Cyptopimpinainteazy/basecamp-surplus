@@ -45,7 +45,7 @@ export async function Catalog({ path, sp, base, sizeCategory }: { path: string; 
   ]);
   const pages = Math.ceil(total / PAGE);
   const chip = (active: boolean) =>
-    `rounded-full px-3.5 py-1.5 text-sm font-medium border-[1.5px] ${active ? "border-spruce bg-spruce text-glacier" : "border-ice bg-snow hover:border-spruce"}`;
+    `rounded-full px-3.5 py-1.5 text-sm font-medium border-[1.5px] ${active ? "border-accent bg-spruce text-glacier" : "border-line bg-card hover:border-accent"}`;
 
   return (
     <div>
@@ -54,7 +54,7 @@ export async function Catalog({ path, sp, base, sizeCategory }: { path: string; 
           <Link href={hrefWith(path, sp, { condition: undefined })} className={chip(!q.condition)}>All</Link>
           <Link href={hrefWith(path, sp, { condition: "new" })} className={chip(q.condition === "new")}>New</Link>
           <Link href={hrefWith(path, sp, { condition: "used" })} className={chip(q.condition === "used")}>Pre-owned</Link>
-          {sizes.length > 0 && <span className="mx-1 w-px self-stretch bg-ice" aria-hidden />}
+          {sizes.length > 0 && <span className="mx-1 w-px self-stretch bg-line" aria-hidden />}
           {sizes.map((s) => (
             <Link key={s} href={hrefWith(path, sp, { size: q.size === s ? undefined : s })} className={chip(q.size === s)}>
               {s}
@@ -65,7 +65,7 @@ export async function Catalog({ path, sp, base, sizeCategory }: { path: string; 
           {Object.entries(sp).map(([k, v]) =>
             k !== "sort" && k !== "page" && one(v) ? <input key={k} type="hidden" name={k} value={one(v)} /> : null,
           )}
-          <label htmlFor="sort" className="text-sm text-granite">Sort</label>
+          <label htmlFor="sort" className="text-sm text-muted">Sort</label>
           <select id="sort" name="sort" defaultValue={q.sort} className="field h-10 min-h-0 w-auto py-0">
             <option value="new">Newest</option>
             <option value="savings">Biggest savings</option>
@@ -75,16 +75,16 @@ export async function Catalog({ path, sp, base, sizeCategory }: { path: string; 
           <button className="btn btn-line h-10 min-h-0 px-3 text-sm">Apply</button>
         </form>
       </div>
-      <p className="mb-4 text-granite" aria-live="polite">
+      <p className="mb-4 text-muted" aria-live="polite">
         {total} {total === 1 ? "item" : "items"}
         {q.q ? ` matching “${q.q}”` : ""}
       </p>
       {items.length > 0 ? (
         <ProductGrid items={items} />
       ) : (
-        <div className="rounded-[var(--radius-tag)] bg-snow p-8">
+        <div className="rounded-[var(--radius-tag)] bg-card p-8">
           <p className="text-lg font-semibold">Nothing matches those filters right now.</p>
-          <p className="mt-1 text-granite">Clear a filter, or ask the Help chat. We may have it in the back room.</p>
+          <p className="mt-1 text-muted">Clear a filter, or ask the Help chat. We may have it in the back room.</p>
           <Link href={path} className="btn btn-spruce mt-4">Clear filters</Link>
         </div>
       )}
@@ -95,7 +95,7 @@ export async function Catalog({ path, sp, base, sizeCategory }: { path: string; 
               key={n}
               href={hrefWith(path, sp, { page: n === 1 ? undefined : String(n) })}
               aria-current={n === q.page ? "page" : undefined}
-              className={`grid h-10 min-w-10 place-items-center rounded-md px-3 ${n === q.page ? "bg-spruce text-glacier" : "bg-snow hover:bg-ice"}`}
+              className={`grid h-10 min-w-10 place-items-center rounded-md px-3 ${n === q.page ? "bg-spruce text-glacier" : "bg-card hover:bg-line"}`}
             >
               {n}
             </Link>

@@ -43,7 +43,7 @@ export function WholesaleForm() {
     return <p className="rounded-[var(--radius-tag)] bg-lichen/60 p-6 text-lg font-semibold" role="status">{state.ok}</p>;
   }
   return (
-    <form onSubmit={submit} className="grid gap-4 rounded-[var(--radius-tag)] bg-snow p-6 sm:grid-cols-2">
+    <form onSubmit={submit} className="grid gap-4 rounded-[var(--radius-tag)] bg-card p-6 sm:grid-cols-2">
       <div>
         <label htmlFor="name" className="label">Your name</label>
         <input id="name" name="name" required minLength={2} className="field" autoComplete="name" />
@@ -75,7 +75,7 @@ export function WholesaleForm() {
         <legend className="label">Interested in</legend>
         <div className="flex flex-wrap gap-2">
           {interests.map((i) => (
-            <label key={i} className="flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-ice px-3 py-1.5 text-sm has-[:checked]:border-spruce has-[:checked]:bg-glacier">
+            <label key={i} className="flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-line px-3 py-1.5 text-sm has-[:checked]:border-accent has-[:checked]:bg-page">
               <input type="checkbox" name="interest" value={i} /> {i}
             </label>
           ))}

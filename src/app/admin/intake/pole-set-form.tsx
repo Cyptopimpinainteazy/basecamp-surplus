@@ -75,8 +75,8 @@ export function PoleSetForm() {
           <input ref={camera} type="file" accept="image/*" capture="environment" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
           <input ref={library} type="file" accept="image/*,.heic,.heif" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
         </div>
-        <ul className="mt-4 grid min-h-32 grid-cols-3 gap-3 rounded-[var(--radius-tag)] border-2 border-dashed border-ice bg-snow p-3 sm:grid-cols-4">
-          {shots.length === 0 && <li className="col-span-full grid place-items-center text-granite">Photos of this pole kit show up here.</li>}
+        <ul className="mt-4 grid min-h-32 grid-cols-3 gap-3 rounded-[var(--radius-tag)] border-2 border-dashed border-line bg-card p-3 sm:grid-cols-4">
+          {shots.length === 0 && <li className="col-span-full grid place-items-center text-muted">Photos of this pole kit show up here.</li>}
           {shots.map((s, i) => (
             <li key={s.id}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -87,9 +87,9 @@ export function PoleSetForm() {
         </ul>
 
         {done.length > 0 && (
-          <div className="mt-6 rounded-[var(--radius-tag)] bg-snow p-4">
+          <div className="mt-6 rounded-[var(--radius-tag)] bg-card p-4">
             <p className="font-semibold">Done this session</p>
-            <ul className="mt-2 divide-y divide-ice">
+            <ul className="mt-2 divide-y divide-line">
               {done.map((d, i) => (
                 <li key={i} className="py-2 text-sm">
                   <span className="font-semibold">{d.tent}</span>: {d.ids.length} pole {d.ids.length === 1 ? "listing" : "listings"} drafted.{" "}
@@ -103,7 +103,7 @@ export function PoleSetForm() {
         )}
       </section>
 
-      <section className="h-fit space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="h-fit space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
         <div>
           <label htmlFor="tentHint" className="label">Tent model (optional)</label>
           <input id="tentHint" value={tentHint} onChange={(e) => setTentHint(e.target.value)} className="field" placeholder="Read from labels if blank" />
@@ -122,7 +122,7 @@ export function PoleSetForm() {
             </select>
           </div>
         </div>
-        <p className="-mt-2 text-xs text-granite">Stock for each pole = sets × how many of that pole one tent uses.</p>
+        <p className="-mt-2 text-xs text-muted">Stock for each pole = sets × how many of that pole one tent uses.</p>
         <div>
           <label htmlFor="pnotes" className="label">Notes for the AI</label>
           <textarea id="pnotes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="field" placeholder="e.g. the two long gray poles are identical" />
@@ -131,7 +131,7 @@ export function PoleSetForm() {
         <button type="button" onClick={submit} disabled={busy || !shots.length} className="btn btn-blaze w-full text-lg">
           {phase === "uploading" ? `Uploading ${progress}%` : phase === "reading" ? "Reading the pole kit…" : "List this pole set"}
         </button>
-        <p className="text-sm text-granite">Lengths are only filled in when the tape or a label is readable. Anything missing is flagged for you to check.</p>
+        <p className="text-sm text-muted">Lengths are only filled in when the tape or a label is readable. Anything missing is flagged for you to check.</p>
       </section>
     </div>
   );

@@ -28,23 +28,23 @@ export default function Contact() {
           contactPoint: { "@type": "ContactPoint", contactType: "customer service", email: site.supportEmail, availableLanguage: "English" },
         }}
       />
-      <dl className="not-prose grid gap-5 rounded-[var(--radius-tag)] bg-snow p-6">
+      <dl className="not-prose grid gap-5 rounded-[var(--radius-tag)] bg-card p-6">
         <div>
-          <dt className="text-sm font-semibold text-granite">Email</dt>
+          <dt className="text-sm font-semibold text-muted">Email</dt>
           <dd className="mt-1 text-lg"><CopyText text={site.supportEmail} /></dd>
         </div>
         {site.businessPhone && (
           <div>
-            <dt className="text-sm font-semibold text-granite">Phone</dt>
+            <dt className="text-sm font-semibold text-muted">Phone</dt>
             <dd className="mt-1 text-lg"><CopyText text={site.businessPhone} /></dd>
           </div>
         )}
         <div>
-          <dt className="text-sm font-semibold text-granite">{site.businessAddress ? "Address" : "Location"}</dt>
+          <dt className="text-sm font-semibold text-muted">{site.businessAddress ? "Address" : "Location"}</dt>
           <dd className="mt-1 text-lg">{site.businessAddress || `${site.city}, Colorado (online only, no walk-in store)`}</dd>
         </div>
         <div>
-          <dt className="text-sm font-semibold text-granite">Hours</dt>
+          <dt className="text-sm font-semibold text-muted">Hours</dt>
           <dd className="mt-1">{site.businessHours}. We reply to email within one business day.</dd>
         </div>
       </dl>

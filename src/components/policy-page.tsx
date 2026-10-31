@@ -5,9 +5,9 @@ export function PolicyPage({ title, intro, updated, children }: { title: string;
   return (
     <div className="mx-auto max-w-3xl px-4 pt-10 sm:px-6">
       <h1 className="display text-6xl sm:text-7xl">{title}</h1>
-      {intro && <p className="mt-4 text-lg text-granite">{intro}</p>}
+      {intro && <p className="mt-4 text-lg text-muted">{intro}</p>}
       {updated && (
-        <p className="mt-3 text-sm text-granite">
+        <p className="mt-3 text-sm text-muted">
           Last updated {new Date(`${site.policiesUpdated}T12:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
         </p>
       )}

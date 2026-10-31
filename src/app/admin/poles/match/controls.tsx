@@ -15,7 +15,7 @@ export function AddLoose({ productId }: { productId: string }) {
       <button type="button" disabled={pending} onClick={() => start(async () => setMsg(await addLoosePoles(productId, count)))} className="btn btn-spruce min-h-10 px-3 text-sm">
         {pending ? "Adding…" : "Add to stock"}
       </button>
-      {msg && <p className={`basis-full text-sm ${msg.error ? "text-blaze-deep" : "text-spruce"}`}>{msg.error ?? msg.ok}</p>}
+      {msg && <p className={`basis-full text-sm ${msg.error ? "text-blaze-deep" : "text-accent"}`}>{msg.error ?? msg.ok}</p>}
     </div>
   );
 }
@@ -23,9 +23,9 @@ export function AddLoose({ productId }: { productId: string }) {
 export function UnmatchedForm({ values }: { values: { shape?: string; arms?: string; length?: string; unit?: string; sections?: string; diameter?: string; color?: string } }) {
   const [state, action, pending] = useActionState(listUnmatchedPole, null);
   return (
-    <form action={action} className="h-fit space-y-3 rounded-[var(--radius-tag)] bg-snow p-5">
+    <form action={action} className="h-fit space-y-3 rounded-[var(--radius-tag)] bg-card p-5">
       <h2 className="display text-3xl">List it by size</h2>
-      <p className="text-sm text-granite">For poles that don&apos;t match anything yet. Creates a draft titled by its measurements.</p>
+      <p className="text-sm text-muted">For poles that don&apos;t match anything yet. Creates a draft titled by its measurements.</p>
       <input type="hidden" name="length" value={values.length ?? ""} />
       <input type="hidden" name="unit" value={values.unit ?? "in"} />
       <input type="hidden" name="sections" value={values.sections ?? ""} />
@@ -65,7 +65,7 @@ export function UnmatchedForm({ values }: { values: { shape?: string; arms?: str
       </div>
       {state?.error && <p className="text-sm text-blaze-deep">{state.error}</p>}
       {state?.ok && (
-        <p className="text-sm text-spruce">
+        <p className="text-sm text-accent">
           {state.ok} <Link href={`/admin/products/${state.id}`} className="underline">Open draft</Link>
         </p>
       )}

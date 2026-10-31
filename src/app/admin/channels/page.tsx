@@ -7,10 +7,10 @@ export const metadata = { title: "Channels" };
 
 function Row({ ok, name, children }: { ok: boolean; name: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+    <section className="rounded-[var(--radius-tag)] bg-card p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="display text-3xl">{name}</h2>
-        <span className={`rounded-full px-3 py-1 text-sm font-semibold ${ok ? "bg-lichen/70 text-spruce" : "bg-blaze/15 text-blaze-deep"}`}>{ok ? "Ready" : "Needs setup"}</span>
+        <span className={`rounded-full px-3 py-1 text-sm font-semibold ${ok ? "bg-lichen/70 text-accent" : "bg-blaze/15 text-blaze-deep"}`}>{ok ? "Ready" : "Needs setup"}</span>
       </div>
       <div className="mt-2 space-y-2 text-[0.95rem]">{children}</div>
     </section>
@@ -35,9 +35,9 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
       <Row ok={env("LEGAL_NAME") && env("BUSINESS_ADDRESS") && env("BUSINESS_PHONE")} name="Business details">
         <p>Google Merchant Center and Meta Shops check that your contact page shows a business name, address and phone number, and that you have privacy, returns and terms pages (those are built).</p>
         {!(env("LEGAL_NAME") && env("BUSINESS_ADDRESS") && env("BUSINESS_PHONE")) && (
-          <p className="text-granite">Set LEGAL_NAME, BUSINESS_ADDRESS and BUSINESS_PHONE. A PO box or registered-agent address works if you don&apos;t want a home address public.</p>
+          <p className="text-muted">Set LEGAL_NAME, BUSINESS_ADDRESS and BUSINESS_PHONE. A PO box or registered-agent address works if you don&apos;t want a home address public.</p>
         )}
-        <p className="text-granite">Have a lawyer read the <a href="/privacy" className="underline">privacy</a>, <a href="/terms" className="underline">terms</a> and <a href="/returns" className="underline">returns</a> pages before launch.</p>
+        <p className="text-muted">Have a lawyer read the <a href="/privacy" className="underline">privacy</a>, <a href="/terms" className="underline">terms</a> and <a href="/returns" className="underline">returns</a> pages before launch.</p>
       </Row>
 
       <Row ok={env("GOOGLE_SITE_VERIFICATION")} name="Google Search Console">
@@ -51,25 +51,25 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
       <Row ok={ebayOn && env("EBAY_FULFILLMENT_POLICY_ID")} name="eBay">
         <p>One-click listing, live price comps at intake, automatic quantity sync, and eBay orders pulled into your shipping queue every 15 minutes.</p>
         {!ebayKeys ? (
-          <p className="text-granite">Create a production keyset at developer.ebay.com, then set EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and EBAY_RU_NAME. On the RuName, set the accepted URL to <code>{site.url}/api/ebay/callback</code>.</p>
+          <p className="text-muted">Create a production keyset at developer.ebay.com, then set EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and EBAY_RU_NAME. On the RuName, set the accepted URL to <code>{site.url}/api/ebay/callback</code>.</p>
         ) : ebayOn ? (
-          <p className="text-spruce">Account connected. <a href="/api/ebay/connect" className="underline">Reconnect</a></p>
+          <p className="text-accent">Account connected. <a href="/api/ebay/connect" className="underline">Reconnect</a></p>
         ) : (
           <a href="/api/ebay/connect" className="btn btn-blaze">Connect eBay account</a>
         )}
-        {!env("EBAY_FULFILLMENT_POLICY_ID") && <p className="text-granite">Also set EBAY_FULFILLMENT_POLICY_ID, EBAY_PAYMENT_POLICY_ID and EBAY_RETURN_POLICY_ID from Seller Hub → Business policies.</p>}
+        {!env("EBAY_FULFILLMENT_POLICY_ID") && <p className="text-muted">Also set EBAY_FULFILLMENT_POLICY_ID, EBAY_PAYMENT_POLICY_ID and EBAY_RETURN_POLICY_ID from Seller Hub → Business policies.</p>}
       </Row>
 
       <Row ok name="Google Shopping (free listings)">
         <p>In Google Merchant Center, add a product source → scheduled fetch → this URL, daily:</p>
-        <code className="block break-all rounded bg-glacier p-2">{feed}</code>
-        <p className="text-granite">Verify and claim {new URL(site.url).hostname} in Merchant Center first. Items show up in Google Shopping and image search with your price.</p>
+        <code className="block break-all rounded bg-page p-2">{feed}</code>
+        <p className="text-muted">Verify and claim {new URL(site.url).hostname} in Merchant Center first. Items show up in Google Shopping and image search with your price.</p>
       </Row>
 
       <Row ok name="Facebook, Instagram & Marketplace">
         <p>Meta Commerce Manager → Catalog → Data sources → Data feed → scheduled feed with the same URL. Then turn on your Shop for the Facebook Page and Instagram.</p>
-        <p className="text-granite">Verify the domain in Meta Business settings with the meta-tag method and put the code in FACEBOOK_DOMAIN_VERIFICATION{env("FACEBOOK_DOMAIN_VERIFICATION") ? " (set)" : ""}.</p>
-        <p className="text-granite">Marketplace placement for business catalogs depends on Meta approving your shop. Individual Marketplace posts can&apos;t be automated. Use the copy pack on each product if you want to post some by hand.</p>
+        <p className="text-muted">Verify the domain in Meta Business settings with the meta-tag method and put the code in FACEBOOK_DOMAIN_VERIFICATION{env("FACEBOOK_DOMAIN_VERIFICATION") ? " (set)" : ""}.</p>
+        <p className="text-muted">Marketplace placement for business catalogs depends on Meta approving your shop. Individual Marketplace posts can&apos;t be automated. Use the copy pack on each product if you want to post some by hand.</p>
       </Row>
 
       <Row ok name="Pinterest">
@@ -83,17 +83,17 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
 
       <Row ok={shippoConfigured() && env("SHIP_FROM_STREET1")} name="Shipping labels (Shippo)">
         <p>Buy discounted USPS, UPS and FedEx labels on each order, print 4×6, and the customer gets tracking by email automatically. eBay orders get tracking uploaded to eBay.</p>
-        {!shippoConfigured() && <p className="text-granite">Set SHIPPO_API_TOKEN and the SHIP_FROM_* address variables.</p>}
+        {!shippoConfigured() && <p className="text-muted">Set SHIPPO_API_TOKEN and the SHIP_FROM_* address variables.</p>}
       </Row>
 
       <Row ok={env("RESEND_API_KEY")} name="Email">
         <p>Order confirmations, tracking emails, support replies and owner alerts are sent with Resend.</p>
-        {!env("RESEND_API_KEY") && <p className="text-granite">Set RESEND_API_KEY and verify your domain in Resend.</p>}
+        {!env("RESEND_API_KEY") && <p className="text-muted">Set RESEND_API_KEY and verify your domain in Resend.</p>}
       </Row>
 
       <Row ok={env("ANTHROPIC_API_KEY")} name="AI listings & support">
         <p>Photo-to-listing intake and the customer Help chat run on Claude.</p>
-        {!env("ANTHROPIC_API_KEY") && <p className="text-granite">Set ANTHROPIC_API_KEY.</p>}
+        {!env("ANTHROPIC_API_KEY") && <p className="text-muted">Set ANTHROPIC_API_KEY.</p>}
       </Row>
     </div>
   );

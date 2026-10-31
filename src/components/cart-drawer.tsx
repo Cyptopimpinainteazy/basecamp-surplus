@@ -13,7 +13,7 @@ export function CartButton() {
     <button
       type="button"
       onClick={() => setOpen(true)}
-      className="relative inline-flex h-11 items-center gap-2 rounded-md px-3 font-semibold text-glacier hover:bg-spruce-2"
+      className="press relative inline-flex h-11 items-center gap-2 rounded-md px-3 font-semibold text-glacier hover:bg-spruce-2"
       aria-label={`Open cart, ${count} item${count === 1 ? "" : "s"}`}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
@@ -22,7 +22,7 @@ export function CartButton() {
       </svg>
       <span className="hidden sm:inline">Cart</span>
       {count > 0 && (
-        <span className="grid h-6 min-w-6 place-items-center rounded-full bg-blaze px-1.5 text-sm font-bold text-ink">
+        <span key={count} className="bump grid h-6 min-w-6 place-items-center rounded-full bg-blaze px-1.5 text-sm font-bold text-ink">
           {count}
         </span>
       )}
@@ -81,7 +81,7 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
         role="dialog"
         aria-modal="true"
         aria-label="Cart"
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-glacier shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-page shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex items-center justify-between bg-spruce px-5 py-4 text-glacier">
           <h2 className="display text-3xl">Your cart</h2>
@@ -99,10 +99,10 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
           </div>
         ) : (
           <>
-            <ul className="flex-1 divide-y divide-ice overflow-y-auto px-5">
+            <ul className="flex-1 divide-y divide-line overflow-y-auto px-5">
               {lines.map((l) => (
                 <li key={l.id} className="flex gap-4 py-4">
-                  <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-md bg-snow">
+                  <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-md bg-card">
                     {l.image && <Image src={l.image} alt="" fill sizes="80px" className="object-cover" unoptimized={l.image.endsWith(".svg")} />}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -121,9 +121,9 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
                           </select>
                         </label>
                       ) : (
-                        <span className="text-granite">Last one</span>
+                        <span className="text-muted">Last one</span>
                       )}
-                      <button onClick={() => remove(l.id)} className="text-granite underline hover:text-ink">
+                      <button onClick={() => remove(l.id)} className="text-muted underline hover:text-fg">
                         Remove
                       </button>
                     </div>
@@ -131,8 +131,8 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
                 </li>
               ))}
             </ul>
-            <div className="border-t border-ice bg-snow p-5">
-              <p className="mb-3 text-sm text-granite">
+            <div className="border-t border-line bg-card p-5">
+              <p className="mb-3 text-sm text-muted">
                 {remaining > 0 ? `Add ${fmt(remaining)} more for free standard shipping.` : "Free standard shipping unlocked."}
               </p>
               <fieldset className="mb-4 grid grid-cols-2 gap-2 text-sm">
@@ -140,7 +140,7 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
                 {(["standard", "expedited"] as const).map((s) => (
                   <label
                     key={s}
-                    className={`flex cursor-pointer items-center gap-2 rounded-md border-[1.5px] px-3 py-2 ${shipping === s ? "border-spruce bg-glacier" : "border-ice"}`}
+                    className={`flex cursor-pointer items-center gap-2 rounded-md border-[1.5px] px-3 py-2 ${shipping === s ? "border-accent bg-page" : "border-line"}`}
                   >
                     <input type="radio" name="ship" value={s} checked={shipping === s} onChange={() => setShipping(s)} />
                     {s === "standard" ? "Standard, 3–6 days" : "Expedited, 1–3 days"}
@@ -155,7 +155,7 @@ export function CartDrawer({ freeThresholdCents }: { freeThresholdCents: number 
               <button onClick={checkout} disabled={busy} className="btn btn-blaze w-full text-lg">
                 {busy ? "Opening secure checkout…" : "Check out"}
               </button>
-              <p className="mt-2 text-center text-xs text-granite">Shipping and tax are calculated at checkout.</p>
+              <p className="mt-2 text-center text-xs text-muted">Shipping and tax are calculated at checkout.</p>
             </div>
           </>
         )}

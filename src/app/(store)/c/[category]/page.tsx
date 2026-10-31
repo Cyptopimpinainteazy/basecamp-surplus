@@ -46,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         }}
       />
       <h1 className="display text-6xl sm:text-7xl">{c.heading}</h1>
-      <p className="mb-8 mt-3 max-w-2xl text-lg text-granite">{c.blurb}</p>
+      <p className="mb-8 mt-3 max-w-2xl text-lg text-muted">{c.blurb}</p>
       <Catalog path={`/c/${c.slug}`} sp={sp} base={{ category: c.slug }} sizeCategory={c.slug} />
     </div>
   );

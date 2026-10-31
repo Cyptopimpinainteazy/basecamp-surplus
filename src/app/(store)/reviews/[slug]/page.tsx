@@ -115,13 +115,13 @@ export default async function ReviewPage({ params }: Props) {
                   <dt className="font-semibold">Best for</dt>
                   <dd className="mt-1">{a.bestFor}</dd>
                 </div>
-                <div className="rounded-md bg-glacier p-4">
+                <div className="rounded-md bg-page p-4">
                   <dt className="font-semibold">Look elsewhere if you need</dt>
                   <dd className="mt-1">{a.notFor}</dd>
                 </div>
               </dl>
             </div>
-            <div className="grid border-t border-ice sm:grid-cols-2">
+            <div className="grid border-t border-line sm:grid-cols-2">
               <div className="p-6 sm:p-8">
                 <h3 className="font-semibold">What it does well</h3>
                 <ul className="mt-3 space-y-2">
@@ -130,7 +130,7 @@ export default async function ReviewPage({ params }: Props) {
                   ))}
                 </ul>
               </div>
-              <div className="border-t border-ice p-6 sm:border-l sm:border-t-0 sm:p-8">
+              <div className="border-t border-line p-6 sm:border-l sm:border-t-0 sm:p-8">
                 <h3 className="font-semibold">Where it falls short</h3>
                 <ul className="mt-3 space-y-2">
                   {a.cons.map((c) => (
@@ -146,10 +146,10 @@ export default async function ReviewPage({ params }: Props) {
           {a.specs.length > 0 && (
             <section aria-labelledby="specs" className="mx-auto mt-14 max-w-[68ch]">
               <h2 id="specs" className="display text-4xl">Specs</h2>
-              <dl className="mt-4 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+              <dl className="mt-4 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
                 {a.specs.map((s) => (
                   <div key={s.label} className="grid grid-cols-[minmax(8rem,40%)_1fr] gap-4 px-4 py-2.5">
-                    <dt className="text-granite">{s.label}</dt>
+                    <dt className="text-muted">{s.label}</dt>
                     <dd className="font-medium [font-variant-numeric:tabular-nums]">{s.value}</dd>
                   </div>
                 ))}
@@ -163,7 +163,7 @@ export default async function ReviewPage({ params }: Props) {
               <ul className="mt-4 flex flex-wrap gap-2">
                 {versus.map((v) => (
                   <li key={v.slug}>
-                    <Link href={`/compare/${v.slug}`} className="inline-block rounded-full bg-snow px-4 py-2 font-semibold hover:bg-lichen/45">
+                    <Link href={`/compare/${v.slug}`} className="inline-block rounded-full bg-card px-4 py-2 font-semibold hover:bg-lichen/45">
                       {v.A.short} vs {v.B.short}
                     </Link>
                   </li>
@@ -175,12 +175,12 @@ export default async function ReviewPage({ params }: Props) {
           {related.length > 0 && (
             <section aria-labelledby="more" className="mx-auto mt-14 max-w-[68ch]">
               <h2 id="more" className="display text-4xl">More tent reviews</h2>
-              <ul className="mt-4 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+              <ul className="mt-4 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
                 {related.map((r) => (
                   <li key={r.id}>
-                    <Link href={`/reviews/${r.slug}`} className="block px-4 py-3 hover:bg-glacier">
+                    <Link href={`/reviews/${r.slug}`} className="block px-4 py-3 hover:bg-page">
                       <span className="font-semibold">{r.subject}</span>
-                      <span className="block text-sm text-granite">{r.dek.length > 120 ? `${r.dek.slice(0, 117).replace(/\s+\S*$/, "")}…` : r.dek}</span>
+                      <span className="block text-sm text-muted">{r.dek.length > 120 ? `${r.dek.slice(0, 117).replace(/\s+\S*$/, "")}…` : r.dek}</span>
                     </Link>
                   </li>
                 ))}
@@ -189,19 +189,19 @@ export default async function ReviewPage({ params }: Props) {
             </section>
           )}
 
-          <footer className="mx-auto mt-14 max-w-[68ch] border-t border-ice pt-6 text-sm text-granite">
+          <footer className="mx-auto mt-14 max-w-[68ch] border-t border-line pt-6 text-sm text-muted">
             <p>
-              <strong className="text-ink">How we review.</strong> This review is built from the manufacturer&apos;s published specs,
+              <strong className="text-fg">How we review.</strong> This review is built from the manufacturer&apos;s published specs,
               major retailer listings and independent testing, listed below. {site.name} sells this product. Our verdict covers
               the weaknesses as well as the strengths either way.
             </p>
             {a.sources.length > 0 && (
               <>
-                <p className="mt-4 font-semibold text-ink">Sources</p>
+                <p className="mt-4 font-semibold text-fg">Sources</p>
                 <ul className="mt-2 space-y-1">
                   {a.sources.map((s) => (
                     <li key={s.url}>
-                      <a href={s.url} target="_blank" rel="noopener nofollow" className="underline hover:text-ink">{s.title}</a>
+                      <a href={s.url} target="_blank" rel="noopener nofollow" className="underline hover:text-fg">{s.title}</a>
                     </li>
                   ))}
                 </ul>
@@ -220,7 +220,7 @@ export default async function ReviewPage({ params }: Props) {
             )}
             <ul className="mt-4 space-y-3">
               {(main.length ? main : fallback).slice(0, 3).map((p) => (
-                <li key={p.id} className="text-ink">
+                <li key={p.id} className="text-fg">
                   <ProductCard p={p} />
                 </li>
               ))}
@@ -228,9 +228,9 @@ export default async function ReviewPage({ params }: Props) {
           </section>
 
           {parts.length > 0 && (
-            <section aria-labelledby="parts" className="rounded-[var(--radius-tag)] bg-snow p-5">
+            <section aria-labelledby="parts" className="rounded-[var(--radius-tag)] bg-card p-5">
               <h2 id="parts" className="display text-2xl">Replacement parts</h2>
-              <ul className="mt-3 divide-y divide-ice">
+              <ul className="mt-3 divide-y divide-line">
                 {parts.slice(0, 4).map((p) => (
                   <li key={p.id} className="flex items-baseline justify-between gap-3 py-2">
                     <Link href={`/p/${p.slug}`} className="text-sm font-semibold hover:underline">{p.title}</Link>
@@ -242,14 +242,14 @@ export default async function ReviewPage({ params }: Props) {
           )}
 
           {toc.length > 2 && (
-            <nav aria-labelledby="toc" className="hidden rounded-[var(--radius-tag)] bg-snow p-5 lg:block">
+            <nav aria-labelledby="toc" className="hidden rounded-[var(--radius-tag)] bg-card p-5 lg:block">
               <h2 id="toc" className="font-semibold">In this review</h2>
               <ol className="mt-2 space-y-1.5 text-sm">
-                <li><a href="#verdict" className="text-granite hover:text-ink">The verdict</a></li>
+                <li><a href="#verdict" className="text-muted hover:text-fg">The verdict</a></li>
                 {toc.map((t) => (
-                  <li key={t.id}><a href={`#${t.id}`} className="text-granite hover:text-ink">{t.text}</a></li>
+                  <li key={t.id}><a href={`#${t.id}`} className="text-muted hover:text-fg">{t.text}</a></li>
                 ))}
-                {a.specs.length > 0 && <li><a href="#specs" className="text-granite hover:text-ink">Specs</a></li>}
+                {a.specs.length > 0 && <li><a href="#specs" className="text-muted hover:text-fg">Specs</a></li>}
               </ol>
             </nav>
           )}

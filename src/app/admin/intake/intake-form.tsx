@@ -83,12 +83,12 @@ export function IntakeForm({ brands, categories, conditions }: { brands: Brand[]
           <input ref={camera} type="file" accept="image/*" capture="environment" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
           <input ref={library} type="file" accept="image/*,.heic,.heif" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
         </div>
-        <p className="mt-3 text-sm text-granite">
+        <p className="mt-3 text-sm text-muted">
           Shoot the front, back, every tag (brand, size, care, price), and any flaws. For poles, get the printed sleeve label. Up to 12 photos; the first one is the cover.
         </p>
 
         <div
-          className="mt-5 min-h-48 rounded-[var(--radius-tag)] border-2 border-dashed border-ice bg-snow p-3"
+          className="mt-5 min-h-48 rounded-[var(--radius-tag)] border-2 border-dashed border-line bg-card p-3"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -96,7 +96,7 @@ export function IntakeForm({ brands, categories, conditions }: { brands: Brand[]
           }}
         >
           {shots.length === 0 ? (
-            <p className="grid h-44 place-items-center text-granite">Photos you add show up here. You can also drop files.</p>
+            <p className="grid h-44 place-items-center text-muted">Photos you add show up here. You can also drop files.</p>
           ) : (
             <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
               {shots.map((s, i) => (
@@ -116,8 +116,8 @@ export function IntakeForm({ brands, categories, conditions }: { brands: Brand[]
         </div>
       </section>
 
-      <section className="space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
-        <p className="text-granite">Optional hints. Leave blank and the AI reads it from the photos.</p>
+      <section className="space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
+        <p className="text-muted">Optional hints. Leave blank and the AI reads it from the photos.</p>
         <div>
           <label className="label" htmlFor="brand">Brand</label>
           <select id="brand" className="field" value={brand} onChange={(e) => {
@@ -156,7 +156,7 @@ export function IntakeForm({ brands, categories, conditions }: { brands: Brand[]
         <button type="button" onClick={generate} disabled={busy || shots.length === 0} className="btn btn-blaze w-full text-lg">
           {phase === "uploading" ? `Uploading photos ${progress}%` : phase === "writing" ? "Writing the listing…" : "Write the listing"}
         </button>
-        <p className="text-sm text-granite">
+        <p className="text-sm text-muted">
           Creates a draft with title, description, specs, SEO, keywords and a price checked against eBay. You review it before it goes live.
         </p>
       </section>

@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: Props) {
         ]}
       />
 
-      <nav aria-label="Breadcrumb" className="mb-5 text-sm text-granite">
+      <nav aria-label="Breadcrumb" className="mb-5 text-sm text-muted">
         <Link href="/" className="hover:underline">Home</Link>
         <span aria-hidden> / </span>
         <Link href={p.category === "poles" ? "/poles" : `/c/${p.category}`} className="hover:underline">{cat?.name}</Link>
@@ -121,13 +121,13 @@ export default async function ProductPage({ params }: Props) {
         <Gallery images={p.images} title={p.title} />
 
         <div className="lg:pt-2">
-          <Link href={`/brand/${p.brandSlug}`} className="font-semibold text-granite hover:text-ink">{p.brand}</Link>
+          <Link href={`/brand/${p.brandSlug}`} className="font-semibold text-muted hover:text-fg">{p.brand}</Link>
           <h1 className="display mt-1 text-[2.6rem] sm:text-5xl xl:text-[3.5rem]">{p.title}</h1>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="display text-6xl">{money(p.priceCents)}</span>
             {save > 0 && (
-              <span className="text-lg text-granite">
+              <span className="text-lg text-muted">
                 <s>{money(p.msrpCents)}</s> original retail, {save}% off
               </span>
             )}
@@ -136,16 +136,16 @@ export default async function ProductPage({ params }: Props) {
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <ConditionMark condition={p.condition} />
             {p.size && <span className="font-semibold">Size {p.size}</span>}
-            {p.color && <span className="text-granite">{p.color}</span>}
+            {p.color && <span className="text-muted">{p.color}</span>}
           </div>
-          <p className="mt-3 text-granite">{p.conditionNotes || cond.detail}</p>
+          <p className="mt-3 text-muted">{p.conditionNotes || cond.detail}</p>
 
           <div className="mt-6">
             <AddToCart
               disabled={!available}
               line={{ id: p.id, slug: p.slug, title: p.title, priceCents: p.priceCents, image: p.images[0]?.url, max: p.quantity }}
             />
-            <p className="mt-3 text-sm text-granite">
+            <p className="mt-3 text-sm text-muted">
               {available
                 ? `${p.quantity > 1 ? `${p.quantity} in stock. ` : "Only one. "}${shipCents === 0 ? "Free shipping" : `Ships for ${money(shipCents)}`}, out of Denver in ${shippingPolicy.handlingDays}.`
                 : "This one sold. Similar pieces are below."}
@@ -163,10 +163,10 @@ export default async function ProductPage({ params }: Props) {
           {review && (
             <Link
               href={`/reviews/${review.slug}`}
-              className="mt-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-spruce/20 bg-snow p-4 hover:border-spruce"
+              className="mt-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-accent/20 bg-card p-4 hover:border-accent"
             >
               <span>
-                <span className="block text-sm text-granite">Read our review</span>
+                <span className="block text-sm text-muted">Read our review</span>
                 <span className="font-semibold">{review.title}</span>
               </span>
               <span className="display shrink-0 text-2xl text-blaze-deep">{Math.max(1, Math.round(review.body.split(/\s+/).length / 230))} min</span>
@@ -174,7 +174,7 @@ export default async function ProductPage({ params }: Props) {
           )}
 
           {p.fitment.length > 0 && (
-            <div className="mt-8 rounded-[var(--radius-tag)] bg-snow p-5">
+            <div className="mt-8 rounded-[var(--radius-tag)] bg-card p-5">
               <h2 className="display text-3xl">Fits these tents</h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 {p.fitment.map((f) => (
@@ -183,7 +183,7 @@ export default async function ProductPage({ params }: Props) {
                   </li>
                 ))}
               </ul>
-              {p.poleSpec?.role && <p className="mt-2 text-granite">Position: {p.poleSpec.role}</p>}
+              {p.poleSpec?.role && <p className="mt-2 text-muted">Position: {p.poleSpec.role}</p>}
             </div>
           )}
 
@@ -207,10 +207,10 @@ export default async function ProductPage({ params }: Props) {
           {p.specs.length > 0 && (
             <div className="mt-8">
               <h2 className="display text-3xl">Specs</h2>
-              <dl className="mt-3 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+              <dl className="mt-3 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
                 {p.specs.map((s) => (
                   <div key={s.label} className="grid grid-cols-[minmax(8rem,40%)_1fr] gap-4 px-4 py-2.5">
-                    <dt className="text-granite">{s.label}</dt>
+                    <dt className="text-muted">{s.label}</dt>
                     <dd className="font-medium">{s.value}</dd>
                   </div>
                 ))}
@@ -218,12 +218,12 @@ export default async function ProductPage({ params }: Props) {
             </div>
           )}
 
-          <details className="mt-8 border-t border-ice pt-4">
+          <details className="mt-8 border-t border-line pt-4">
             <summary className="cursor-pointer font-semibold">Shipping & returns</summary>
-            <p className="mt-2 text-granite">{policies.shipping}</p>
-            <p className="mt-2 text-granite">{policies.returns}</p>
+            <p className="mt-2 text-muted">{policies.shipping}</p>
+            <p className="mt-2 text-muted">{policies.returns}</p>
           </details>
-          <p className="mt-6 text-xs text-granite">SKU {p.sku}. {site.name} is an independent reseller and is not affiliated with {p.brand}.</p>
+          <p className="mt-6 text-xs text-muted">SKU {p.sku}. {site.name} is an independent reseller and is not affiliated with {p.brand}.</p>
         </div>
       </div>
 

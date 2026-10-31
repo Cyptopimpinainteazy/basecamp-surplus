@@ -24,27 +24,27 @@ export default async function ReviewsIndex() {
   return (
     <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
       <h1 className="display text-6xl sm:text-7xl">Gear reviews</h1>
-      <p className="mt-3 max-w-2xl text-lg text-granite">
+      <p className="mt-3 max-w-2xl text-lg text-muted">
         What each piece is good at, who it fits, and where it falls short. Researched from manufacturer specs, retailer data and
         independent testing. Choosing between two tents?{" "}
-        <Link href="/compare" className="font-semibold text-ink underline">Compare them side by side</Link>.
+        <Link href="/compare" className="font-semibold text-fg underline">Compare them side by side</Link>.
       </p>
       {items.length === 0 ? (
         <p className="mt-10 text-lg">The first reviews are being written now.</p>
       ) : (
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-stagger mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((a, i) => (
             <li key={a.id}>
               <Link href={`/reviews/${a.slug}`} className="group block">
-                <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-tag)] bg-ice">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-tag)] bg-line">
                   {images[i] && <GearImage src={images[i]!} alt="" sizes="(min-width:1024px) 33vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.03] motion-reduce:transform-none" />}
                 </div>
-                <p className="mt-3 flex gap-4 text-sm text-granite">
+                <p className="mt-3 flex gap-4 text-sm text-muted">
                   <span>{getCategory(a.category)?.name ?? a.category}</span>
                   <span>{readingMinutes(a.body)} min read</span>
                 </p>
                 <h2 className="display mt-1 text-3xl group-hover:text-spruce-2">{a.title}</h2>
-                <p className="mt-2 line-clamp-3 text-granite">{a.dek}</p>
+                <p className="mt-2 line-clamp-3 text-muted">{a.dek}</p>
               </Link>
             </li>
           ))}

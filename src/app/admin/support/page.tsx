@@ -26,12 +26,12 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
     <div>
       <h1 className="display text-6xl">Support</h1>
       <div className="my-4 flex gap-2">
-        <Link href="/admin/support" className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${!showChats ? "bg-spruce text-glacier" : "bg-snow"}`}>Tickets</Link>
-        <Link href="/admin/support?view=chats" className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${showChats ? "bg-spruce text-glacier" : "bg-snow"}`}>All chats</Link>
+        <Link href="/admin/support" className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${!showChats ? "bg-spruce text-glacier" : "bg-card"}`}>Tickets</Link>
+        <Link href="/admin/support?view=chats" className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${showChats ? "bg-spruce text-glacier" : "bg-card"}`}>All chats</Link>
       </div>
       {!showChats && (
         <div className="space-y-4">
-          {tickets.length === 0 && <p className="text-granite">No tickets yet. The assistant opens one whenever a customer needs you.</p>}
+          {tickets.length === 0 && <p className="text-muted">No tickets yet. The assistant opens one whenever a customer needs you.</p>}
           {tickets.map((t) => (
             <TicketCard key={t.id} t={t} transcript={t.conversationId ? (convById.get(t.conversationId)?.messages ?? []) : []} />
           ))}
@@ -40,11 +40,11 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
       {showChats && (
         <ul className="space-y-4">
           {chats.map((c) => (
-            <li key={c.id} className="rounded-[var(--radius-tag)] bg-snow p-4">
-              <p className="text-sm text-granite">{c.updatedAt.toLocaleString("en-US")} {c.email && `· ${c.email}`}</p>
+            <li key={c.id} className="rounded-[var(--radius-tag)] bg-card p-4">
+              <p className="text-sm text-muted">{c.updatedAt.toLocaleString("en-US")} {c.email && `· ${c.email}`}</p>
               <div className="mt-2 space-y-2">
                 {c.messages.map((m, i) => (
-                  <p key={i} className={`whitespace-pre-wrap text-sm ${m.role === "user" ? "font-semibold" : "text-granite"}`}>
+                  <p key={i} className={`whitespace-pre-wrap text-sm ${m.role === "user" ? "font-semibold" : "text-muted"}`}>
                     {m.role === "user" ? "Customer: " : "Assistant: "}{m.content}
                   </p>
                 ))}

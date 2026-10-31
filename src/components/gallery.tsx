@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export function Gallery({ images, title }: { images: { url: string; alt: string }[]; title: string }) {
   const [i, setI] = useState(0);
-  if (images.length === 0) return <div className="aspect-[4/5] rounded-[var(--radius-tag)] bg-ice" />;
+  if (images.length === 0) return <div className="aspect-[4/5] rounded-[var(--radius-tag)] bg-line" />;
   const cur = images[i];
   return (
     <div className="flex flex-col-reverse gap-3 md:flex-row">
@@ -18,7 +18,7 @@ export function Gallery({ images, title }: { images: { url: string; alt: string 
                 onClick={() => setI(n)}
                 aria-label={`Show photo ${n + 1}`}
                 aria-current={n === i}
-                className={`relative block h-20 w-16 overflow-hidden rounded-md bg-snow ring-2 ${n === i ? "ring-spruce" : "ring-transparent hover:ring-ice"}`}
+                className={`relative block h-20 w-16 overflow-hidden rounded-md bg-card ring-2 ${n === i ? "ring-accent" : "ring-transparent hover:ring-line"}`}
               >
                 <Image src={img.url} alt="" fill sizes="64px" className="object-cover" unoptimized={img.url.endsWith(".svg")} />
               </button>
@@ -26,7 +26,7 @@ export function Gallery({ images, title }: { images: { url: string; alt: string 
           ))}
         </ul>
       )}
-      <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-[var(--radius-tag)] bg-snow">
+      <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-[var(--radius-tag)] bg-card">
         <Image
           src={cur.url}
           alt={cur.alt || title}

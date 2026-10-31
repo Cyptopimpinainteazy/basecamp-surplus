@@ -30,26 +30,26 @@ export default async function MatchLoosePole({ searchParams }: { searchParams: P
     <div className="space-y-6">
       <div>
         <h1 className="display text-6xl">Match a loose pole</h1>
-        <p className="mt-2 max-w-2xl text-granite">
+        <p className="mt-2 max-w-2xl text-muted">
           Measure a pole from the barrel. If it matches a pole you&apos;ve already listed, add it to that listing&apos;s stock. If
           nothing matches, list it by size. Do a whole pile at once: measure one, then set how many are in the pile.
         </p>
       </div>
-      <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="rounded-[var(--radius-tag)] bg-card p-5">
         <PoleSizeForm action="/admin/poles/match" values={sp} showColor submitLabel="Match" />
       </section>
 
       {matches && (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <section className="rounded-[var(--radius-tag)] bg-snow p-5" aria-labelledby="m">
+          <section className="rounded-[var(--radius-tag)] bg-card p-5" aria-labelledby="m">
             <h2 id="m" className="display text-3xl">{matches.length ? `${matches.length} ${matches.length === 1 ? "candidate" : "candidates"}` : "No match on file"}</h2>
             {matches.length === 0 ? (
-              <p className="mt-2 text-granite">
+              <p className="mt-2 text-muted">
                 No listed pole is within 1.5 in with the same diameter. List it by size, and it&apos;ll still show up in the
                 customer &quot;Find by size&quot; search.
               </p>
             ) : (
-              <ul className="mt-3 divide-y divide-ice">
+              <ul className="mt-3 divide-y divide-line">
                 {matches.map((m) => {
                   const s = m.product.poleSpec ?? {};
                   return (
@@ -59,11 +59,11 @@ export default async function MatchLoosePole({ searchParams }: { searchParams: P
                         <img src={m.product.images[0].url} alt="" className="h-14 w-12 shrink-0 rounded object-cover" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className={`text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-spruce" : "text-granite"}`}>
+                        <p className={`text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-accent" : "text-muted"}`}>
                           {matchLabel(m)}
                         </p>
                         <Link href={`/admin/products/${m.product.id}`} className="font-semibold hover:underline">{m.product.title}</Link>
-                        <p className="text-sm text-granite [font-variant-numeric:tabular-nums]">
+                        <p className="text-sm text-muted [font-variant-numeric:tabular-nums]">
                           {s.lengthIn ? `${s.lengthIn} in` : "length not recorded"}
                           {m.lengthDiff ? ` (${m.lengthDiff > 0 ? "+" : ""}${m.lengthDiff})` : ""}
                           {s.sections ? ` · ${s.sections} sections${m.sectionsMatch === false ? " (differs)" : ""}` : ""}

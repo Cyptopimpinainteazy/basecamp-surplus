@@ -4,6 +4,7 @@ import { money, savingsPercent } from "@/lib/format";
 import { GearImage } from "./gear-image";
 import { Parallax } from "./parallax";
 import { ridges } from "./ridge-paths";
+import { TopoCanvas } from "./topo-canvas";
 
 // Atmospheric perspective: far ridges are lighter and bluer, near ridges darker.
 const ridgeFills = ["#3d5e57", "#2c4a42", "#1c332d", "#13201c"];
@@ -23,7 +24,9 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
         style={{ background: "linear-gradient(180deg,#0c1c18 0%,#16322b 38%,#3b4c3c 64%,#b8682a 86%,#e98a37 100%)" }}
         aria-hidden
       />
-      <div className="topo-lines absolute inset-0 -z-20 opacity-70" aria-hidden />
+      {/* Live contour map; the static pattern below it fades out once WebGL is drawing. */}
+      <TopoCanvas className="peer absolute inset-0 -z-20 h-full w-full" />
+      <div className="topo-lines absolute inset-0 -z-20 opacity-70 transition-opacity duration-700 peer-data-[live]:opacity-0" aria-hidden />
 
       <div className="relative isolate flex min-h-[540px] flex-col justify-end sm:min-h-[min(86vh,860px)]">
         {/* Far layers: sun and two ridgelines, behind the headline. Full-bleed. */}
@@ -53,7 +56,7 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
               </svg>
               <div className="tag-card overflow-hidden shadow-[0_30px_60px_-20px_rgba(0,0,0,.6)]">
                 <span className="tag-hole left-1/2 -translate-x-1/2" aria-hidden />
-                <div className="relative aspect-square bg-ice">
+                <div className="relative aspect-square bg-line">
                   {featured.images[0] && <GearImage src={featured.images[0].url} alt="" sizes="300px" priority />}
                   {save > 0 && (
                     <span className="display absolute right-3 top-3 z-[2] rotate-6 rounded-md bg-blaze px-2.5 py-1 text-2xl text-ink">
@@ -61,12 +64,12 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
                     </span>
                   )}
                 </div>
-                <div className="p-4 text-ink">
-                  <p className="text-sm text-granite">{featured.brand}</p>
+                <div className="p-4 text-fg">
+                  <p className="text-sm text-muted">{featured.brand}</p>
                   <p className="line-clamp-2 font-semibold leading-snug">{featured.title}</p>
                   <p className="mt-2 flex items-baseline gap-2">
                     <span className="display text-4xl">{money(featured.priceCents)}</span>
-                    {save > 0 && <s className="text-granite">{money(featured.msrpCents)}</s>}
+                    {save > 0 && <s className="text-muted">{money(featured.msrpCents)}</s>}
                   </p>
                 </div>
               </div>
@@ -74,9 +77,17 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
           )}
         </div>
 
-        <p className="relative mx-auto mt-16 w-full max-w-7xl px-4 text-lg sm:mt-24 text-glacier/80 sm:px-6 sm:text-xl lg:pr-[360px]">
-          {inStock > 0 ? `${inStock.toLocaleString()} pieces in stock in Denver today.` : "Fresh stock lands every week."}
-        </p>
+        <ul className="relative mx-auto mt-16 flex w-full max-w-7xl flex-wrap gap-2 px-4 sm:mt-24 sm:px-6 lg:pr-[360px]" aria-label="Store highlights">
+          {[
+            inStock > 0 ? `${inStock.toLocaleString()} pieces in stock today` : "Fresh stock every week",
+            "Ships from Denver",
+            "A truckload of factory poles",
+          ].map((chip) => (
+            <li key={chip} className="glass-light rounded-full px-3.5 py-1.5 text-sm font-medium text-glacier sm:text-base">
+              {chip}
+            </li>
+          ))}
+        </ul>
         <h1
           id="hero-title"
           className="hero-rise display relative mx-auto mt-3 w-full max-w-7xl px-4 pb-[clamp(3.2rem,7.5vw,7rem)] text-[clamp(4.3rem,13vw,11rem)] sm:px-6 lg:pr-[340px] xl:pr-6"
@@ -84,17 +95,17 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
         >
           Gear with the
           <br />
-          tags still on.
+          tags <span className="text-cutout [text-shadow:none]">still on.</span>
         </h1>
 
         {/* Near layers rise over the headline's baseline. */}
         <svg viewBox="0 0 1600 600" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 z-10 block h-[clamp(7rem,17vw,15rem)] w-full" aria-hidden>
           <path d={ridges[2]} fill={ridgeFills[2]} />
-          <path d={ridges[3]} fill="#eef3f4" transform="translate(0 40)" />
+          <path d={ridges[3]} fill="var(--color-page)" transform="translate(0 40)" />
         </svg>
       </div>
 
-      <div className="relative z-10 bg-glacier text-ink">
+      <div className="relative z-10 bg-page text-fg">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-4 pt-2 sm:px-6 md:flex-row md:items-end md:justify-between">
           <p className="max-w-2xl text-lg sm:text-xl">
             New-with-tags tents, jackets and replacement tent poles from {brandsLine}, priced below retail. Plus

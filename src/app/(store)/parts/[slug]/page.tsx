@@ -167,10 +167,10 @@ export default async function ModelParts({ params }: Props) {
             {poles.some((p) => p.poleSpec?.lengthIn) && (
               <section aria-labelledby="sizes">
                 <h2 id="sizes" className="display text-4xl">{m.short} pole sizes</h2>
-                <p className="mt-1 text-granite">Measured from poles we&apos;ve stocked for this tent.</p>
-                <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+                <p className="mt-1 text-muted">Measured from poles we&apos;ve stocked for this tent.</p>
+                <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-card">
                   <table className="w-full min-w-[560px] text-left text-sm [font-variant-numeric:tabular-nums]">
-                    <thead className="border-b border-ice text-granite">
+                    <thead className="border-b border-line text-muted">
                       <tr>
                         <th scope="col" className="p-3 font-medium">Position</th>
                         <th scope="col" className="p-3 font-medium">Length</th>
@@ -180,7 +180,7 @@ export default async function ModelParts({ params }: Props) {
                         <th scope="col" className="p-3 font-medium">Price</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-ice">
+                    <tbody className="divide-y divide-line">
                       {poles.map((p) => {
                         const s = p.poleSpec ?? {};
                         const inStock = p.status === "active" && p.quantity > 0;
@@ -191,7 +191,7 @@ export default async function ModelParts({ params }: Props) {
                             <td className="p-3">{s.sections ?? "–"}</td>
                             <td className="p-3">{s.diameterMm ? `${s.diameterMm} mm` : "–"}</td>
                             <td className="p-3">{s.colorCode || "–"}</td>
-                            <td className="p-3">{inStock ? <Link href={`/p/${p.slug}`} className="font-semibold text-blaze-deep">{money(p.priceCents)}</Link> : <span className="text-granite">Sold out</span>}</td>
+                            <td className="p-3">{inStock ? <Link href={`/p/${p.slug}`} className="font-semibold text-blaze-deep">{money(p.priceCents)}</Link> : <span className="text-muted">Sold out</span>}</td>
                           </tr>
                         );
                       })}
@@ -203,11 +203,11 @@ export default async function ModelParts({ params }: Props) {
 
             <section aria-labelledby="faq">
               <h2 id="faq" className="display text-4xl">Questions about {m.short} parts</h2>
-              <div className="mt-4 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+              <div className="mt-4 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
                 {faq.map((f) => (
                   <details key={f.q} className="group p-4" open={f === faq[0]}>
                     <summary className="cursor-pointer font-semibold">{f.q}</summary>
-                    <p className="mt-2 text-granite">{f.a}</p>
+                    <p className="mt-2 text-muted">{f.a}</p>
                   </details>
                 ))}
               </div>
@@ -216,9 +216,9 @@ export default async function ModelParts({ params }: Props) {
 
           <aside className="space-y-6">
             {ref && (
-              <section aria-labelledby="spec" className="rounded-[var(--radius-tag)] bg-snow p-5">
+              <section aria-labelledby="spec" className="rounded-[var(--radius-tag)] bg-card p-5">
                 <h2 id="spec" className="display text-3xl">{m.short} specs</h2>
-                <dl className="mt-3 divide-y divide-ice text-sm">
+                <dl className="mt-3 divide-y divide-line text-sm">
                   {[
                     ["Sleeps", ref.capacity ? String(ref.capacity) : ""],
                     ["Season", ref.season],
@@ -229,30 +229,30 @@ export default async function ModelParts({ params }: Props) {
                     .filter(([, v]) => v)
                     .map(([k, v]) => (
                       <div key={k} className="grid grid-cols-[8rem_1fr] gap-3 py-2">
-                        <dt className="text-granite">{k}</dt>
+                        <dt className="text-muted">{k}</dt>
                         <dd className="font-medium">{v}</dd>
                       </div>
                     ))}
                 </dl>
-                {ref.notes && <p className="mt-3 text-sm text-granite">{ref.notes}</p>}
-                <p className="mt-3 text-xs text-granite">
+                {ref.notes && <p className="mt-3 text-sm text-muted">{ref.notes}</p>}
+                <p className="mt-3 text-xs text-muted">
                   Source:{" "}
                   <a href={ref.source.url} target="_blank" rel="noopener nofollow" className="underline">{ref.source.title}</a> ({confidenceLabel[ref.confidence].toLowerCase()})
                 </p>
               </section>
             )}
-            <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+            <section className="rounded-[var(--radius-tag)] bg-card p-5">
               <h2 className="display text-2xl">Not sure it&apos;s a {m.short}?</h2>
-              <p className="mt-1 text-sm text-granite">Match by measurement or by photo instead.</p>
+              <p className="mt-1 text-sm text-muted">Match by measurement or by photo instead.</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link href="/poles/size" className="btn btn-line min-h-10 px-3 text-sm">Find by size</Link>
                 <Link href="/poles/photo" className="btn btn-spruce min-h-10 px-3 text-sm">Match from a photo</Link>
               </div>
             </section>
             {similar.length > 0 && (
-              <section aria-labelledby="similar" className="rounded-[var(--radius-tag)] bg-snow p-5">
+              <section aria-labelledby="similar" className="rounded-[var(--radius-tag)] bg-card p-5">
                 <h2 id="similar" className="display text-2xl">Tents with similar poles</h2>
-                <ul className="mt-2 divide-y divide-ice">
+                <ul className="mt-2 divide-y divide-line">
                   {similar.map((s) => (
                     <li key={s.slug}>
                       <Link href={`/parts/${s.slug}`} className="block py-2 hover:text-blaze-deep">{s.display}</Link>

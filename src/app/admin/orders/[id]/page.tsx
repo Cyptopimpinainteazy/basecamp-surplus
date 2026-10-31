@@ -26,17 +26,17 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     <div>
       <p className="mb-2 text-sm"><Link href="/admin/orders" className="underline">Orders</Link></p>
       <h1 className="display text-6xl">{o.number}</h1>
-      <p className="text-granite">
+      <p className="text-muted">
         {o.source === "ebay" ? `eBay order ${o.externalId}` : "Website order"} · {o.createdAt.toLocaleString("en-US")} ·{" "}
         <span className="capitalize">{o.status.replace("_", " ")}</span> · {o.shippingMethod} shipping
       </p>
-      {o.attentionReason && <p className="mt-4 rounded-[var(--radius-tag)] border-2 border-blaze bg-snow p-4">{o.attentionReason}</p>}
+      {o.attentionReason && <p className="mt-4 rounded-[var(--radius-tag)] border-2 border-blaze bg-card p-4">{o.attentionReason}</p>}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="space-y-6">
-          <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+          <section className="rounded-[var(--radius-tag)] bg-card p-5">
             <h2 className="display text-3xl">Pack these</h2>
-            <ul className="mt-3 divide-y divide-ice">
+            <ul className="mt-3 divide-y divide-line">
               {o.items.map((i) => (
                 <li key={i.sku + i.title} className="flex items-center gap-3 py-3">
                   {i.image && (
@@ -45,7 +45,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   )}
                   <div>
                     <p className="font-semibold">{i.quantity} × {i.title}</p>
-                    <p className="font-mono text-xs text-granite">{i.sku}</p>
+                    <p className="font-mono text-xs text-muted">{i.sku}</p>
                   </div>
                   <span className="ml-auto">{money(i.unitCents * i.quantity)}</span>
                 </li>
@@ -55,17 +55,17 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               <div className="flex justify-between"><dt>Shipping paid</dt><dd>{money(o.shippingCents)}</dd></div>
               {o.taxCents > 0 && <div className="flex justify-between"><dt>Tax</dt><dd>{money(o.taxCents)}</dd></div>}
               <div className="flex justify-between font-semibold"><dt>Total</dt><dd>{money(o.totalCents)}</dd></div>
-              {o.labelCostCents != null && <div className="flex justify-between text-granite"><dt>Label cost</dt><dd>{money(o.labelCostCents)}</dd></div>}
+              {o.labelCostCents != null && <div className="flex justify-between text-muted"><dt>Label cost</dt><dd>{money(o.labelCostCents)}</dd></div>}
             </dl>
           </section>
-          <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+          <section className="rounded-[var(--radius-tag)] bg-card p-5">
             <h2 className="display text-3xl">Ship to</h2>
             {a ? (
               <address className="mt-2 not-italic">
                 {a.name}<br />{a.line1}<br />{a.line2 && <>{a.line2}<br /></>}{a.city}, {a.state} {a.postalCode}<br />{a.phone}
               </address>
             ) : (
-              <p className="text-granite">No address on file.</p>
+              <p className="text-muted">No address on file.</p>
             )}
             <p className="mt-2 text-sm">{o.email}</p>
           </section>

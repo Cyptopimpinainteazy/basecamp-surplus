@@ -3,6 +3,7 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SupportChat } from "@/components/support-chat";
+import { Ripple } from "@/components/ripple";
 import { shippingPolicy, site } from "@/lib/config";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +17,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <SiteFooter />
       <CartDrawer freeThresholdCents={shippingPolicy.freeThresholdCents} />
       <SupportChat storeName={site.name} />
+      <Ripple />
     </CartProvider>
   );
 }

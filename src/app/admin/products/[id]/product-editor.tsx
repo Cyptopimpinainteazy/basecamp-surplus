@@ -11,7 +11,7 @@ function Field(props: { label: string; name: string; defaultValue?: string | num
     <div className={props.className}>
       <label className="label" htmlFor={props.name}>{props.label}</label>
       <input id={props.name} name={props.name} type={props.type ?? "text"} defaultValue={props.defaultValue ?? ""} className="field" step={props.type === "number" ? "any" : undefined} />
-      {props.hint && <p className="mt-1 text-xs text-granite">{props.hint}</p>}
+      {props.hint && <p className="mt-1 text-xs text-muted">{props.hint}</p>}
     </div>
   );
 }
@@ -25,7 +25,7 @@ function Area(props: { label: string; name: string; defaultValue?: string; rows?
         {props.maxLength && <span className={len > props.maxLength ? "text-blaze-deep" : ""}>{len}/{props.maxLength}</span>}
       </label>
       <textarea id={props.name} name={props.name} rows={props.rows ?? 3} defaultValue={props.defaultValue} className="field" onChange={(e) => setLen(e.target.value.length)} />
-      {props.hint && <p className="mt-1 text-xs text-granite">{props.hint}</p>}
+      {props.hint && <p className="mt-1 text-xs text-muted">{props.hint}</p>}
     </div>
   );
 }
@@ -72,7 +72,7 @@ export function ProductEditor({
       <input type="hidden" name="id" value={p.id} />
       <input type="hidden" name="images" value={images.map((i) => i.url).join("\n")} />
 
-      <section className="rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display mb-3 text-3xl">Photos</h2>
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {images.map((img, i) => (
@@ -99,7 +99,7 @@ export function ProductEditor({
         </ul>
       </section>
 
-      <section className="space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display text-3xl">Listing</h2>
         <Area label="Title" name="title" defaultValue={p.title} rows={2} maxLength={80} hint="80 characters max so it fits eBay and Poshmark." />
         <div className="grid gap-4 sm:grid-cols-3">
@@ -132,7 +132,7 @@ export function ProductEditor({
           <Area label="Fits these tents (one per line)" name="fitment" defaultValue={p.fitment.join("\n")} rows={3} hint="Powers the pole finder. Use 'Brand Model', e.g. The North Face Stormbreak 2." />
         )}
         {p.category === "poles" && (
-          <fieldset className="rounded-md border-[1.5px] border-ice p-4">
+          <fieldset className="rounded-md border-[1.5px] border-line p-4">
             <legend className="px-1 text-sm font-semibold">Pole size (shows in the public Pole sizes chart)</legend>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
@@ -159,13 +159,13 @@ export function ProductEditor({
         )}
         {aiNotes.readFromTags.length > 0 && (
           <details className="text-sm">
-            <summary className="cursor-pointer text-granite">What the AI read from the tags</summary>
+            <summary className="cursor-pointer text-muted">What the AI read from the tags</summary>
             <ul className="mt-2 list-disc pl-5">{aiNotes.readFromTags.map((t) => <li key={t}>{t}</li>)}</ul>
           </details>
         )}
       </section>
 
-      <section className="space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display text-3xl">Price & stock</h2>
         <div className="grid gap-4 sm:grid-cols-4">
           <Field label="Price ($)" name="price" defaultValue={cents(p.priceCents)} />
@@ -173,7 +173,7 @@ export function ProductEditor({
           <Field label="Your cost ($)" name="cost" defaultValue={cents(p.costCents)} hint="Private. For profit tracking." />
           <Field label="Quantity" name="quantity" type="number" defaultValue={p.quantity} />
         </div>
-        {p.pricingBasis && <p className="text-sm text-granite">Suggested price based on: {p.pricingBasis}</p>}
+        {p.pricingBasis && <p className="text-sm text-muted">Suggested price based on: {p.pricingBasis}</p>}
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Item weight (oz)" name="weightOz" type="number" defaultValue={p.weightOz} />
           <Select label="Ships in" name="packagePreset" options={presets} defaultValue={p.packagePreset} />
@@ -181,7 +181,7 @@ export function ProductEditor({
         </div>
       </section>
 
-      <section className="space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display text-3xl">Search</h2>
         <Field label="URL slug" name="slug" defaultValue={p.slug} />
         <Area label="SEO title" name="seoTitle" defaultValue={p.seoTitle} rows={1} maxLength={60} />
@@ -193,7 +193,7 @@ export function ProductEditor({
         </label>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-3 border-t border-ice bg-glacier/95 px-4 py-3 backdrop-blur">
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-3 border-t border-line bg-page/95 px-4 py-3 backdrop-blur">
         {p.status !== "active" && p.status !== "sold_out" && (
           <button name="intent" value="publish" disabled={pending} className="btn btn-blaze">
             {pending ? "Publishing…" : "Publish"}
@@ -208,11 +208,11 @@ export function ProductEditor({
           </button>
         )}
         {p.status !== "archived" && (
-          <button type="button" disabled={busy} onClick={() => start(() => setProductStatus(p.id, "archived"))} className="btn text-granite underline">
+          <button type="button" disabled={busy} onClick={() => start(() => setProductStatus(p.id, "archived"))} className="btn text-muted underline">
             Archive
           </button>
         )}
-        <p role="status" className={`text-sm ${state?.error ? "text-blaze-deep" : "text-spruce"}`}>
+        <p role="status" className={`text-sm ${state?.error ? "text-blaze-deep" : "text-accent"}`}>
           {state?.error ?? state?.ok ?? ""}
         </p>
       </div>

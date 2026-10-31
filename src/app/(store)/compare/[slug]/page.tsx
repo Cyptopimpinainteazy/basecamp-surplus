@@ -113,9 +113,9 @@ export default async function ComparePage({ params }: Props) {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
-        <section aria-label="Which to pick" className="grid gap-4 md:grid-cols-2">
+        <section aria-label="Which to pick" className="reveal-stagger grid gap-4 md:grid-cols-2">
           <Pick s={c.A} text={c.pickA} accent="bg-lichen/45" />
-          <Pick s={c.B} text={c.pickB} accent="bg-snow" />
+          <Pick s={c.B} text={c.pickB} accent="bg-card" />
         </section>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -131,27 +131,27 @@ export default async function ComparePage({ params }: Props) {
 
             <section aria-labelledby="specs" className="mt-12">
               <h2 id="specs" className="display text-4xl">Specs side by side</h2>
-              <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+              <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-card">
                 <table className="w-full min-w-[34rem] text-left [font-variant-numeric:tabular-nums]">
                   <thead>
-                    <tr className="border-b border-ice text-sm">
-                      <th scope="col" className="w-[28%] px-4 py-3 font-semibold text-granite"><span className="sr-only">Spec</span></th>
+                    <tr className="border-b border-line text-sm">
+                      <th scope="col" className="w-[28%] px-4 py-3 font-semibold text-muted"><span className="sr-only">Spec</span></th>
                       <th scope="col" className="px-4 py-3 font-semibold">{c.A.short}</th>
                       <th scope="col" className="px-4 py-3 font-semibold">{c.B.short}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-ice">
+                  <tbody className="divide-y divide-line">
                     {rows.map((r) => (
                       <tr key={r.label}>
-                        <th scope="row" className="px-4 py-2.5 font-normal text-granite">{r.label}</th>
-                        <td className="px-4 py-2.5 font-medium">{r.a ?? <span className="font-normal text-granite">Not published</span>}</td>
-                        <td className="px-4 py-2.5 font-medium">{r.b ?? <span className="font-normal text-granite">Not published</span>}</td>
+                        <th scope="row" className="px-4 py-2.5 font-normal text-muted">{r.label}</th>
+                        <td className="px-4 py-2.5 font-medium">{r.a ?? <span className="font-normal text-muted">Not published</span>}</td>
+                        <td className="px-4 py-2.5 font-medium">{r.b ?? <span className="font-normal text-muted">Not published</span>}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-sm text-granite">From each tent&apos;s review sources. Weights and sizes are as published, not measured by us.</p>
+              <p className="mt-2 text-sm text-muted">From each tent&apos;s review sources. Weights and sizes are as published, not measured by us.</p>
             </section>
 
             <section aria-labelledby="verdicts" className="mt-12">
@@ -173,27 +173,27 @@ export default async function ComparePage({ params }: Props) {
 
             <section aria-labelledby="faq" className="mt-12">
               <h2 id="faq" className="display text-4xl">Questions</h2>
-              <div className="mt-4 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+              <div className="mt-4 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
                 {faq.map((f, i) => (
                   <details key={f.q} open={i === 0} className="group px-4 py-3">
                     <summary className="cursor-pointer font-semibold">{f.q}</summary>
-                    <p className="mt-2 text-granite">{f.a}</p>
+                    <p className="mt-2 text-muted">{f.a}</p>
                   </details>
                 ))}
               </div>
             </section>
 
             {sources.length > 0 && (
-              <footer className="mt-12 border-t border-ice pt-6 text-sm text-granite">
+              <footer className="mt-12 border-t border-line pt-6 text-sm text-muted">
                 <p>
-                  <strong className="text-ink">How we compare.</strong> Numbers come from manufacturer specs, retailer listings and
+                  <strong className="text-fg">How we compare.</strong> Numbers come from manufacturer specs, retailer listings and
                   independent reviews cited in each tent&apos;s review. {site.name} sells used and new-with-tags gear, including these
                   models when we have them.
                 </p>
-                <p className="mt-4 font-semibold text-ink">Sources</p>
+                <p className="mt-4 font-semibold text-fg">Sources</p>
                 <ul className="mt-2 space-y-1">
                   {sources.map((s) => (
-                    <li key={s.url}><a href={s.url} target="_blank" rel="noopener nofollow" className="underline hover:text-ink">{s.title}</a></li>
+                    <li key={s.url}><a href={s.url} target="_blank" rel="noopener nofollow" className="underline hover:text-fg">{s.title}</a></li>
                   ))}
                 </ul>
               </footer>
@@ -204,7 +204,7 @@ export default async function ComparePage({ params }: Props) {
             <section aria-labelledby="stock" className="rounded-[var(--radius-tag)] bg-spruce p-5 text-glacier">
               <h2 id="stock" className="display text-3xl">{stock.length ? "In stock now" : "Not in stock right now"}</h2>
               {stock.length ? (
-                <ul className="mt-4 grid grid-cols-2 gap-3 text-ink">
+                <ul className="mt-4 grid grid-cols-2 gap-3 text-fg">
                   {stock.slice(0, 4).map((p) => <li key={p.id}><ProductCard p={p} /></li>)}
                 </ul>
               ) : (
@@ -220,9 +220,9 @@ export default async function ComparePage({ params }: Props) {
             </section>
 
             {more.length > 0 && (
-              <section aria-labelledby="more" className="rounded-[var(--radius-tag)] bg-snow p-5">
+              <section aria-labelledby="more" className="rounded-[var(--radius-tag)] bg-card p-5">
                 <h2 id="more" className="display text-3xl">More comparisons</h2>
-                <ul className="mt-3 divide-y divide-ice">
+                <ul className="mt-3 divide-y divide-line">
                   {more.map((o) => (
                     <li key={o.slug}><Link href={`/compare/${o.slug}`} className="block py-2.5 font-semibold hover:underline">{o.A.short} vs {o.B.short}</Link></li>
                   ))}

@@ -43,9 +43,9 @@ export default async function PoleSizesPage() {
 
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
         {groups.length === 0 ? (
-          <div className="rounded-[var(--radius-tag)] bg-snow p-8">
+          <div className="rounded-[var(--radius-tag)] bg-card p-8">
             <p className="text-lg font-semibold">The size chart fills in as poles are listed.</p>
-            <p className="mt-1 max-w-xl text-granite">
+            <p className="mt-1 max-w-xl text-muted">
               We&apos;re measuring a truckload of poles now. Need a size today? Open the Help chat with your tent model and we&apos;ll
               check the unlisted stock.
             </p>
@@ -56,7 +56,7 @@ export default async function PoleSizesPage() {
             {listed.length > 2 && (
               <nav aria-label="Jump to tent" className="mt-5 flex flex-wrap gap-2">
                 {listed.map((g) => (
-                  <a key={g.tent} href={`#${slugify(g.tent)}`} className="rounded-full border-[1.5px] border-ice bg-snow px-3 py-1 text-sm hover:border-spruce">
+                  <a key={g.tent} href={`#${slugify(g.tent)}`} className="rounded-full border-[1.5px] border-line bg-card px-3 py-1 text-sm hover:border-accent">
                     {g.tent.replace(/^The North Face /, "")}
                   </a>
                 ))}
@@ -74,9 +74,9 @@ export default async function PoleSizesPage() {
                       </Link>
                     )}
                   </div>
-                  <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+                  <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-card">
                     <table className="w-full min-w-[760px] text-left text-sm [font-variant-numeric:tabular-nums]">
-                      <thead className="border-b border-ice text-granite">
+                      <thead className="border-b border-line text-muted">
                         <tr>
                           <th scope="col" className="p-3 font-medium">Position</th>
                           <th scope="col" className="p-3 font-medium">Type</th>
@@ -89,7 +89,7 @@ export default async function PoleSizesPage() {
                           <th scope="col" className="p-3 font-medium">Price</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-ice">
+                      <tbody className="divide-y divide-line">
                         {g.poles.map((p) => (
                           <tr key={p.slug}>
                             <td className="p-3">
@@ -102,7 +102,7 @@ export default async function PoleSizesPage() {
                             </td>
                             <td className="p-3">
                               <span className="font-semibold">{inch(p.lengthIn)}</span>{" "}
-                              <span className="text-granite">{cm(p.lengthIn)}</span>
+                              <span className="text-muted">{cm(p.lengthIn)}</span>
                             </td>
                             <td className="p-3">{p.sections ?? "–"}</td>
                             <td className="p-3">{inch(p.packedLengthIn)}</td>
@@ -113,7 +113,7 @@ export default async function PoleSizesPage() {
                               {p.inStock ? (
                                 <Link href={`/p/${p.slug}`} className="font-semibold text-blaze-deep hover:underline">{money(p.priceCents)}</Link>
                               ) : (
-                                <span className="text-granite">Sold out</span>
+                                <span className="text-muted">Sold out</span>
                               )}
                             </td>
                           </tr>
@@ -129,14 +129,14 @@ export default async function PoleSizesPage() {
 
         <section className="mt-16" aria-labelledby="ref">
           <h2 id="ref" className="display text-4xl">North Face tent pole reference</h2>
-          <p className="mt-2 max-w-3xl text-granite">
+          <p className="mt-2 max-w-3xl text-muted">
             Pole count, diameter and pole system for North Face tents, from archived manufacturer specs and retailer listings.
             Diameter is the quickest way to narrow down an unlabeled pole. The North Face doesn&apos;t publish pole lengths, so
             lengths come from the measured stock above.
           </p>
-          <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+          <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-card">
             <table className="w-full min-w-[900px] text-left text-sm [font-variant-numeric:tabular-nums]">
-              <thead className="border-b border-ice text-granite">
+              <thead className="border-b border-line text-muted">
                 <tr>
                   <th scope="col" className="p-3 font-medium">Tent</th>
                   <th scope="col" className="p-3 font-medium">Sleeps</th>
@@ -148,7 +148,7 @@ export default async function PoleSizesPage() {
                   <th scope="col" className="p-3 font-medium">Review</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ice">
+              <tbody className="divide-y divide-line">
                 {tentReference.map((t) => (
                   <tr key={t.model} className="align-top">
                     <th scope="row" className="p-3 text-left font-semibold">
@@ -158,13 +158,13 @@ export default async function PoleSizesPage() {
                     <td className="p-3">{t.poleCount ?? "–"}{t.hub ? " + hub" : ""}</td>
                     <td className="p-3">{t.diametersMm.length ? `${t.diametersMm.join(" / ")} mm` : "–"}</td>
                     <td className="p-3">{t.poleSystem || "–"}</td>
-                    <td className="max-w-xs p-3 text-granite">{t.notes}</td>
+                    <td className="max-w-xs p-3 text-muted">{t.notes}</td>
                     <td className="p-3">
                       <a href={t.source.url} target="_blank" rel="noopener nofollow" className="underline">{confidenceLabel[t.confidence]}</a>
                     </td>
                     <td className="p-3">
                       {reviewFor(t.model) ? (
-                        <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-spruce underline">Read review</Link>
+                        <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-accent underline">Read review</Link>
                       ) : (
                         "–"
                       )}
@@ -185,7 +185,7 @@ export default async function PoleSizesPage() {
             <li><strong>Diameter:</strong> many DAC poles have it printed near a ferrule (for example 8.7 or 9.5 mm). Otherwise use calipers on the tube.</li>
             <li><strong>Color:</strong> note the color on the tips or ferrules. It matches the corner webbing on the tent.</li>
           </ol>
-          <p className="mt-4 text-granite">
+          <p className="mt-4 text-muted">
             Lengths are measured from the poles we stock and can vary by a fraction of an inch between production runs. Older
             versions of a tent sometimes used different poles, so check your tent&apos;s label for the model and year.
           </p>

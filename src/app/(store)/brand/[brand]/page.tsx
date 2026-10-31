@@ -34,7 +34,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
       <h1 className="display text-6xl sm:text-7xl">{b.brand}</h1>
-      <p className="mb-8 mt-3 max-w-2xl text-lg text-granite">
+      <p className="mb-8 mt-3 max-w-2xl text-lg text-muted">
         {b.slug === "patagonia"
           ? "Inspected pre-owned Patagonia. Each listing shows its grade and photographs any wear."
           : `New-with-tags ${b.brand} below retail. We're an independent reseller, not affiliated with ${b.brand}.`}

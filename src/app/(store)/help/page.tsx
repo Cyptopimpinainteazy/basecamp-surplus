@@ -27,9 +27,9 @@ export default function HelpPage() {
         }}
       />
       <h1 className="display text-6xl sm:text-7xl">Help</h1>
-      <p className="mt-3 text-lg text-granite">
+      <p className="mt-3 text-lg text-muted">
         The Help chat answers most questions instantly, including order tracking. You can also email{" "}
-        <a href={`mailto:${site.supportEmail}`} className="font-semibold text-ink underline">{site.supportEmail}</a>.
+        <a href={`mailto:${site.supportEmail}`} className="font-semibold text-fg underline">{site.supportEmail}</a>.
       </p>
       {sections.map((s) => (
         <section key={s.id} id={s.id} className="mt-10 scroll-mt-24">
@@ -39,11 +39,11 @@ export default function HelpPage() {
       ))}
       <section id="conditions" className="mt-10 scroll-mt-24">
         <h2 className="display text-4xl">Condition grades</h2>
-        <dl className="mt-3 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+        <dl className="mt-3 divide-y divide-line rounded-[var(--radius-tag)] bg-card">
           {conditions.map((c) => (
             <div key={c.value} className="grid gap-1 px-4 py-3 sm:grid-cols-[12rem_1fr]">
               <dt className="font-semibold">{c.label}</dt>
-              <dd className="text-granite">{c.detail}</dd>
+              <dd className="text-muted">{c.detail}</dd>
             </div>
           ))}
         </dl>

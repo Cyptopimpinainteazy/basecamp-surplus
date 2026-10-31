@@ -6,7 +6,7 @@ import { login } from "../actions";
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, null);
   return (
-    <form action={action} className="mx-auto mt-16 max-w-sm rounded-[var(--radius-tag)] bg-snow p-8">
+    <form action={action} className="mx-auto mt-16 max-w-sm rounded-[var(--radius-tag)] bg-card p-8">
       <h1 className="display text-5xl">Sign in</h1>
       <label htmlFor="password" className="label mt-6">Admin password</label>
       <input id="password" name="password" type="password" autoComplete="current-password" required className="field" autoFocus />

@@ -102,7 +102,7 @@ export function SupportChat({ storeName }: { storeName: string }) {
         <section
           id="support-panel"
           aria-label="Customer support chat"
-          className="fixed bottom-20 right-4 z-40 flex h-[min(560px,calc(100dvh-7rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl bg-snow shadow-2xl shadow-ink/30"
+          className="fixed bottom-20 right-4 z-40 flex h-[min(560px,calc(100dvh-7rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl bg-card shadow-2xl shadow-ink/30"
         >
           <header className="bg-spruce px-4 py-3 text-glacier">
             <p className="display text-2xl">{storeName} help</p>
@@ -111,9 +111,9 @@ export function SupportChat({ storeName }: { storeName: string }) {
           <div ref={list} className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
             {msgs.length === 0 && (
               <div className="space-y-2">
-                <p className="text-granite">What can we help with?</p>
+                <p className="text-muted">What can we help with?</p>
                 {starters.map((s) => (
-                  <button key={s} onClick={() => send(s)} className="block w-full rounded-lg border-[1.5px] border-ice px-3 py-2 text-left hover:border-spruce">
+                  <button key={s} onClick={() => send(s)} className="block w-full rounded-lg border-[1.5px] border-line px-3 py-2 text-left hover:border-accent">
                     {s}
                   </button>
                 ))}
@@ -122,16 +122,16 @@ export function SupportChat({ storeName }: { storeName: string }) {
             {msgs.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[88%] whitespace-pre-wrap rounded-lg px-3 py-2 text-[0.95rem] ${m.role === "user" ? "ml-auto bg-spruce text-glacier" : "bg-glacier"}`}
+                className={`max-w-[88%] whitespace-pre-wrap rounded-lg px-3 py-2 text-[0.95rem] ${m.role === "user" ? "ml-auto bg-spruce text-glacier" : "bg-page"}`}
               >
                 {m.role === "assistant" ? <Linkified text={m.content} /> : m.content}
               </div>
             ))}
-            {busy && <p className="text-sm text-granite">Checking…</p>}
+            {busy && <p className="text-sm text-muted">Checking…</p>}
             {error && <p className="rounded-md bg-blaze/15 p-2 text-sm">{error}</p>}
           </div>
           <form
-            className="flex gap-2 border-t border-ice p-3"
+            className="flex gap-2 border-t border-line p-3"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);

@@ -39,7 +39,7 @@ export default async function ProductsAdmin({ searchParams }: { searchParams: Pr
       </div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {tabs.map((t) => (
-          <Link key={t.v} href={t.v ? `/admin/products?status=${t.v}` : "/admin/products"} className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${(status ?? "") === t.v ? "bg-spruce text-glacier" : "bg-snow"}`}>
+          <Link key={t.v} href={t.v ? `/admin/products?status=${t.v}` : "/admin/products"} className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${(status ?? "") === t.v ? "bg-spruce text-glacier" : "bg-card"}`}>
             {t.label}
           </Link>
         ))}
@@ -48,9 +48,9 @@ export default async function ProductsAdmin({ searchParams }: { searchParams: Pr
           <input name="q" defaultValue={q} placeholder="Search title or SKU" className="field h-10 min-h-0 w-64" />
         </form>
       </div>
-      <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+      <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-ice text-granite">
+          <thead className="border-b border-line text-muted">
             <tr>
               <th className="p-3 font-medium">Item</th>
               <th className="p-3 font-medium">SKU</th>
@@ -60,9 +60,9 @@ export default async function ProductsAdmin({ searchParams }: { searchParams: Pr
               <th className="p-3 font-medium">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-ice">
+          <tbody className="divide-y divide-line">
             {rows.map((p) => (
-              <tr key={p.id} className="hover:bg-glacier">
+              <tr key={p.id} className="hover:bg-page">
                 <td className="p-3">
                   <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3 font-semibold hover:underline">
                     {p.images[0] && (
@@ -81,7 +81,7 @@ export default async function ProductsAdmin({ searchParams }: { searchParams: Pr
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <p className="p-6 text-granite">No items here yet. Add one from your phone with Add item.</p>}
+        {rows.length === 0 && <p className="p-6 text-muted">No items here yet. Add one from your phone with Add item.</p>}
       </div>
     </div>
   );

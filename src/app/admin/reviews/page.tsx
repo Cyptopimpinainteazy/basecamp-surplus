@@ -14,9 +14,9 @@ export default async function ReviewsAdmin() {
         <h1 className="display text-6xl">Reviews</h1>
         <Link href="/admin/reviews/new" className="btn btn-blaze">Write a review</Link>
       </div>
-      <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
+      <div className="overflow-x-auto rounded-[var(--radius-tag)] bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-ice text-granite">
+          <thead className="border-b border-line text-muted">
             <tr>
               <th className="p-3 font-medium">Review</th>
               <th className="p-3 font-medium">Matches stock</th>
@@ -24,9 +24,9 @@ export default async function ReviewsAdmin() {
               <th className="p-3 font-medium">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-ice">
+          <tbody className="divide-y divide-line">
             {rows.map((a) => (
-              <tr key={a.id} className="hover:bg-glacier">
+              <tr key={a.id} className="hover:bg-page">
                 <td className="p-3"><Link href={`/admin/reviews/${a.id}`} className="font-semibold hover:underline">{a.title}</Link></td>
                 <td className="p-3">{a.stockQuery}</td>
                 <td className="p-3 capitalize">{a.status}</td>
@@ -35,7 +35,7 @@ export default async function ReviewsAdmin() {
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <p className="p-6 text-granite">No reviews yet. Write the first one.</p>}
+        {rows.length === 0 && <p className="p-6 text-muted">No reviews yet. Write the first one.</p>}
       </div>
     </div>
   );

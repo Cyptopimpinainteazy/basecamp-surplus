@@ -30,7 +30,7 @@ export function WriteReviewForm({ initialSubject }: { initialSubject: string }) 
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 space-y-4 rounded-[var(--radius-tag)] bg-snow p-5">
+    <form onSubmit={submit} className="mt-6 space-y-4 rounded-[var(--radius-tag)] bg-card p-5">
       <div>
         <label htmlFor="subject" className="label">Brand and model</label>
         <input id="subject" required minLength={3} value={subject} onChange={(e) => setSubject(e.target.value)} className="field" placeholder="The North Face Stormbreak 2" />
@@ -38,7 +38,7 @@ export function WriteReviewForm({ initialSubject }: { initialSubject: string }) 
       <div>
         <label htmlFor="notes" className="label">Your own notes (optional)</label>
         <textarea id="notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} className="field" placeholder="Anything you've seen first-hand: how it packs, quality of this batch, what customers ask about" />
-        <p className="mt-1 text-xs text-granite">Only your notes are written as first-hand experience. Everything else is attributed to its source.</p>
+        <p className="mt-1 text-xs text-muted">Only your notes are written as first-hand experience. Everything else is attributed to its source.</p>
       </div>
       {error && <p className="rounded-md bg-blaze/15 p-3 text-sm">{error}</p>}
       <button disabled={busy} className="btn btn-blaze w-full text-lg">

@@ -28,14 +28,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1f3a32",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1f3a32" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1f1a" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply a saved theme before first paint so dark-mode visitors never see a white flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         {children}
         {/* Cookieless page-view analytics; enable Web Analytics on the Vercel project. */}

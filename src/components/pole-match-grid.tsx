@@ -7,7 +7,7 @@ export function PoleMatchGrid({ matches }: { matches: PoleMatch[] }) {
     <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
       {matches.map((m) => (
         <li key={m.product.id} className="flex flex-col">
-          <p className={`mb-1.5 text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-spruce" : "text-granite"}`}>
+          <p className={`mb-1.5 text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-accent" : "text-muted"}`}>
             {matchLabel(m)}
             {m.lengthDiff !== null && m.lengthDiff !== 0 && (
               <span className="font-normal"> · {m.lengthDiff > 0 ? "+" : ""}{m.lengthDiff} in</span>

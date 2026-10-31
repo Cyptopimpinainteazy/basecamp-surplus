@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Hero } from "@/components/hero";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
+import { PoleStory } from "@/components/pole-story";
 import { ProductCard, ProductGrid } from "@/components/product-card";
 import { GearImage } from "@/components/gear-image";
 import { brands as knownBrands, policies, site } from "@/lib/config";
@@ -71,11 +72,11 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pt-14 sm:px-6" aria-labelledby="shelves">
         <h2 id="shelves" className="sr-only">Shop by category</h2>
-        <ul className="grid gap-5 md:grid-cols-3">
+        <ul className="reveal-stagger grid gap-5 md:grid-cols-3">
           {shelves.map((s) => (
             <li key={s.href}>
               <Link href={s.href} className="group block">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-tag)] bg-ice md:aspect-[4/5]">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-tag)] bg-line md:aspect-[4/5]">
                   {s.img && (
                     <GearImage src={s.img.url} alt="" sizes="(min-width:768px) 33vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.04] motion-reduce:transform-none" />
                   )}
@@ -96,17 +97,21 @@ export default async function Home() {
 
       <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-6" aria-labelledby="fresh">
         <div className="mb-6 flex items-end justify-between gap-4">
-          <h2 id="fresh" className="display text-5xl sm:text-6xl">Just tagged</h2>
+          <h2 id="fresh" className="display scroll-stretch text-5xl sm:text-6xl">Just tagged</h2>
           <Link href="/shop" className="font-semibold underline underline-offset-4 hover:text-blaze-deep">See all gear</Link>
         </div>
         {fresh.length > 0 ? (
           <ProductGrid items={fresh} />
         ) : (
-          <p className="text-lg text-granite">New stock is being photographed now. Check back shortly.</p>
+          <p className="text-lg text-muted">New stock is being photographed now. Check back shortly.</p>
         )}
       </section>
 
-      <section className="mt-20 bg-spruce text-glacier" aria-labelledby="poles">
+      <div className="mt-20">
+        <PoleStory />
+      </div>
+
+      <section className="bg-spruce text-glacier" aria-labelledby="poles">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:items-center">
           <div>
             <h2 id="poles" className="display text-5xl sm:text-6xl">Snapped a pole?</h2>
@@ -122,7 +127,7 @@ export default async function Home() {
 
       {used.length > 0 && (
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" aria-labelledby="used">
-          <div className="grid gap-8 rounded-[var(--radius-tag)] bg-lichen/45 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-center">
+          <div className="reveal grid gap-8 rounded-[var(--radius-tag)] bg-lichen/45 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-center">
             <div>
               <h2 id="used" className="display text-5xl">Pre-owned Patagonia</h2>
               <p className="mt-3">
@@ -145,14 +150,14 @@ export default async function Home() {
       {latestReviews.length > 0 && (
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" aria-labelledby="reviews-h">
           <div className="mb-5 flex items-end justify-between gap-4">
-            <h2 id="reviews-h" className="display text-5xl">From the gear desk</h2>
+            <h2 id="reviews-h" className="display scroll-stretch text-5xl">From the gear desk</h2>
             <Link href="/reviews" className="font-semibold underline underline-offset-4 hover:text-blaze-deep">All reviews</Link>
           </div>
-          <ul className="grid gap-5 md:grid-cols-3">
+          <ul className="reveal-stagger grid gap-5 md:grid-cols-3">
             {latestReviews.map((r) => (
               <li key={r.id}>
-                <Link href={`/reviews/${r.slug}`} className="block h-full rounded-[var(--radius-tag)] bg-snow p-5 hover:bg-ice/60">
-                  <p className="text-sm text-granite">{r.subject}</p>
+                <Link href={`/reviews/${r.slug}`} className="tag-card block h-full p-5 transition duration-300 hover:-translate-y-1 hover:bg-line/40 motion-reduce:transform-none">
+                  <p className="text-sm text-muted">{r.subject}</p>
                   <h3 className="display mt-1 text-3xl">{r.title.split(/:\s+/)[1] ? r.title.split(/:\s+/)[1].replace(/^\w/, (c) => c.toUpperCase()) : r.title}</h3>
                 </Link>
               </li>
@@ -167,8 +172,9 @@ export default async function Home() {
           <ul className="flex flex-wrap gap-x-10 gap-y-3">
             {brandRows.map((b) => (
               <li key={b.slug}>
-                <Link href={`/brand/${b.slug}`} className="display text-3xl text-granite hover:text-ink sm:text-4xl">
-                  {b.brand} <span className="font-sans text-base font-normal">{b.n}</span>
+                <Link href={`/brand/${b.slug}`} className="group inline-flex items-baseline gap-2 text-muted hover:text-fg">
+                  <span className="stretch text-3xl uppercase sm:text-4xl">{b.brand}</span>
+                  <span className="text-base">{b.n}</span>
                 </Link>
               </li>
             ))}
@@ -176,19 +182,20 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="mx-auto mt-20 grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-3" aria-label="Why buy here">
-        <div>
-          <h3 className="display text-3xl">Ships from Denver</h3>
-          <p className="mt-2 text-granite">{policies.shipping.split(". ").slice(0, 2).join(". ")}.</p>
-        </div>
-        <div>
-          <h3 className="display text-3xl">30-day returns</h3>
-          <p className="mt-2 text-granite">{policies.returns.split(". ")[0]}.</p>
-        </div>
-        <div>
-          <h3 className="display text-3xl">Authentic, always</h3>
-          <p className="mt-2 text-granite">{policies.authenticity}</p>
-        </div>
+      <section className="reveal-stagger mx-auto mt-20 grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-3" aria-label="Why buy here">
+        {[
+          { title: "Ships from Denver", body: `${policies.shipping.split(". ").slice(0, 2).join(". ")}.`, icon: "M3 7h11v9H3zM14 10h4l3 3v3h-7zM7 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01" },
+          { title: "30-day returns", body: `${policies.returns.split(". ")[0]}.`, icon: "M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" },
+          { title: "Authentic, always", body: policies.authenticity, icon: "M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6zM8.5 12l2.5 2.5 4.5-5" },
+        ].map((c) => (
+          <div key={c.title} className="tag-card p-6">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="text-blaze" aria-hidden>
+              <path d={c.icon} />
+            </svg>
+            <h3 className="display mt-3 text-3xl">{c.title}</h3>
+            <p className="mt-2 text-muted">{c.body}</p>
+          </div>
+        ))}
       </section>
     </>
   );

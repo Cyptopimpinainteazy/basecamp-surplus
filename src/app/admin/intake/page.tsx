@@ -8,7 +8,7 @@ export const metadata = { title: "Add item" };
 export default async function IntakePage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
   const { mode } = await searchParams;
   const poles = mode === "poles";
-  const tab = (on: boolean) => `rounded-full px-4 py-2 font-semibold ${on ? "bg-spruce text-glacier" : "bg-snow hover:bg-ice"}`;
+  const tab = (on: boolean) => `rounded-full px-4 py-2 font-semibold ${on ? "bg-spruce text-glacier" : "bg-card hover:bg-line"}`;
   return (
     <div>
       <h1 className="display mb-4 text-6xl">{poles ? "Add a pole set" : "Add an item"}</h1>

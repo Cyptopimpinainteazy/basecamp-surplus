@@ -17,7 +17,7 @@ export default async function EditReview({ params }: { params: Promise<{ id: str
         {a.status === "published" && <> · <Link href={`/reviews/${a.slug}`} target="_blank" className="underline">View on site</Link></>}
       </p>
       <h1 className="display text-5xl">{a.title}</h1>
-      <p className="mt-1 capitalize text-granite">{a.status}</p>
+      <p className="mt-1 capitalize text-muted">{a.status}</p>
       <ReviewEditor a={a} categories={categories.map((c) => ({ value: c.slug, label: c.name }))} />
     </div>
   );

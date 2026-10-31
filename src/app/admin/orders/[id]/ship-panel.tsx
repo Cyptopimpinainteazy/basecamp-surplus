@@ -25,7 +25,7 @@ export function ShipPanel(props: {
 
   if (label) {
     return (
-      <section className="h-fit rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="h-fit rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display text-3xl">Label ready</h2>
         <p className="mt-2">{label.carrier}</p>
         <p className="font-mono">{label.tracking}</p>
@@ -33,22 +33,22 @@ export function ShipPanel(props: {
           <a href={label.url} target="_blank" rel="noreferrer" className="btn btn-blaze">Print label</a>
           {label.trackingUrl && <a href={label.trackingUrl} target="_blank" rel="noreferrer" className="btn btn-line">Track</a>}
         </div>
-        {msg?.ok && <p className="mt-3 text-sm text-spruce">{msg.ok}</p>}
+        {msg?.ok && <p className="mt-3 text-sm text-accent">{msg.ok}</p>}
       </section>
     );
   }
 
   if (!props.configured) {
     return (
-      <section className="h-fit rounded-[var(--radius-tag)] bg-snow p-5">
+      <section className="h-fit rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display text-3xl">Buy a label</h2>
-        <p className="mt-2 text-granite">Add SHIPPO_API_TOKEN and your ship-from address in the environment settings to buy discounted USPS, UPS and FedEx labels here.</p>
+        <p className="mt-2 text-muted">Add SHIPPO_API_TOKEN and your ship-from address in the environment settings to buy discounted USPS, UPS and FedEx labels here.</p>
       </section>
     );
   }
 
   return (
-    <section className="h-fit rounded-[var(--radius-tag)] bg-snow p-5">
+    <section className="h-fit rounded-[var(--radius-tag)] bg-card p-5">
       <h2 className="display text-3xl">Buy a label</h2>
       <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_8rem]">
         <div>
@@ -62,7 +62,7 @@ export function ShipPanel(props: {
           <input id="weight" type="number" min={1} className="field" value={weight} onChange={(e) => { setWeight(Number(e.target.value) || 1); setRates(null); }} />
         </div>
       </div>
-      <p className="mt-1 text-xs text-granite">Box weight is added automatically.</p>
+      <p className="mt-1 text-xs text-muted">Box weight is added automatically.</p>
       <button
         type="button"
         disabled={pending}
@@ -85,13 +85,13 @@ export function ShipPanel(props: {
       {rates && (
         <fieldset className="mt-5">
           <legend className="label">Pick a rate</legend>
-          {rates.length === 0 && <p className="text-granite">No rates came back. Check the address and box size.</p>}
+          {rates.length === 0 && <p className="text-muted">No rates came back. Check the address and box size.</p>}
           <ul className="space-y-2">
             {rates.map((r) => (
               <li key={r.id}>
-                <label className={`flex cursor-pointer items-center gap-3 rounded-md border-[1.5px] px-3 py-2.5 ${chosen === r.id ? "border-spruce bg-glacier" : "border-ice"}`}>
+                <label className={`flex cursor-pointer items-center gap-3 rounded-md border-[1.5px] px-3 py-2.5 ${chosen === r.id ? "border-accent bg-page" : "border-line"}`}>
                   <input type="radio" name="rate" checked={chosen === r.id} onChange={() => setChosen(r.id)} />
-                  <span className="flex-1">{r.carrier} {r.service}{r.days ? <span className="text-granite"> · {r.days} day{r.days === 1 ? "" : "s"}</span> : null}</span>
+                  <span className="flex-1">{r.carrier} {r.service}{r.days ? <span className="text-muted"> · {r.days} day{r.days === 1 ? "" : "s"}</span> : null}</span>
                   <span className="font-semibold">${Number(r.amount).toFixed(2)}</span>
                 </label>
               </li>

@@ -11,7 +11,7 @@ export function SyncEbay() {
       <button disabled={pending} onClick={() => start(async () => setMsg(await syncEbayOrdersNow()))} className="btn btn-line">
         {pending ? "Checking eBay…" : "Pull eBay orders now"}
       </button>
-      {msg && <p className={`mt-1 text-sm ${msg.error ? "text-blaze-deep" : "text-granite"}`}>{msg.error ?? msg.ok}</p>}
+      {msg && <p className={`mt-1 text-sm ${msg.error ? "text-blaze-deep" : "text-muted"}`}>{msg.error ?? msg.ok}</p>}
     </div>
   );
 }

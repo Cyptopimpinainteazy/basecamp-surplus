@@ -20,7 +20,7 @@ const nav = [
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const authed = await isAdmin();
   return (
-    <div className="min-h-dvh bg-glacier">
+    <div className="min-h-dvh bg-page">
       {authed && (
         <header className="sticky top-0 z-30 bg-ink text-glacier">
           <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto px-4 py-2">

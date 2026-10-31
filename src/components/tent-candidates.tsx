@@ -9,21 +9,21 @@ export async function TentCandidates({ diameterMm, shape, linkBase }: { diameter
   if (!diameterMm && !isHub) return null;
   const reviewFor = await reviewLinker();
   return (
-    <section className="rounded-[var(--radius-tag)] bg-snow p-5" aria-labelledby="tc">
+    <section className="rounded-[var(--radius-tag)] bg-card p-5" aria-labelledby="tc">
       <h2 id="tc" className="display text-3xl">Tents that used a pole like this</h2>
-      <p className="mt-1 text-sm text-granite">
+      <p className="mt-1 text-sm text-muted">
         From published North Face specs{diameterMm ? `, matching ${diameterMm} mm within 0.2 mm` : ", hub-pole tents"}. Diameter narrows it
         down; length and sections confirm it.
       </p>
       {list.length === 0 ? (
-        <p className="mt-3 text-granite">No tent in the reference table lists that diameter yet.</p>
+        <p className="mt-3 text-muted">No tent in the reference table lists that diameter yet.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-ice">
+        <ul className="mt-3 divide-y divide-line">
           {list.map((t) => (
             <li key={t.model} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5">
               <span>
                 <a href={`${linkBase}${encodeURIComponent(t.model)}`} className="font-semibold hover:underline">{t.model}</a>
-                <span className="block text-sm text-granite">
+                <span className="block text-sm text-muted">
                   {[t.poleCount ? `${t.poleCount} poles` : "", t.diametersMm.length ? `${t.diametersMm.join(" / ")} mm` : "", t.poleSystem, t.hub ? "hub" : ""]
                     .filter(Boolean)
                     .join(" · ")}
@@ -31,9 +31,9 @@ export async function TentCandidates({ diameterMm, shape, linkBase }: { diameter
               </span>
               <span className="flex gap-3 text-xs">
                 {reviewFor(t.model) && (
-                  <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-spruce underline">Review</Link>
+                  <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-accent underline">Review</Link>
                 )}
-                <a href={t.source.url} target="_blank" rel="noopener nofollow" className="text-granite underline">
+                <a href={t.source.url} target="_blank" rel="noopener nofollow" className="text-muted underline">
                   {confidenceLabel[t.confidence]}
                 </a>
               </span>

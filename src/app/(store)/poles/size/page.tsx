@@ -65,9 +65,9 @@ export default async function FindBySize({ searchParams }: Props) {
                 <PoleMatchGrid matches={matches} />
               </>
             ) : (
-              <div className="rounded-[var(--radius-tag)] bg-snow p-8">
+              <div className="rounded-[var(--radius-tag)] bg-card p-8">
                 <p className="text-lg font-semibold">No listed pole matches that size yet.</p>
-                <p className="mt-1 max-w-xl text-granite">
+                <p className="mt-1 max-w-xl text-muted">
                   We have barrels of poles still being sorted. Open the Help chat with these measurements and a photo, and we&apos;ll
                   check the unlisted stock by hand.
                 </p>
@@ -106,9 +106,9 @@ export default async function FindBySize({ searchParams }: Props) {
             <li><strong>Pre-bent or hub:</strong> if the sections have factory bends, choose Pre-bent and measure along the curve. If several poles join at an aluminum center piece, choose Hub assembly, count the legs and give the longest leg from hub center to tip.</li>
             <li><strong>Diameter:</strong> look for a printed number near a joint (like 8.7 or 9.5). Otherwise use calipers on the tube, not the joint.</li>
           </ol>
-          <p className="mt-4 text-granite">
+          <p className="mt-4 text-muted">
             A pole within half an inch and with the same sections and diameter usually fits. Longer differences change how tight
-            the tent pitches. Know your tent model? <Link href="/poles" className="font-semibold text-ink underline">Search by tent</Link> instead, or <Link href="/poles/photo" className="font-semibold text-ink underline">match from a photo</Link>.
+            the tent pitches. Know your tent model? <Link href="/poles" className="font-semibold text-fg underline">Search by tent</Link> instead, or <Link href="/poles/photo" className="font-semibold text-fg underline">match from a photo</Link>.
           </p>
         </section>
       </div>

@@ -27,7 +27,7 @@ export function SizeFilter({ count }: { count: number }) {
         className="field h-12 sm:max-w-sm"
         autoComplete="off"
       />
-      <p className="text-sm text-granite" aria-live="polite">
+      <p className="text-sm text-muted" aria-live="polite">
         {shown} of {count} tents
       </p>
     </div>
