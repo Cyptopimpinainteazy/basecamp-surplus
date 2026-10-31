@@ -9,6 +9,8 @@ import { anthropic, LISTING_MODEL } from "./client";
 
 const pole = z.object({
   role: z.string().min(2),
+  shape: z.enum(["straight", "prebent", "hub"]).default("straight"),
+  hubArms: z.number().int().min(2).max(8).nullable().default(null),
   countInSet: z.number().int().min(1).max(12),
   sections: z.number().int().min(1).max(20).nullable(),
   lengthIn: z.number().positive().max(400).nullable(),
@@ -45,12 +47,14 @@ const tool: Anthropic.Tool = {
         description: "One entry per distinct pole. Identical poles (same length, color and sections) are one entry with countInSet > 1.",
         items: {
           type: "object",
-          required: ["role", "countInSet", "sections", "lengthIn", "packedLengthIn", "diameterMm", "title", "description", "weightOz"],
+          required: ["role", "shape", "countInSet", "sections", "lengthIn", "packedLengthIn", "diameterMm", "title", "description", "weightOz"],
           properties: {
             role: { type: "string", description: "Position: 'main', 'cross', 'brow', 'fly', 'hub', 'door arch', 'ridge'. If unknown, describe it ('long gray pole')." },
+            shape: { type: "string", enum: ["straight", "prebent", "hub"], description: "straight: flexes into shape; prebent: sections have visible factory bends; hub: several legs joined at an aluminum hub piece." },
+            hubArms: { type: ["integer", "null"], description: "Hub assemblies only: number of legs off the hub." },
             countInSet: { type: "integer", description: "How many of this exact pole one tent uses." },
             sections: { type: ["integer", "null"], description: "Shock-corded sections counted in the photo." },
-            lengthIn: { type: ["number", "null"], description: "Assembled tip-to-tip inches. Only from a printed label or a tape measure readable in the photo. Otherwise null. Never estimate." },
+            lengthIn: { type: ["number", "null"], description: "Assembled tip-to-tip inches (hub assemblies: the longest leg, hub center to tip; pre-bent poles: along the curve). Only from a printed label or a tape measure readable in the photo. Otherwise null. Never estimate." },
             packedLengthIn: { type: ["number", "null"], description: "One section's length in inches, only if readable on a tape or label." },
             diameterMm: { type: ["number", "null"], description: "Only if printed on the pole." },
             colorCode: { type: "string" },

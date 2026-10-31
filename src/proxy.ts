@@ -21,6 +21,7 @@ export async function proxy(req: NextRequest) {
   if (host === POLES_DOMAIN) {
     if (pathname === "/" || pathname === "/poles") return NextResponse.rewrite(new URL(`/poles${search}`, req.url));
     if (pathname === "/sizes" || pathname === "/poles/sizes") return NextResponse.rewrite(new URL("/poles/sizes", req.url));
+    if (pathname === "/size" || pathname === "/poles/size") return NextResponse.rewrite(new URL(`/poles/size${search}`, req.url));
     if (/^\/(sitemap\.xml|robots\.txt|_next|favicon|topo\.svg)/.test(pathname)) return NextResponse.next();
     if (pathname.startsWith("/api/")) return NextResponse.next();
     return NextResponse.redirect(`${PRIMARY}${pathname}${search}`, 301);

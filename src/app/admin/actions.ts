@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -93,6 +93,8 @@ export async function saveProduct(_: unknown, form: FormData) {
           colorCode: txt("poleColor"),
           material: txt("poleMaterial"),
           measured: form.get("poleMeasured") === "on",
+          shape: (["straight", "prebent", "hub"].includes(String(form.get("poleShape"))) ? String(form.get("poleShape")) : "straight") as "straight" | "prebent" | "hub",
+          hubArms: String(form.get("poleShape")) === "hub" ? num("poleHubArms") : undefined,
         }
       : current.poleSpec;
 
@@ -367,4 +369,92 @@ export async function setArticleStatus(id: string, status: "draft" | "published"
   revalidatePath("/reviews");
   revalidatePath(`/reviews/${a.slug}`);
   revalidatePath(`/admin/reviews/${id}`);
+}
+
+// ---------- loose pole sorting ----------
+
+/** Adds loose poles from the barrel to an existing pole listing's stock. */
+export async function addLoosePoles(productId: string, count: number) {
+  await requireAdmin();
+  const n = Math.max(1, Math.min(500, Math.floor(count)));
+  const [p] = await db
+    .update(products)
+    .set({
+      quantity: sql`${products.quantity} + ${n}`,
+      status: sql`case when ${products.status} = 'sold_out' then 'active'::product_status else ${products.status} end`,
+      updatedAt: new Date(),
+    })
+    .where(eq(products.id, productId))
+    .returning();
+  if (!p) return { error: "Pole listing not found." };
+  await syncStock([p.id]);
+  revalidatePath("/", "layout");
+  return { ok: `Added ${n}. ${p.title} now has ${p.quantity} in stock.` };
+}
+
+/** Creates a draft listing for poles that don't match any known tent yet. */
+export async function listUnmatchedPole(_: unknown, form: FormData) {
+  await requireAdmin();
+  const n = (k: string) => {
+    const v = Number(String(form.get(k) ?? ""));
+    return Number.isFinite(v) && v > 0 ? v : undefined;
+  };
+  const unit = String(form.get("unit") ?? "in");
+  const raw = n("length");
+  if (!raw) return { error: "Enter the assembled length." };
+  const lengthIn = unit === "cm" ? Math.round((raw / 2.54) * 10) / 10 : raw;
+  const sections = n("sections");
+  const diameterMm = n("diameter");
+  const colorCode = String(form.get("color") ?? "").trim();
+  const material = String(form.get("material") ?? "Aluminum").trim() || "Aluminum";
+  const shape = (["straight", "prebent", "hub"].includes(String(form.get("shape"))) ? String(form.get("shape")) : "straight") as "straight" | "prebent" | "hub";
+  const hubArms = shape === "hub" ? n("arms") : undefined;
+  const quantity = Math.max(1, Math.floor(n("quantity") ?? 1));
+  const priceCents = Math.round((n("price") ?? 24.99) * 100);
+
+  const bits = [
+    shape === "hub" ? `${material} Tent Pole Hub Assembly${hubArms ? ` (${hubArms} Legs)` : ""}` : `${shape === "prebent" ? "Pre-Bent " : ""}${material} Tent Pole`,
+    `${Number.isInteger(lengthIn) ? lengthIn : lengthIn.toFixed(1)} in`,
+    sections ? `${sections} Sections` : "",
+    diameterMm ? `${diameterMm} mm` : "",
+    colorCode ? colorCode.replace(/^\w/, (c) => c.toUpperCase()) : "",
+  ].filter(Boolean);
+  const title = `Replacement ${bits.join(", ")}`.slice(0, 80);
+  const { skuFor } = await import("@/lib/format");
+  const sku = skuFor("poles", "unmatched");
+
+  const [row] = await db
+    .insert(products)
+    .values({
+      sku,
+      slug: `${slugify(title)}-${sku.slice(-5).toLowerCase()}`,
+      status: "draft",
+      title,
+      brand: String(form.get("brand") ?? "").trim() || "Unbranded",
+      brandSlug: brandSlug(String(form.get("brand") ?? "").trim() || "unbranded"),
+      model: "Tent pole",
+      category: "poles",
+      productType: "Tent pole",
+      condition: String(form.get("condition") ?? "used_good"),
+      description: `${shape === "hub" ? `Shock-corded ${material.toLowerCase()} tent pole hub assembly${hubArms ? ` with ${hubArms} legs` : ""}, longest leg ${lengthIn} inches from hub to tip` : `Shock-corded ${shape === "prebent" ? "pre-bent " : ""}${material.toLowerCase()} tent pole, ${lengthIn} inches assembled`}${sections ? ` in ${sections} sections` : ""}${diameterMm ? `, ${diameterMm} mm diameter` : ""}. Measure your broken pole and compare: a match within half an inch with the same sections and diameter will usually fit. Not matched to a specific tent model yet.`,
+      specs: [
+        { label: "Assembled length", value: `${lengthIn} in (${Math.round(lengthIn * 2.54)} cm)` },
+        ...(sections ? [{ label: "Sections", value: String(sections) }] : []),
+        ...(diameterMm ? [{ label: "Diameter", value: `${diameterMm} mm` }] : []),
+        ...(colorCode ? [{ label: "Color", value: colorCode }] : []),
+        { label: "Material", value: material },
+        { label: "Type", value: shape === "hub" ? `Hub assembly${hubArms ? `, ${hubArms} legs` : ""}` : shape === "prebent" ? "Pre-bent" : "Straight" },
+      ],
+      seoTitle: `${lengthIn} in ${material} Tent Pole${sections ? `, ${sections} Sections` : ""}`.slice(0, 60),
+      seoDescription: `Replacement ${material.toLowerCase()} tent pole, ${lengthIn} in assembled${sections ? `, ${sections} sections` : ""}${diameterMm ? `, ${diameterMm} mm` : ""}. Find your pole by size. Ships from Denver.`.slice(0, 160),
+      keywords: [`${lengthIn} inch tent pole`, `${material.toLowerCase()} tent pole replacement`, ...(sections ? [`${sections} section tent pole`] : [])],
+      priceCents,
+      quantity,
+      packagePreset: "pole-tube",
+      fitment: [],
+      poleSpec: { lengthIn, sections, diameterMm, colorCode: colorCode || undefined, material, measured: true, shape, hubArms },
+    })
+    .returning({ id: products.id });
+  revalidatePath("/admin/products");
+  return { ok: "Draft created. Add a photo and publish it.", id: row.id };
 }

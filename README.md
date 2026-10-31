@@ -8,6 +8,8 @@ Storefront, AI listing intake, multi-marketplace selling, shipping labels and AI
 |---|---|
 | Storefront | Home, category, brand, product and search pages. Product, Offer, shipping, return-policy, Breadcrumb, FAQ and WebSite schema. Sitemap with images, robots, canonical URLs, noindex on filtered pages. |
 | Pole set intake | Admin → Add item → *Pole set*: one photo of a tent's whole pole kit beside a tape measure creates a draft listing for every distinct pole, with lengths read from the tape or labels, stock = sets × poles per tent. |
+| Loose poles | Admin → Loose poles: measure a pole (type straight/pre-bent/hub, length, sections, diameter, color), see matching listed poles and add the pile to that listing's stock in one tap, or create a by-size draft when nothing matches. |
+| Find by size | `/poles/size`: customers who don't know their tent model search by length, sections, diameter, and straight / pre-bent / hub type. |
 | Pole finder | `/poles` searches poles by the tent models they fit. `replacementtentpole.com` serves it as its own landing page; `highcountrysurplus.com` 301s to the main store. |
 | AI intake | `/admin/intake` on your phone: take photos → Claude reads tags/labels → draft with title, description, specs, condition notes, SEO title/description, keywords, hashtags, eBay item specifics, pole fitment, and a price. Patagonia defaults to "used, good". |
 | Pricing | NWT: MSRP × 0.62, checked against live eBay new-condition asks. Used: eBay pre-owned median minus 7%, MSRP fallback. Prices end in 9. |

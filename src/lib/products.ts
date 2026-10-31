@@ -212,6 +212,8 @@ export type PoleSizeRow = {
   colorCode: string;
   material: string;
   measured: boolean;
+  shape: "straight" | "prebent" | "hub";
+  hubArms: number | null;
 };
 
 /**
@@ -239,6 +241,8 @@ export async function poleSizeChart() {
       colorCode: s.colorCode ?? "",
       material: s.material ?? "",
       measured: Boolean(s.measured),
+      shape: s.shape ?? "straight",
+      hubArms: s.hubArms ?? null,
     };
     for (const tent of p.fitment.length ? p.fitment : ["Unmatched poles"]) {
       byTent.set(tent, [...(byTent.get(tent) ?? []), row]);

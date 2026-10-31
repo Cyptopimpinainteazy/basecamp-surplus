@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       const specs = [
         { label: "Fits", value: tent },
         { label: "Position", value: pole.role },
+        { label: "Type", value: pole.shape === "hub" ? `Hub assembly${pole.hubArms ? `, ${pole.hubArms} legs` : ""}` : pole.shape === "prebent" ? "Pre-bent" : "Straight" },
         pole.lengthIn ? { label: "Assembled length", value: `${pole.lengthIn} in` } : null,
         pole.sections ? { label: "Sections", value: String(pole.sections) } : null,
         pole.diameterMm ? { label: "Diameter", value: `${pole.diameterMm} mm` } : null,
@@ -75,6 +76,8 @@ export async function POST(req: Request) {
           fitment: [tent],
           poleSpec: {
             role: pole.role,
+            shape: pole.shape,
+            hubArms: pole.shape === "hub" ? (pole.hubArms ?? undefined) : undefined,
             sections: pole.sections ?? undefined,
             lengthIn: pole.lengthIn ?? undefined,
             packedLengthIn: pole.packedLengthIn ?? undefined,

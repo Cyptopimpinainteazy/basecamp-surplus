@@ -75,7 +75,8 @@ export default async function PoleSizesPage() {
                       <thead className="border-b border-ice text-granite">
                         <tr>
                           <th scope="col" className="p-3 font-medium">Position</th>
-                          <th scope="col" className="p-3 font-medium">Assembled length</th>
+                          <th scope="col" className="p-3 font-medium">Type</th>
+                          <th scope="col" className="p-3 font-medium">Length</th>
                           <th scope="col" className="p-3 font-medium">Sections</th>
                           <th scope="col" className="p-3 font-medium">Packed</th>
                           <th scope="col" className="p-3 font-medium">Diameter</th>
@@ -91,6 +92,9 @@ export default async function PoleSizesPage() {
                               <Link href={`/p/${p.slug}`} className="font-semibold capitalize hover:underline">
                                 {p.role || "Pole"}
                               </Link>
+                            </td>
+                            <td className="p-3">
+                              {p.shape === "hub" ? `Hub${p.hubArms ? `, ${p.hubArms} legs` : ""}` : p.shape === "prebent" ? "Pre-bent" : "Straight"}
                             </td>
                             <td className="p-3">
                               <span className="font-semibold">{inch(p.lengthIn)}</span>{" "}
@@ -122,7 +126,7 @@ export default async function PoleSizesPage() {
         <section className="mt-16 max-w-3xl" aria-labelledby="measure">
           <h2 id="measure" className="display text-4xl">How to measure a tent pole</h2>
           <ol className="prose-review mt-4 list-decimal pl-5 [&>li]:pl-1">
-            <li><strong>Assembled length:</strong> snap every section together, lay the pole straight on the floor and measure tip to tip. Pre-bent poles: measure along the curve with a soft tape.</li>
+            <li><strong>Assembled length:</strong> snap every section together, lay the pole straight on the floor and measure tip to tip. Pre-bent poles: measure along the curve with a soft tape. Hub assemblies: measure each leg from the center of the hub to the tip, and count the legs.</li>
             <li><strong>Sections:</strong> count the shock-corded pieces, including the broken one.</li>
             <li><strong>Packed length:</strong> measure one full section without its ferrule.</li>
             <li><strong>Diameter:</strong> many DAC poles have it printed near a ferrule (for example 8.7 or 9.5 mm). Otherwise use calipers on the tube.</li>

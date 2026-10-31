@@ -50,6 +50,10 @@ export type PoleSpec = {
   packedLengthIn?: number;
   /** Set when the length was tape-measured from stock rather than read from a label. */
   measured?: boolean;
+  /** straight = flexes into shape; prebent = sections have factory bends; hub = several legs joined at an aluminum hub. */
+  shape?: "straight" | "prebent" | "hub";
+  /** Hub assemblies: number of legs coming off the hub. lengthIn is then the longest leg, hub center to tip. */
+  hubArms?: number;
   diameterMm?: number;
   material?: string;
   colorCode?: string;

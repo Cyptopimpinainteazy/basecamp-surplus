@@ -135,7 +135,16 @@ export function ProductEditor({
           <fieldset className="rounded-md border-[1.5px] border-ice p-4">
             <legend className="px-1 text-sm font-semibold">Pole size (shows in the public Pole sizes chart)</legend>
             <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="Assembled length (in)" name="poleLengthIn" type="number" defaultValue={p.poleSpec?.lengthIn} hint="Tip to tip, laid straight." />
+              <div>
+                <label className="label" htmlFor="poleShape">Type</label>
+                <select id="poleShape" name="poleShape" defaultValue={p.poleSpec?.shape ?? "straight"} className="field">
+                  <option value="straight">Straight</option>
+                  <option value="prebent">Pre-bent</option>
+                  <option value="hub">Hub assembly</option>
+                </select>
+              </div>
+              <Field label="Hub legs" name="poleHubArms" type="number" defaultValue={p.poleSpec?.hubArms} hint="Hub assemblies only." />
+              <Field label="Length (in)" name="poleLengthIn" type="number" defaultValue={p.poleSpec?.lengthIn} hint="Tip to tip. Pre-bent: along the curve. Hub: longest leg, hub to tip." />
               <Field label="Sections" name="poleSections" type="number" defaultValue={p.poleSpec?.sections} />
               <Field label="Packed length (in)" name="polePackedIn" type="number" defaultValue={p.poleSpec?.packedLengthIn} hint="One folded section." />
               <Field label="Diameter (mm)" name="poleDiameterMm" type="number" defaultValue={p.poleSpec?.diameterMm} />
