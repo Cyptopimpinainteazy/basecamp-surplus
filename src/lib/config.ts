@@ -14,6 +14,13 @@ export const site = {
   region: "CO",
   country: "US",
   supportEmail: process.env.SUPPORT_EMAIL ?? "support@basecampsurplus.com",
+  /** Legal business name shown on policies and the contact page, e.g. "Basecamp Surplus LLC". */
+  legalName: process.env.LEGAL_NAME ?? "",
+  /** Public business address and phone. Google Merchant Center and Meta Shops require them. */
+  businessAddress: process.env.BUSINESS_ADDRESS ?? "",
+  businessPhone: process.env.BUSINESS_PHONE ?? "",
+  businessHours: process.env.BUSINESS_HOURS ?? "Monday to Friday, 9am to 5pm Mountain Time",
+  policiesUpdated: process.env.POLICIES_UPDATED ?? "2026-10-31",
   ownerEmail: process.env.OWNER_EMAIL ?? "",
   shipFrom: {
     name: process.env.SHIP_FROM_NAME ?? "Basecamp Surplus",

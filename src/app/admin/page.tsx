@@ -6,11 +6,13 @@ import { money } from "@/lib/format";
 import { manualChannels } from "@/lib/channels/crosslist";
 import { DelistDone } from "./delist-done";
 import { syncEbayIfStale } from "@/lib/orders";
+import { alertDemand } from "@/lib/alerts";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
   await syncEbayIfStale();
+  const demand = await alertDemand();
   const [toShip, attention, drafts, tickets, delists, stats] = await Promise.all([
     db.select().from(orders).where(eq(orders.status, "paid")).orderBy(orders.createdAt),
     db.select().from(orders).where(eq(orders.status, "needs_attention")).orderBy(desc(orders.createdAt)),
@@ -103,6 +105,21 @@ export default async function AdminHome() {
           )}
         </section>
       </div>
+
+      {demand.length > 0 && (
+        <section className={card}>
+          <h2 className="display text-3xl">Customers are waiting for</h2>
+          <p className="text-granite">Email alerts set on parts you haven&apos;t listed yet. Sort and list these first; everyone waiting gets an email automatically when you publish a match.</p>
+          <ul className="mt-3 divide-y divide-ice">
+            {demand.map((d) => (
+              <li key={d.label} className="flex items-center justify-between gap-3 py-2.5">
+                <span className="font-semibold">{d.label}</span>
+                <span className="shrink-0 rounded-full bg-blaze/15 px-3 py-0.5 text-sm font-semibold text-blaze-deep">{d.waiting} waiting</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {delists.length > 0 && (
         <section className={card}>

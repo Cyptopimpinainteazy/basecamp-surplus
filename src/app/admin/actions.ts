@@ -16,6 +16,7 @@ import { requireAdmin } from "@/lib/require-admin";
 import { pushToEbay, syncStock, upsertListing } from "@/lib/channels/sync";
 import { slugify } from "@/lib/format";
 import { importEbayOrders } from "@/lib/orders";
+import { notifyStockAlerts } from "@/lib/alerts";
 
 // ---------- auth ----------
 
@@ -149,9 +150,12 @@ export async function saveProduct(_: unknown, form: FormData) {
     .returning();
 
   if (current.quantity !== updated.quantity || current.status !== updated.status) await syncStock([id]);
+  const wentLive = updated.status === "active" && (current.status !== "active" || updated.quantity > current.quantity);
+  const alerted = wentLive ? await notifyStockAlerts([id]).catch(() => 0) : 0;
   revalidateProduct(updated.slug);
   if (current.slug !== updated.slug) revalidatePath(`/p/${current.slug}`);
-  return { ok: updated.status === "active" && current.status !== "active" ? "Published. It's live on the site and in the feeds." : "Saved." };
+  const base = updated.status === "active" && current.status !== "active" ? "Published. It's live on the site and in the feeds." : "Saved.";
+  return { ok: alerted ? `${base} Emailed ${alerted} ${alerted === 1 ? "customer" : "customers"} who were waiting for it.` : base };
 }
 
 export async function setProductStatus(id: string, status: "active" | "archived" | "draft") {
@@ -162,6 +166,7 @@ export async function setProductStatus(id: string, status: "active" | "archived"
     .where(eq(products.id, id))
     .returning();
   await syncStock([id]);
+  if (status === "active") await notifyStockAlerts([id]).catch(() => 0);
   revalidateProduct(p.slug);
 }
 
@@ -389,8 +394,9 @@ export async function addLoosePoles(productId: string, count: number) {
     .returning();
   if (!p) return { error: "Pole listing not found." };
   await syncStock([p.id]);
+  const alerted = await notifyStockAlerts([p.id]).catch(() => 0);
   revalidatePath("/", "layout");
-  return { ok: `Added ${n}. ${p.title} now has ${p.quantity} in stock.` };
+  return { ok: `Added ${n}. ${p.title} now has ${p.quantity} in stock.${alerted ? ` Emailed ${alerted} waiting ${alerted === 1 ? "customer" : "customers"}.` : ""}` };
 }
 
 /** Creates a draft listing for poles that don't match any known tent yet. */

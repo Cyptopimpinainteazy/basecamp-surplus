@@ -279,3 +279,32 @@ export const articles = pgTable(
 );
 
 export type Article = typeof articles.$inferSelect;
+
+// ---------- Back-in-stock / not-yet-listed alerts ----------
+
+export type AlertCriteria =
+  | { kind: "model"; model: string }
+  | { kind: "size"; lengthIn: number; sections?: number; diameterMm?: number; shape?: "straight" | "prebent" | "hub"; hubArms?: number }
+  | { kind: "product"; productId: string; title: string };
+
+export const stockAlerts = pgTable(
+  "stock_alerts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    criteria: jsonb("criteria").$type<AlertCriteria>().notNull(),
+    label: text("label").notNull(),
+    token: text("token").notNull(),
+    ip: text("ip"),
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    matchedProductId: uuid("matched_product_id"),
+    unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("stock_alerts_token_idx").on(t.token),
+    index("stock_alerts_open_idx").on(t.notifiedAt, t.unsubscribedAt),
+    index("stock_alerts_email_idx").on(t.email),
+  ],
+);
+export type StockAlert = typeof stockAlerts.$inferSelect;

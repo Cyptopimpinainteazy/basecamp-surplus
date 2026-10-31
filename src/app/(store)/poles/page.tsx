@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
 import { PolesTabs } from "@/components/poles-tabs";
+import { StockAlert } from "@/components/stock-alert";
 import { ProductGrid } from "@/components/product-card";
 import { site } from "@/lib/config";
 import type { Product } from "@/lib/db/schema";
@@ -129,6 +130,12 @@ export default async function PolesPage({ searchParams }: Props) {
                 <Link href="/poles" className="btn btn-spruce mt-4">See all poles</Link>
               </div>
             )}
+            <div className="mt-10 max-w-3xl">
+              <StockAlert
+                criteria={{ kind: "model", model }}
+                heading={results.length ? `Need a different part for the ${model.replace(/^the\s+/i, "")}?` : `Get an email when parts for the ${model.replace(/^the\s+/i, "")} are listed`}
+              />
+            </div>
           </>
         )}
 

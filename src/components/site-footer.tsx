@@ -10,8 +10,8 @@ export function SiteFooter() {
         <path d={ridges[2]} fill="#13201c" />
       </svg>
       <div className="bg-ink">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
-        <div className="md:col-span-2">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1.6fr]">
+        <div>
           <p className="display text-4xl text-glacier">{site.name}</p>
           <p className="mt-3 max-w-md">{site.tagline} We&apos;re an independent reseller and aren&apos;t affiliated with the brands we carry.</p>
         </div>
@@ -27,15 +27,26 @@ export function SiteFooter() {
             ))}
           </ul>
         </div>
-        <div>
-          <p className="mb-3 font-semibold text-glacier">Help</p>
-          <ul className="space-y-2">
-            <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
-            <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
-            <li><Link href="/help#returns" className="hover:text-glacier hover:underline">Returns</Link></li>
-            <li><Link href="/help#authenticity" className="hover:text-glacier hover:underline">Authenticity</Link></li>
-            <li><a href={`mailto:${site.supportEmail}`} className="hover:text-glacier hover:underline">{site.supportEmail}</a></li>
-          </ul>
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <p className="mb-3 font-semibold text-glacier">Help</p>
+            <ul className="space-y-2">
+              <li><Link href="/contact" className="hover:text-glacier hover:underline">Contact us</Link></li>
+              <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
+              <li><Link href="/returns" className="hover:text-glacier hover:underline">Returns</Link></li>
+              <li><Link href="/poles/size" className="hover:text-glacier hover:underline">Find a pole by size</Link></li>
+              <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
+            </ul>
+          </div>
+          <div>
+            <p className="mb-3 font-semibold text-glacier">Company</p>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="hover:text-glacier hover:underline">About</Link></li>
+              <li><Link href="/wholesale" className="hover:text-glacier hover:underline">Wholesale</Link></li>
+              <li><Link href="/privacy" className="hover:text-glacier hover:underline">Privacy</Link></li>
+              <li><Link href="/terms" className="hover:text-glacier hover:underline">Terms of sale</Link></li>
+            </ul>
+          </div>
         </div>
       </div>
       <p className="mx-auto max-w-7xl px-4 pb-8 text-sm text-glacier/50 sm:px-6">

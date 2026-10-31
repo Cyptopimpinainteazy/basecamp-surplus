@@ -3,6 +3,7 @@ import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource/big-shoulders-display/700";
 import "@fontsource/big-shoulders-display/800";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { site } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -17,6 +18,13 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true, "max-image-preview": "large" },
+  verification: {
+    // Google Search Console (HTML tag method) and Meta Commerce domain verification.
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.FACEBOOK_DOMAIN_VERIFICATION
+      ? { "facebook-domain-verification": process.env.FACEBOOK_DOMAIN_VERIFICATION }
+      : undefined,
+  },
 };
 
 export const viewport: Viewport = {
@@ -28,7 +36,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Cookieless page-view analytics; enable Web Analytics on the Vercel project. */}
+        <Analytics />
+      </body>
     </html>
   );
 }

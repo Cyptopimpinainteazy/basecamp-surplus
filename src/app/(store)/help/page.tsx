@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const sections = [
   { id: "shipping", q: "How fast do you ship?", a: policies.shipping },
-  { id: "returns", q: "What's your return policy?", a: policies.returns },
+  { id: "returns", q: "What's your return policy?", a: `${policies.returns} Full details are on the returns page.` },
   { id: "authenticity", q: "Is everything authentic?", a: policies.authenticity },
   { id: "sizing", q: "How does sizing run?", a: policies.sizing },
   { id: "payment", q: "How do I pay?", a: policies.payment },

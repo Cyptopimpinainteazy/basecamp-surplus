@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
+import { StockAlert } from "@/components/stock-alert";
 import { Gallery } from "@/components/gallery";
 import { JsonLd } from "@/components/json-ld";
 import { ConditionMark, ProductGrid } from "@/components/product-card";
@@ -86,6 +87,7 @@ export default async function ProductPage({ params }: Props) {
                 returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
                 merchantReturnDays: 30,
                 returnMethod: "https://schema.org/ReturnByMail",
+                merchantReturnLink: `${site.url}/returns`,
               },
             },
           },
@@ -147,6 +149,14 @@ export default async function ProductPage({ params }: Props) {
                 ? `${p.quantity > 1 ? `${p.quantity} in stock. ` : "Only one. "}${shipCents === 0 ? "Free shipping" : `Ships for ${money(shipCents)}`}, out of Denver in ${shippingPolicy.handlingDays}.`
                 : "This one sold. Similar pieces are below."}
             </p>
+            {!available && (
+              <div className="mt-4">
+                <StockAlert
+                  criteria={p.fitment.length ? { kind: "model", model: p.fitment[0] } : { kind: "product", productId: p.id, title: p.title }}
+                  heading={p.fitment.length ? `Get an email when parts for the ${p.fitment[0].replace(/^the\s+/i, "")} are back` : "Get an email if this comes back in stock"}
+                />
+              </div>
+            )}
           </div>
 
           {review && (

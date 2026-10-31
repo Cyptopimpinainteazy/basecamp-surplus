@@ -66,3 +66,16 @@ export function ticketReplyEmail(name: string, topic: string, reply: string) {
     ),
   };
 }
+
+export function stockAlertEmail(opts: { label: string; productTitle: string; productUrl: string; priceCents: number; unsubscribeUrl: string }) {
+  return {
+    subject: `Now in stock: ${opts.productTitle}`,
+    html: shell(
+      "The part you asked about is listed",
+      `<p style="font-size:15px;line-height:1.5">You asked us to tell you when we had: <b>${esc(opts.label)}</b>.</p>
+<p style="font-size:15px;line-height:1.5"><b>${esc(opts.productTitle)}</b> is now listed for ${money(opts.priceCents)}. Stock is limited and we don't hold items.</p>
+<p style="margin:20px 0"><a href="${opts.productUrl}" style="background:#ff7a00;color:#13201c;padding:12px 20px;border-radius:4px;text-decoration:none;font-weight:bold">View it</a></p>
+<p style="font-size:12px;color:#5b6670">This alert has now been used, so you won't get more emails about it. <a href="${opts.unsubscribeUrl}" style="color:#5b6670">Cancel this alert</a>.</p>`,
+    ),
+  };
+}

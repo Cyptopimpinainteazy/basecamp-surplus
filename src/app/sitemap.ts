@@ -21,6 +21,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${site.url}/poles/sizes`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${site.url}/poles/size`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${site.url}/help`, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${site.url}/about`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${site.url}/contact`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${site.url}/wholesale`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${site.url}/returns`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${site.url}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${site.url}/terms`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${site.url}/reviews`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     ...reviews.map((a) => ({ url: `${site.url}/reviews/${a.slug}`, lastModified: a.updatedAt, changeFrequency: "monthly" as const, priority: 0.8 })),
     ...categories

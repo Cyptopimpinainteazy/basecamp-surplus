@@ -32,6 +32,22 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
       {sp.ebay === "denied" && <p className="rounded-md bg-blaze/15 p-3">eBay connection was cancelled or expired. Try again.</p>}
       {sp.ebay === "missing-keys" && <p className="rounded-md bg-blaze/15 p-3">Add EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and EBAY_RU_NAME first.</p>}
 
+      <Row ok={env("LEGAL_NAME") && env("BUSINESS_ADDRESS") && env("BUSINESS_PHONE")} name="Business details">
+        <p>Google Merchant Center and Meta Shops check that your contact page shows a business name, address and phone number, and that you have privacy, returns and terms pages (those are built).</p>
+        {!(env("LEGAL_NAME") && env("BUSINESS_ADDRESS") && env("BUSINESS_PHONE")) && (
+          <p className="text-granite">Set LEGAL_NAME, BUSINESS_ADDRESS and BUSINESS_PHONE. A PO box or registered-agent address works if you don&apos;t want a home address public.</p>
+        )}
+        <p className="text-granite">Have a lawyer read the <a href="/privacy" className="underline">privacy</a>, <a href="/terms" className="underline">terms</a> and <a href="/returns" className="underline">returns</a> pages before launch.</p>
+      </Row>
+
+      <Row ok={env("GOOGLE_SITE_VERIFICATION")} name="Google Search Console">
+        <p>Add the property in Search Console, choose the HTML tag method, and put the content value in GOOGLE_SITE_VERIFICATION. Then submit <code>{site.url}/sitemap.xml</code>.</p>
+      </Row>
+
+      <Row ok name="Analytics">
+        <p>Cookieless page views are built in. Turn on Web Analytics in the Vercel project (Analytics tab) to start collecting.</p>
+      </Row>
+
       <Row ok={ebayOn && env("EBAY_FULFILLMENT_POLICY_ID")} name="eBay">
         <p>One-click listing, live price comps at intake, automatic quantity sync, and eBay orders pulled into your shipping queue every 15 minutes.</p>
         {!ebayKeys ? (
@@ -52,6 +68,7 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
 
       <Row ok name="Facebook, Instagram & Marketplace">
         <p>Meta Commerce Manager → Catalog → Data sources → Data feed → scheduled feed with the same URL. Then turn on your Shop for the Facebook Page and Instagram.</p>
+        <p className="text-granite">Verify the domain in Meta Business settings with the meta-tag method and put the code in FACEBOOK_DOMAIN_VERIFICATION{env("FACEBOOK_DOMAIN_VERIFICATION") ? " (set)" : ""}.</p>
         <p className="text-granite">Marketplace placement for business catalogs depends on Meta approving your shop. Individual Marketplace posts can&apos;t be automated. Use the copy pack on each product if you want to post some by hand.</p>
       </Row>
 
