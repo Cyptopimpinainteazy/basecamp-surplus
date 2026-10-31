@@ -26,7 +26,8 @@ export default async function ReviewsIndex() {
       <h1 className="display text-6xl sm:text-7xl">Gear reviews</h1>
       <p className="mt-3 max-w-2xl text-lg text-granite">
         What each piece is good at, who it fits, and where it falls short. Researched from manufacturer specs, retailer data and
-        independent testing.
+        independent testing. Choosing between two tents?{" "}
+        <Link href="/compare" className="font-semibold text-ink underline">Compare them side by side</Link>.
       </p>
       {items.length === 0 ? (
         <p className="mt-10 text-lg">The first reviews are being written now.</p>

@@ -7,6 +7,7 @@ import { getCategory, site } from "@/lib/config";
 import { getArticle, mentionsModel, readingMinutes, relatedArticles, renderArticle } from "@/lib/articles";
 import { money } from "@/lib/format";
 import { listProducts } from "@/lib/products";
+import { comparisonsFor } from "@/lib/compare";
 
 type Props = { params: Promise<{ slug: string }> };
 export const revalidate = 600;
@@ -43,7 +44,7 @@ export default async function ReviewPage({ params }: Props) {
   const a = await getArticle(slug);
   if (!a || a.status !== "published") notFound();
   const { html, toc } = renderArticle(a.body);
-  const related = await relatedArticles(a);
+  const [related, versus] = await Promise.all([relatedArticles(a), comparisonsFor(a.subject)]);
   const stock = a.stockQuery
     ? (await listProducts({ q: a.stockQuery, limit: 24 })).filter((p) => mentionsModel(`${p.title} ${p.model} ${p.fitment.join(" ")}`, a.stockQuery))
     : [];
@@ -153,6 +154,21 @@ export default async function ReviewPage({ params }: Props) {
                   </div>
                 ))}
               </dl>
+            </section>
+          )}
+
+          {versus.length > 0 && (
+            <section aria-labelledby="versus" className="mx-auto mt-14 max-w-[68ch]">
+              <h2 id="versus" className="display text-4xl">Compare it</h2>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {versus.map((v) => (
+                  <li key={v.slug}>
+                    <Link href={`/compare/${v.slug}`} className="inline-block rounded-full bg-snow px-4 py-2 font-semibold hover:bg-lichen/45">
+                      {v.A.short} vs {v.B.short}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 
