@@ -197,3 +197,56 @@ export async function decrementStock(productId: string, qty: number) {
     .returning({ id: products.id, quantity: products.quantity });
   return rows.length > 0 ? rows[0] : null;
 }
+
+export type PoleSizeRow = {
+  slug: string;
+  title: string;
+  inStock: boolean;
+  priceCents: number;
+  role: string;
+  lengthIn: number | null;
+  packedLengthIn: number | null;
+  sections: number | null;
+  diameterMm: number | null;
+  colorCode: string;
+  material: string;
+  measured: boolean;
+};
+
+/**
+ * Pole sizes grouped by the tent they fit, built from listed pole stock.
+ * Sold-out poles stay in the chart so it keeps working as a size reference.
+ */
+export async function poleSizeChart() {
+  const rows = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.category, "poles"), inArray(products.status, ["active", "sold_out"])));
+  const byTent = new Map<string, PoleSizeRow[]>();
+  for (const p of rows) {
+    const s = p.poleSpec ?? {};
+    const row: PoleSizeRow = {
+      slug: p.slug,
+      title: p.title,
+      inStock: p.status === "active" && p.quantity > 0,
+      priceCents: p.priceCents,
+      role: s.role ?? "",
+      lengthIn: s.lengthIn ?? null,
+      packedLengthIn: s.packedLengthIn ?? null,
+      sections: s.sections ?? null,
+      diameterMm: s.diameterMm ?? null,
+      colorCode: s.colorCode ?? "",
+      material: s.material ?? "",
+      measured: Boolean(s.measured),
+    };
+    for (const tent of p.fitment.length ? p.fitment : ["Unmatched poles"]) {
+      byTent.set(tent, [...(byTent.get(tent) ?? []), row]);
+    }
+  }
+  return [...byTent.entries()]
+    .map(([tent, poles]) => ({
+      tent,
+      poles: poles.sort((a, b) => (b.lengthIn ?? 0) - (a.lengthIn ?? 0)),
+    }))
+    .sort((a, b) => (a.tent === "Unmatched poles" ? 1 : b.tent === "Unmatched poles" ? -1 : a.tent.localeCompare(b.tent)));
+}

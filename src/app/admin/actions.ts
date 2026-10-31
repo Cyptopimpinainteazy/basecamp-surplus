@@ -77,6 +77,25 @@ export async function saveProduct(_: unknown, form: FormData) {
     return { label: label.trim(), value: rest.join(":").trim() };
   }).filter((s) => s.label && s.value);
 
+  const num = (k: string) => {
+    const n = Number(String(form.get(k) ?? "").trim());
+    return Number.isFinite(n) && n > 0 ? n : undefined;
+  };
+  const txt = (k: string) => String(form.get(k) ?? "").trim() || undefined;
+  const poleSpec =
+    category === "poles"
+      ? {
+          lengthIn: num("poleLengthIn"),
+          sections: num("poleSections"),
+          packedLengthIn: num("polePackedIn"),
+          diameterMm: num("poleDiameterMm"),
+          role: txt("poleRole"),
+          colorCode: txt("poleColor"),
+          material: txt("poleMaterial"),
+          measured: form.get("poleMeasured") === "on",
+        }
+      : current.poleSpec;
+
   const imageOrder = lines(form.get("images"));
   const images = imageOrder
     .map((url) => current.images.find((i) => i.url === url))
@@ -110,6 +129,7 @@ export async function saveProduct(_: unknown, form: FormData) {
       keywords: commaList(form.get("keywords")),
       hashtags: commaList(form.get("hashtags")).map((h) => h.replace(/^#/, "")),
       fitment: lines(form.get("fitment")),
+      poleSpec,
       priceCents,
       msrpCents: dollars(form.get("msrp")),
       costCents: dollars(form.get("cost")),

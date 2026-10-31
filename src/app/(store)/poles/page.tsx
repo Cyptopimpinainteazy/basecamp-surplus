@@ -3,6 +3,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
+import { PolesTabs } from "@/components/poles-tabs";
 import { ProductGrid } from "@/components/product-card";
 import { site } from "@/lib/config";
 import { listProducts, poleFitmentIndex, polesForModel } from "@/lib/products";
@@ -48,7 +49,7 @@ export default async function PolesPage({ searchParams }: Props) {
     <>
       <section className="bg-spruce text-glacier">
         <div className="topo-lines">
-          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl px-4 pb-10 pt-16 sm:px-6 sm:pt-20">
             <h1 className="display text-[clamp(3.5rem,11vw,8rem)]">
               {model ? `Poles for the ${model}` : "Find the pole that fits your tent"}
             </h1>
@@ -56,6 +57,9 @@ export default async function PolesPage({ searchParams }: Props) {
               Factory replacement poles, sorted by the tents they fit. Type your tent model and we&apos;ll show what&apos;s in stock.
             </p>
             <PoleFinder models={index} compact={Boolean(model)} />
+          </div>
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            <PolesTabs active="finder" />
           </div>
         </div>
       </section>

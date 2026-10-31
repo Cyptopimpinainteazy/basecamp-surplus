@@ -41,6 +41,7 @@ export const aiListingSchema = z.object({
     .object({
       sections: z.number().optional(),
       lengthIn: z.number().optional(),
+      packedLengthIn: z.number().optional(),
       diameterMm: z.number().optional(),
       material: z.string().optional(),
       colorCode: z.string().optional(),
@@ -129,13 +130,15 @@ const listingTool: Anthropic.Tool = {
       },
       poleSpec: {
         type: ["object", "null"],
+        description: "Poles only. Fill a field only when a label, printed marking or a tape measure in the photo shows it. Never estimate lengths from photos.",
         properties: {
-          sections: { type: "number" },
-          lengthIn: { type: "number" },
-          diameterMm: { type: "number" },
-          material: { type: "string" },
-          colorCode: { type: "string" },
-          role: { type: "string" },
+          sections: { type: "number", description: "Number of shock-corded sections, counted in the photo." },
+          lengthIn: { type: "number", description: "Assembled tip-to-tip length in inches, only if printed on the label or read off a tape measure in the photo." },
+          packedLengthIn: { type: "number", description: "Folded/packed length in inches, only if shown." },
+          diameterMm: { type: "number", description: "Tube diameter in mm, only if printed (e.g. DAC labels show 8.7, 9.0, 9.5)." },
+          material: { type: "string", description: "e.g. 'DAC Featherlite NSL aluminum', 'DAC DA17', 'Fiberglass'." },
+          colorCode: { type: "string", description: "Color marking on the tips or ferrules that matches the tent's corner webbing." },
+          role: { type: "string", description: "Position on the tent if labeled: 'main', 'brow', 'fly', 'hub', 'cross', 'door arch'." },
         },
       },
       ebayAspects: {

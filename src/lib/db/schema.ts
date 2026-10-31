@@ -44,7 +44,12 @@ export type ProductImage = { url: string; alt: string; width?: number; height?: 
 export type Spec = { label: string; value: string };
 export type PoleSpec = {
   sections?: number;
+  /** Assembled length, tip to tip, measured straight. */
   lengthIn?: number;
+  /** Length of one folded section (the packed length). */
+  packedLengthIn?: number;
+  /** Set when the length was tape-measured from stock rather than read from a label. */
+  measured?: boolean;
   diameterMm?: number;
   material?: string;
   colorCode?: string;

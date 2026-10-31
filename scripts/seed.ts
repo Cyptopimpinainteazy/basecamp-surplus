@@ -1,5 +1,5 @@
 // Development preview data: lets you see the storefront before real photos are
-// listed. Every seeded item uses a DEMO- SKU. Run: npm run db:seed
+// listed. Pole sizes here are placeholders for layout only, never real measurements. Every seeded item uses a DEMO- SKU. Run: npm run db:seed
 // Remove with: npm run db:seed -- --clear
 import { like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -142,7 +142,7 @@ const rows: NewProduct[] = [
     title: "Replacement Main Pole for The North Face Stormbreak 2 Tent",
     brand: "The North Face", brandSlug: "the-north-face", model: "Stormbreak 2 main pole", category: "poles", productType: "Tent pole",
     condition: "new_without_tags", description: "Factory replacement main hub pole for the Stormbreak 2. New, never used.",
-    fitment: ["The North Face Stormbreak 2"], poleSpec: { sections: 9, material: "Aluminum", role: "main hub pole" },
+    fitment: ["The North Face Stormbreak 2"], poleSpec: { sections: 9, lengthIn: 141, packedLengthIn: 16.5, diameterMm: 9.5, colorCode: "Gray", material: "Aluminum", role: "main hub pole" },
     seoTitle: "Replacement Pole: The North Face Stormbreak 2", seoDescription: "Factory replacement main pole for The North Face Stormbreak 2 tent. New. Ships from Denver.",
     images: img("pole-gray", "Gray aluminum tent pole with label"), priceCents: 3900, msrpCents: null, quantity: 40, weightOz: 14, packagePreset: "pole-tube",
   }),
@@ -151,7 +151,7 @@ const rows: NewProduct[] = [
     title: "Replacement Fly Pole for The North Face Stormbreak 3 Tent",
     brand: "The North Face", brandSlug: "the-north-face", model: "Stormbreak 3 fly pole", category: "poles", productType: "Tent pole",
     condition: "new_without_tags", description: "Factory replacement brow/fly pole for the Stormbreak 3. New, never used.",
-    fitment: ["The North Face Stormbreak 3"], poleSpec: { sections: 3, material: "Aluminum", role: "fly pole" },
+    fitment: ["The North Face Stormbreak 3"], poleSpec: { sections: 3, lengthIn: 44, packedLengthIn: 15.5, diameterMm: 8.5, colorCode: "Blue", material: "Aluminum", role: "fly pole" },
     seoTitle: "Replacement Pole: The North Face Stormbreak 3", seoDescription: "Factory replacement fly pole for The North Face Stormbreak 3 tent. New. Ships from Denver.",
     images: img("pole-blue", "Blue tent pole with label"), priceCents: 2400, quantity: 25, weightOz: 5, packagePreset: "pole-tube",
   }),
@@ -160,7 +160,7 @@ const rows: NewProduct[] = [
     title: "Replacement Hub Pole Set for The North Face Wawona 6 Tent",
     brand: "The North Face", brandSlug: "the-north-face", model: "Wawona 6 hub pole", category: "poles", productType: "Tent pole",
     condition: "new_without_tags", description: "Factory replacement hub pole set for the Wawona 6. New, never used.",
-    fitment: ["The North Face Wawona 6"], poleSpec: { sections: 12, material: "Aluminum", role: "hub pole" },
+    fitment: ["The North Face Wawona 6"], poleSpec: { sections: 12, lengthIn: 198, packedLengthIn: 17, diameterMm: 11, colorCode: "Green", material: "Aluminum", role: "hub pole" },
     seoTitle: "Replacement Pole: The North Face Wawona 6", seoDescription: "Factory replacement hub pole for The North Face Wawona 6 tent. New. Ships from Denver.",
     images: img("pole-green", "Green tent pole set with label"), priceCents: 5900, quantity: 18, weightOz: 30, packagePreset: "pole-tube",
   }),

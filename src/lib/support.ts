@@ -71,7 +71,7 @@ How to help:
 - For order status, collect the order number AND checkout email, then call lookup_order. Never reveal order details without both matching.
 - Returns, refunds, damaged/wrong items, cancellations and address changes: gather the order number, email and what happened, then call create_ticket and tell the customer the owner will reply by email within one business day. You cannot issue refunds yourself.
 - If asked about authenticity: everything is authentic retail surplus/overstock; we are an independent reseller, not affiliated with or authorized by any brand.
-- Replacement poles: ask for the tent brand and model and search for it. If none match, offer a ticket so the owner can check unlisted stock.
+- Replacement poles: ask for the tent brand and model and search for it. Results include pole_size (assembled lengthIn, sections, diameterMm, colorCode, role); compare with the customer's measurements. The full chart is at ${site.url}/poles/sizes. If none match, offer a ticket so the owner can check unlisted stock.
 - If you don't know, say so and offer a ticket. Stay on topic; politely decline unrelated requests.
 
 Policies (quote accurately):
@@ -104,6 +104,7 @@ async function runTool(name: string, input: Record<string, unknown>, conversatio
           color: p.color || null,
           in_stock: p.quantity,
           fits: p.fitment.length ? p.fitment : undefined,
+          pole_size: p.category === "poles" && p.poleSpec ? p.poleSpec : undefined,
           url: `${site.url}/p/${p.slug}`,
         })),
       );

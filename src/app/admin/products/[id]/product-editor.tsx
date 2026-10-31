@@ -131,6 +131,23 @@ export function ProductEditor({
         {(p.category === "poles" || p.fitment.length > 0) && (
           <Area label="Fits these tents (one per line)" name="fitment" defaultValue={p.fitment.join("\n")} rows={3} hint="Powers the pole finder. Use 'Brand Model', e.g. The North Face Stormbreak 2." />
         )}
+        {p.category === "poles" && (
+          <fieldset className="rounded-md border-[1.5px] border-ice p-4">
+            <legend className="px-1 text-sm font-semibold">Pole size (shows in the public Pole sizes chart)</legend>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="Assembled length (in)" name="poleLengthIn" type="number" defaultValue={p.poleSpec?.lengthIn} hint="Tip to tip, laid straight." />
+              <Field label="Sections" name="poleSections" type="number" defaultValue={p.poleSpec?.sections} />
+              <Field label="Packed length (in)" name="polePackedIn" type="number" defaultValue={p.poleSpec?.packedLengthIn} hint="One folded section." />
+              <Field label="Diameter (mm)" name="poleDiameterMm" type="number" defaultValue={p.poleSpec?.diameterMm} />
+              <Field label="Position" name="poleRole" defaultValue={p.poleSpec?.role} hint="main, brow, fly, hub, cross…" />
+              <Field label="Color code" name="poleColor" defaultValue={p.poleSpec?.colorCode} />
+              <Field label="Material" name="poleMaterial" defaultValue={p.poleSpec?.material} className="sm:col-span-2" />
+              <label className="flex items-center gap-2 self-end pb-3 text-sm">
+                <input type="checkbox" name="poleMeasured" defaultChecked={p.poleSpec?.measured ?? false} /> I measured this myself
+              </label>
+            </div>
+          </fieldset>
+        )}
         {aiNotes.readFromTags.length > 0 && (
           <details className="text-sm">
             <summary className="cursor-pointer text-granite">What the AI read from the tags</summary>
