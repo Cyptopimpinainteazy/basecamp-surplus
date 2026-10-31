@@ -14,6 +14,7 @@ import { buyLabel, getRate, getRates } from "@/lib/shipping";
 import { markOrderShipped } from "@/lib/orders";
 import { requireAdmin } from "@/lib/require-admin";
 import { pushToEbay, syncStock, upsertListing } from "@/lib/channels/sync";
+import { parseStockCount } from "@/lib/stock-rules";
 import { slugify } from "@/lib/format";
 import { importEbayOrders } from "@/lib/orders";
 
@@ -104,8 +105,11 @@ export async function saveProduct(_: unknown, form: FormData) {
     .filter((i): i is NonNullable<typeof i> => Boolean(i));
 
   const requestedSlug = slugify(String(form.get("slug") ?? "")) || current.slug;
-  const quantity = Math.max(0, Math.floor(Number(form.get("quantity") ?? 1)));
-  const status = String(form.get("intent")) === "publish" ? "active" : current.status === "sold_out" && quantity > 0 ? "active" : current.status;
+  const quantity = parseStockCount(form.get("quantity"));
+  const originalQuantity = parseStockCount(form.get("originalQuantity"));
+  if (quantity === null) return { error: "Quantity must be a whole number from 0 to 2 billion." };
+  if (originalQuantity === null || current.quantity !== originalQuantity) return { error: "Stock changed since you opened this item. Refresh before saving." };
+  const status = String(form.get("intent")) === "publish" ? "active" : current.status;
 
   const [updated] = await db
     .update(products)
@@ -145,9 +149,10 @@ export async function saveProduct(_: unknown, form: FormData) {
       publishedAt: status === "active" && !current.publishedAt ? new Date() : current.publishedAt,
       updatedAt: new Date(),
     })
-    .where(eq(products.id, id))
+    .where(and(eq(products.id, id), eq(products.quantity, current.quantity), sql`date_trunc('milliseconds', ${products.updatedAt}) = ${current.updatedAt.toISOString()}::timestamptz`))
     .returning();
 
+  if (!updated) return { error: "This item changed while saving. Refresh and try again." };
   if (current.quantity !== updated.quantity || current.status !== updated.status) await syncStock([id]);
   revalidateProduct(updated.slug);
   if (current.slug !== updated.slug) revalidatePath(`/p/${current.slug}`);
@@ -457,4 +462,24 @@ export async function listUnmatchedPole(_: unknown, form: FormData) {
     .returning({ id: products.id });
   revalidatePath("/admin/products");
   return { ok: "Draft created. Add a photo and publish it.", id: row.id };
+}
+
+
+/** Attach admin-uploaded Blob photos to existing drafts without AI intake. */
+export async function attachProductPhotos(id: string, urls: string[]) {
+  await requireAdmin();
+  if (!Array.isArray(urls) || urls.length < 1 || urls.length > 12 || !urls.every(url => {
+    try { const u = new URL(url); return u.protocol === "https:" && u.hostname.endsWith(".public.blob.vercel-storage.com") && !u.username && !u.password; } catch { return false; }
+  })) return { error: "Use photos uploaded to the configured public Blob store." };
+  const result = await db.transaction(async tx => {
+    const [p] = await tx.select().from(products).where(eq(products.id, id)).for("update");
+    if (!p) return { error: "Product not found." };
+    const images = [...p.images, ...urls.filter(url => !p.images.some(i => i.url === url)).map(url => ({ url, alt: p.title }))];
+    if (images.length > 24) return { error: "Keep at most 24 photos per listing." };
+    await tx.update(products).set({ images, updatedAt: new Date() }).where(eq(products.id, id));
+    return { images, slug: p.slug };
+  });
+  if (result.error) return { error: result.error };
+  revalidateProduct(result.slug!);
+  return { images: result.images };
 }

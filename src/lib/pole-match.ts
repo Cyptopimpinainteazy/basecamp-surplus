@@ -94,8 +94,8 @@ export const cmToIn = (cm: number) => Math.round((cm / 2.54) * 10) / 10;
 /** Plain-language fit label for a match. */
 export function matchLabel(m: PoleMatch) {
   if (m.lengthDiff !== null && Math.abs(m.lengthDiff) <= 0.5 && m.sectionsMatch !== false && (m.diameterDiff === null || Math.abs(m.diameterDiff) <= 0.3)) {
-    return "Exact match";
+    return "Close measurements";
   }
-  if (m.score >= 50) return "Close match";
-  return "Possible match";
+  if (m.score >= 50) return "Similar measurements";
+  return "Candidate — check details";
 }

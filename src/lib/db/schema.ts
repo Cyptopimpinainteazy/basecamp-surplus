@@ -277,3 +277,13 @@ export const articles = pgTable(
 );
 
 export type Article = typeof articles.$inferSelect;
+
+/** Manual stock counts made in the dedicated stock workspace (not a sales ledger). */
+export const stockAdjustments = pgTable("stock_adjustments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productId: uuid("product_id").notNull().references(() => products.id),
+  previousQuantity: integer("previous_quantity").notNull(),
+  quantity: integer("quantity").notNull(),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("stock_adjustments_product_idx").on(t.productId, t.createdAt)]);

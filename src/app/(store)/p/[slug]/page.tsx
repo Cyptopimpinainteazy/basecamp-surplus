@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/json-ld";
 import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
 import { money, savingsPercent, truncate } from "@/lib/format";
-import { getProductBySlug, relatedProducts } from "@/lib/products";
+import { complementaryProducts, getProductBySlug, relatedProducts } from "@/lib/products";
 import { reviewForProduct } from "@/lib/articles";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -35,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p || p.status === "draft" || p.status === "archived") notFound();
-  const [related, review] = await Promise.all([relatedProducts(p), reviewForProduct(`${p.title} ${p.model}`)]);
+  const [related, review, complements] = await Promise.all([relatedProducts(p), reviewForProduct(`${p.title} ${p.model}`), complementaryProducts(p)]);
   const cat = getCategory(p.category);
   const cond = getCondition(p.condition);
   const available = p.status === "active" && p.quantity > 0;
@@ -213,6 +213,16 @@ export default async function ProductPage({ params }: Props) {
           <p className="mt-6 text-xs text-granite">SKU {p.sku}. {site.name} is an independent reseller and is not affiliated with {p.brand}.</p>
         </div>
       </div>
+
+      {(p.category === "tents" || p.category === "poles" || p.category === "parts") && (
+        <section className="mt-16 rounded-[var(--radius-tag)] bg-lichen/35 p-5 sm:p-8" aria-labelledby="complete-setup">
+          <p className="text-xs font-semibold uppercase tracking-widest text-granite">Build your basecamp</p>
+          <h2 id="complete-setup" className="display mt-3 text-4xl sm:text-5xl">{p.category === "tents" ? "Keep your setup going." : "Meet the rest of the setup."}</h2>
+          <p className="mb-6 mt-3 max-w-3xl text-granite">{complements.length ? "In-stock gear listed for the same brand and model. Confirm model year, pole geometry and end fittings before adding a replacement. Each item is sold separately." : "No complementary stock is linked to this exact model yet. Browse tents or check your pole measurements; a shared brand alone does not establish fit."}</p>
+          {complements.length > 0 && <ProductGrid items={complements} />}
+          <div className="mt-5 flex flex-wrap gap-3"><Link href="/poles/size" className="btn btn-spruce">Check pole measurements</Link><Link href={p.category === "tents" && p.model ? `/poles?model=${encodeURIComponent(`${p.brand} ${p.model}`)}` : "/c/tents"} className="btn btn-line">{p.category === "tents" && p.model ? "Browse model parts" : "Explore tents"}</Link><Link href="/c/parts?q=stake" className="btn btn-line">Browse stakes</Link></div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="mt-20" aria-labelledby="related">

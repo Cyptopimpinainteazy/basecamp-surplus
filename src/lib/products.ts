@@ -38,6 +38,8 @@ function filters(q: ProductQuery): SQL[] {
           ilike(products.model, like),
           ilike(products.color, like),
           ilike(products.productType, like),
+          ilike(products.material, like),
+          sql`${products.poleSpec}->>'material' ilike ${like}`,
           sql`${products.keywords}::text ilike ${like}`,
           sql`${products.fitment}::text ilike ${like}`,
         )!,
@@ -254,4 +256,20 @@ export async function poleSizeChart() {
       poles: poles.sort((a, b) => (b.lengthIn ?? 0) - (a.lengthIn ?? 0)),
     }))
     .sort((a, b) => (a.tent === "Unmatched poles" ? 1 : b.tent === "Unmatched poles" ? -1 : a.tent.localeCompare(b.tent)));
+}
+
+/** Complementary stock linked by an exact, explicitly recorded brand/model key. */
+export async function complementaryProducts(p: Product, limit = 4) {
+  const { crossSellPlan } = await import("./cross-sell");
+  const plan = crossSellPlan(p);
+  if (!plan) return [];
+  const normalize = (value: SQL) => sql`lower(regexp_replace(trim(${value}), '\\s+', ' ', 'g'))`;
+  const tentKey = normalize(sql`case when lower(${products.model}) like lower(${products.brand}) || ' %' then ${products.model} else ${products.brand} || ' ' || ${products.model} end`);
+  const linked = p.category === "tents"
+    ? sql`exists (select 1 from jsonb_array_elements_text(${products.fitment}) as fit(model) where ${inArray(normalize(sql`fit.model`), plan.models)})`
+    : inArray(tentKey, plan.models);
+  return db.select().from(products).where(and(
+    eq(products.status, "active"), gt(products.quantity, 0), sql`${products.id} <> ${p.id}`,
+    inArray(products.category, plan.categories), linked,
+  )).orderBy(asc(products.category), desc(products.publishedAt)).limit(limit);
 }

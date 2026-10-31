@@ -9,7 +9,8 @@ export const metadata: Metadata = { title: { default: "Admin", template: `%s | $
 const nav = [
   { href: "/admin", label: "Today" },
   { href: "/admin/intake", label: "Add item" },
-  { href: "/admin/products", label: "Inventory" },
+  { href: "/admin/products", label: "Listings" },
+  { href: "/admin/stock", label: "Stock & quantities" },
   { href: "/admin/poles/match", label: "Loose poles" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/reviews", label: "Reviews" },

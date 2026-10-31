@@ -33,6 +33,7 @@ export default async function ProductsAdmin({ searchParams }: { searchParams: Pr
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <h1 className="display text-6xl">Inventory</h1>
         <div className="flex gap-2">
+          <Link href="/admin/stock" className="btn btn-spruce">Stock & quantities</Link>
           <a href="/api/admin/export" className="btn btn-line">Crosslister CSV</a>
           <Link href="/admin/intake" className="btn btn-blaze">Add item</Link>
         </div>

@@ -107,6 +107,8 @@ export const fitmentCategories = ["poles", "parts"];
 
 export const brands = [
   { slug: "the-north-face", name: "The North Face" },
+  { slug: "easton", name: "Easton" },
+  { slug: "dac", name: "DAC" },
   { slug: "patagonia", name: "Patagonia" },
   { slug: "montec", name: "Montec" },
   { slug: "dope", name: "Dope" },

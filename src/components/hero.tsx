@@ -75,16 +75,16 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
         </div>
 
         <p className="relative mx-auto mt-16 w-full max-w-7xl px-4 text-lg sm:mt-24 text-glacier/80 sm:px-6 sm:text-xl lg:pr-[360px]">
-          {inStock > 0 ? `${inStock.toLocaleString()} pieces in stock in Denver today.` : "Fresh stock lands every week."}
+          {inStock > 0 ? `${inStock.toLocaleString()} pieces in stock in Denver today.` : "Tents, poles and outdoor gear. Shipped from Denver."}
         </p>
         <h1
           id="hero-title"
           className="hero-rise display relative mx-auto mt-3 w-full max-w-7xl px-4 pb-[clamp(3.2rem,7.5vw,7rem)] text-[clamp(4.3rem,13vw,11rem)] sm:px-6 lg:pr-[340px] xl:pr-6"
           style={{ textShadow: "0 2px 30px rgba(0,0,0,.25)" }}
         >
-          Gear with the
+          Good gear.
           <br />
-          tags still on.
+          More out there.
         </h1>
 
         {/* Near layers rise over the headline's baseline. */}
@@ -101,7 +101,7 @@ export function Hero({ inStock, brandsLine, featured }: { inStock: number; brand
             inspected pre-owned Patagonia. Shipped from Denver.
           </p>
           <div className="flex shrink-0 flex-wrap gap-3">
-            <Link href="/c/jackets" className="btn btn-spruce">Shop jackets</Link>
+            <Link href="/poles" className="btn btn-spruce">Find replacement poles</Link>
             <Link href="/c/tents" className="btn btn-blaze">Shop tents</Link>
           </div>
         </div>
