@@ -12,8 +12,7 @@ export async function recordPaidOrder(database: StoreDatabase, values: NewOrder)
     const identity = values.stripeSessionId
       ? eq(orders.stripeSessionId, values.stripeSessionId)
       : and(eq(orders.source, "ebay"), eq(orders.externalId, values.externalId!))!;
-    const target = values.stripeSessionId ? orders.stripeSessionId : [orders.source, orders.externalId];
-    const [claimed] = await tx.insert(orders).values({...values, status:"paid", attentionReason:null}).onConflictDoNothing({target}).returning();
+    const [claimed] = await tx.insert(orders).values({...values, status:"paid", attentionReason:null}).onConflictDoNothing().returning();
     if (!claimed) {
       const [existing] = await tx.select().from(orders).where(identity);
       if (!existing) throw new Error("Order claim could not be resolved");
