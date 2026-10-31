@@ -51,3 +51,18 @@ Local preview: `cp .env.example .env.local`, point at a local Postgres, `npx dri
 - Apply the additive `0002_stock_adjustments` migration with `npm run db:migrate` before opening Stock. The manual adjustment log covers this workspace only; it is not a full sales or staff audit ledger. Admin authentication remains the existing shared-admin session.
 
 Validation: `npm run typecheck`, `node --import tsx --test src/lib/stock-rules.test.ts`, `npm run build`. A real database and configured marketplace/payment credentials are required for end-to-end stock, checkout and channel verification. Never seed demo listings into real stock.
+
+## Dropshipping and custom orders
+
+- **Suppliers** (Admin → Suppliers): anyone who ships or makes things for you. See `docs/SUPPLIERS.md` for the researched shortlist.
+- **Dropship / made-to-order listings**: set an item's *Fulfillment* and *Supplier* in its editor. A paid order emails the
+  supplier a purchase order with a private link where they confirm and add tracking; the customer is emailed tracking
+  automatically. Open supplier orders show on the admin dashboard.
+- **Custom shop** (`/custom`):
+  - Logo canopy tents: live preview + estimate → request → you send the printer's proof and price → customer approves and
+    pays on their private page → PO to the printer.
+  - Poles cut to size: priced instantly from your shop rates and paid at checkout; shows up as a build ticket.
+  - Private-label tents: factory-quote requests for brands, quoted the same way as canopies.
+- **Prices**: Admin → Custom jobs → Builder pricing. Replace the starting values with real printer quotes and your rates.
+- Supplier PO emails need `RESEND_API_KEY` and `OWNER_EMAIL`; payments need Stripe. Without email, POs stay queued and
+  retry, and you can send or mark them from the order page.

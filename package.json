@@ -14,7 +14,7 @@
     "vercel-build": "tsx scripts/migrate.ts && tsx scripts/import-reviews.ts && next build",
     "db:reviews": "tsx scripts/import-reviews.ts",
     "test:orders": "node --conditions=react-server --import tsx --test src/lib/order-transaction.test.ts src/lib/paid-line-items.test.ts",
-    "test:unit": "node --conditions=react-server --import tsx --test src/lib/pole-sale.test.ts src/lib/stock-rules.test.ts src/lib/seo.test.ts src/lib/paid-line-items.test.ts"
+    "test:unit": "node --conditions=react-server --import tsx --test src/lib/pole-sale.test.ts src/lib/stock-rules.test.ts src/lib/seo.test.ts src/lib/paid-line-items.test.ts src/lib/custom-pricing.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

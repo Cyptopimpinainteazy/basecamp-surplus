@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { checkPassword, createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { brandSlug, categorySlugs, conditionValues, getPackagePreset } from "@/lib/config";
 import { db } from "@/lib/db";
-import { channelListings, orders, products, supportTickets, type Channel } from "@/lib/db/schema";
+import { channelListings, orders, products, suppliers, supportTickets, type Channel, type Fulfillment } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email/send";
 import { ticketReplyEmail } from "@/lib/email/templates";
 import { buyLabel, getRate, getRates } from "@/lib/shipping";
@@ -117,6 +117,17 @@ export async function saveProduct(_: unknown, form: FormData) {
   if (quantity === null) return { error: "Quantity must be a whole number from 0 to 2 billion." };
   if (originalQuantity === null || current.quantity !== originalQuantity) return { error: "Stock changed since you opened this item. Refresh before saving." };
   const status = String(form.get("intent")) === "publish" ? "active" : current.status;
+  const fulfillmentRaw = String(form.get("fulfillment") ?? current.fulfillment);
+  const fulfillment = (["stock", "dropship", "made_to_order"].includes(fulfillmentRaw) ? fulfillmentRaw : "stock") as Fulfillment;
+  const supplierIdRaw = String(form.get("supplierId") ?? "").trim();
+  const supplierId = /^[0-9a-f-]{36}$/i.test(supplierIdRaw) ? supplierIdRaw : null;
+  if (fulfillment !== "stock" && !supplierId) return { error: "Pick the supplier who ships this item, or set Fulfillment to Our stock." };
+  if (supplierId) {
+    const [sup] = await db.select({ id: suppliers.id }).from(suppliers).where(eq(suppliers.id, supplierId));
+    if (!sup) return { error: "That supplier no longer exists." };
+  }
+  const leadRaw = Number(String(form.get("leadTimeDays") ?? "").trim());
+  const leadTimeDays = Number.isInteger(leadRaw) && leadRaw > 0 && leadRaw <= 365 ? leadRaw : null;
 
   const [updated] = await db
     .update(products)
@@ -143,6 +154,10 @@ export async function saveProduct(_: unknown, form: FormData) {
       hashtags: commaList(form.get("hashtags")).map((h) => h.replace(/^#/, "")),
       fitment: lines(form.get("fitment")),
       poleSpec,
+      fulfillment,
+      supplierId,
+      supplierSku: String(form.get("supplierSku") ?? "").trim().slice(0, 80),
+      leadTimeDays,
       priceCents,
       msrpCents: dollars(form.get("msrp")),
       costCents: dollars(form.get("cost")),

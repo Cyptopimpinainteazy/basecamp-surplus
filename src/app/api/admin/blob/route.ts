@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       onBeforeGenerateToken: async () => {
         if (!(await isAdmin())) throw new Error("Not signed in");
         return {
-          allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"],
+          allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "application/pdf", "image/svg+xml"],
           maximumSizeInBytes: 15 * 1024 * 1024,
           addRandomSuffix: true,
         };

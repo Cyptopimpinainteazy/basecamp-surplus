@@ -7,6 +7,7 @@ import { Gallery } from "@/components/gallery";
 import { JsonLd } from "@/components/json-ld";
 import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
+import { shipNote } from "@/lib/fulfillment";
 import { money, savingsPercent, truncate } from "@/lib/format";
 import { complementaryProducts, getProductBySlug, relatedProducts } from "@/lib/products";
 import { poleSaleLabel } from "@/lib/pole-sale";
@@ -154,7 +155,9 @@ export default async function ProductPage({ params }: Props) {
             />
             <p className="mt-3 text-sm text-muted">
               {available
-                ? `${p.quantity > 1 ? `${p.quantity} in stock. ` : "Only one. "}${shipCents === 0 ? "Free shipping" : `Ships for ${money(shipCents)}`}, out of Denver in ${shippingPolicy.handlingDays}.`
+                ? shipNote(p)
+                  ? `${shipNote(p)}. ${shipCents === 0 ? "Free shipping" : `Shipping ${money(shipCents)}`}.`
+                  : `${p.quantity > 1 ? `${p.quantity} in stock. ` : "Only one. "}${shipCents === 0 ? "Free shipping" : `Ships for ${money(shipCents)}`}, out of Denver in ${shippingPolicy.handlingDays}.`
                 : "This one sold. Similar pieces are below."}
             </p>
             {!available && (

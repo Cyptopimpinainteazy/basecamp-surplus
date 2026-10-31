@@ -110,7 +110,7 @@ export function LiveSearch() {
           aria-controls={`${id}-list`}
           aria-activedescendant={active >= 0 ? optId(active) : undefined}
           placeholder="Search Nuptse, Stormbreak, size M…"
-          className="h-10 w-52 rounded-md xl:w-72 border-0 bg-spruce-2 px-3 text-glacier transition-[width,background-color] duration-300 placeholder:text-glacier/55 focus:w-64 xl:focus:w-[22rem] focus:bg-card focus:text-fg focus:outline-none"
+          className="h-10 w-52 rounded-md min-[1400px]:w-56 border-0 bg-spruce-2 px-3 text-glacier transition-[width,background-color] duration-300 placeholder:text-glacier/55 focus:w-64 focus:bg-card focus:text-fg focus:outline-none"
         />
       </form>
       {show && (

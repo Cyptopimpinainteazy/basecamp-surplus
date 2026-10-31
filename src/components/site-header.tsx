@@ -9,6 +9,7 @@ const nav = [
   { href: "/c/jackets", label: "Jackets" },
   { href: "/poles", label: "Poles & parts" },
   { href: "/shop?condition=used", label: "Pre-owned" },
+  { href: "/custom", label: "Custom" },
   { href: "/reviews", label: "Reviews" },
   { href: "/shop", label: "All gear" },
 ];
@@ -26,15 +27,22 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Main" className="ml-4 hidden items-center gap-0.5 lg:flex xl:ml-6">
           {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="navlink whitespace-nowrap rounded-md px-2.5 py-2 font-medium xl:px-3 text-glacier/85 hover:text-glacier">
+            <Link key={n.href} href={n.href} className="navlink whitespace-nowrap rounded-md px-2 py-2 font-medium xl:px-3 text-glacier/85 hover:text-glacier">
               {n.label}
             </Link>
           ))}
         </nav>
-        <div className="ml-auto hidden md:block">
+        {/* Full search box on tablets and wide screens; between those the nav needs the room, so search is an icon. */}
+        <div className="ml-auto hidden md:block lg:hidden min-[1400px]:block">
           <LiveSearch />
         </div>
-        <div className="ml-auto flex items-center gap-1 md:ml-2">
+        <Link href="/shop" aria-label="Search all gear" className="press ml-auto hidden h-10 w-10 place-items-center rounded-md text-glacier/85 hover:bg-spruce-2 hover:text-glacier lg:grid min-[1400px]:hidden">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        </Link>
+        <div className="ml-auto flex shrink-0 items-center gap-1 md:ml-2 lg:ml-0 min-[1400px]:ml-2">
           <ThemeToggle />
           <CartButton />
         </div>

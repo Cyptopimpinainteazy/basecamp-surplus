@@ -50,6 +50,13 @@
       "when": 1793473200000,
       "tag": "0006_order_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793480000000,
+      "tag": "0007_dropship_custom",
+      "breakpoints": true
     }
   ]
 }

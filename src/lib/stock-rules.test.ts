@@ -21,3 +21,12 @@ test("cross selling preserves tent capacity and generation and never guesses fro
   assert.deepEqual(crossSellPlan({category:"poles",brand:"DAC",model:"",fitment:["The North Face Wawona 4","the north face wawona 4"]})?.models,["the north face wawona 4"]);
   assert.equal(crossSellPlan({category:"jackets",brand:"Patagonia",model:"Down",fitment:[]}),null);
 });
+
+test("migration journal is in timestamp order, so no migration is skipped", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { entries } = JSON.parse(readFileSync("drizzle/meta/_journal.json", "utf8")) as { entries: { tag: string; when: number; idx: number }[] };
+  entries.forEach((e, i) => {
+    assert.equal(e.idx, i);
+    if (i) assert.ok(e.when > entries[i - 1].when, `${e.tag} must be dated after ${entries[i - 1].tag}`);
+  });
+});

@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { eq, inArray } from "drizzle-orm";
 import { getPackagePreset, packagePresets } from "@/lib/config";
 import { db } from "@/lib/db";
-import { products, orderTasks } from "@/lib/db/schema";
+import { customJobs, products, orderTasks, purchaseOrders, suppliers } from "@/lib/db/schema";
+import { poLink } from "@/lib/purchase-orders";
+import { SupplierPanel } from "./supplier-panel";
 import { money } from "@/lib/format";
 import { getOrder } from "@/lib/orders";
 import { shippoConfigured } from "@/lib/shipping";
@@ -23,6 +25,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const preset = o.packagePreset ?? rows.map((r) => getPackagePreset(r.packagePreset)).sort((a, b) => b.length * b.width * b.height - a.length * a.width * a.height)[0]?.id ?? "medium-box";
   const a = o.shippingAddress;
   const pendingTasks = (await db.select().from(orderTasks).where(eq(orderTasks.orderId,o.id))).filter(t=>!t.completedAt);
+  const pos = await db.select().from(purchaseOrders).where(eq(purchaseOrders.orderId, o.id));
+  const supRows = pos.length ? await db.select({ id: suppliers.id, name: suppliers.name }).from(suppliers).where(inArray(suppliers.id, pos.map((p) => p.supplierId))) : [];
+  const jobIds = o.items.map((i) => i.customJobId).filter((x): x is string => Boolean(x));
+  const jobs = jobIds.length ? await db.select({ id: customJobs.id, kind: customJobs.kind }).from(customJobs).where(inArray(customJobs.id, jobIds)) : [];
+  // Supplier-made: dropship/made-to-order listings and every custom job except in-house pole builds.
+  const needsPo = rows.some((r) => r.fulfillment !== "stock") || jobs.some((j) => j.kind !== "poles");
 
   return (
     <div>
@@ -49,6 +57,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                     <p className="font-semibold">{i.quantity} × {i.title}</p>
                     <p className="font-mono text-xs text-muted">{i.sku}</p>
                     {i.saleUnitLabel && <p className="mt-1 text-sm font-semibold">{i.saleUnitLabel}</p>}
+                    {i.customJobId && <Link href={`/admin/custom/${i.customJobId}`} className="mt-1 inline-block text-sm font-semibold underline">Custom job details</Link>}
+                    {(i.fulfillment === "dropship" || i.fulfillment === "made_to_order") && <p className="mt-1 text-sm font-semibold text-accent">Supplier ships this</p>}
                   </div>
                   <span className="ml-auto">{money(i.unitCents * i.quantity)}</span>
                 </li>
@@ -62,6 +72,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               {o.labelCostCents != null && <div className="flex justify-between text-muted"><dt>Label cost</dt><dd>{money(o.labelCostCents)}</dd></div>}
             </dl>
           </section>
+          <SupplierPanel
+            orderId={o.id}
+            pos={pos}
+            supplierNames={Object.fromEntries(supRows.map((x) => [x.id, x.name]))}
+            links={Object.fromEntries(pos.map((p) => [p.id, poLink(p)]))}
+            needsPo={needsPo && (pos.length === 0 || pos.some((p) => p.status === "pending") || jobs.some((j) => j.kind !== "poles" && !pos.some((p) => p.items.some((i) => i.customJobId === j.id))))}
+          />
           <section className="rounded-[var(--radius-tag)] bg-card p-5">
             <h2 className="display text-3xl">Ship to</h2>
             {a ? (

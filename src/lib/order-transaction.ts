@@ -1,6 +1,6 @@
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import type { StoreDatabase } from "./db";
-import { orders, orderTasks, products, type OrderItem } from "./db/schema";
+import { customJobs, orders, orderTasks, products, type OrderItem } from "./db/schema";
 import { poleSaleLabel } from "./pole-sale";
 
 type NewOrder = typeof orders.$inferInsert;
@@ -20,8 +20,11 @@ export async function recordPaidOrder(database: StoreDatabase, values: NewOrder)
     }
     const quantities = new Map<string, number>();
     const problems:string[] = [];
+    const jobIds = new Set<string>();
     for (const item of values.items) {
       if (!Number.isSafeInteger(item.quantity) || item.quantity < 1) throw new Error("Invalid paid quantity");
+      // Custom jobs (logo canopies, pole builds) have no inventory row; they're claimed below instead.
+      if (item.customJobId) { jobIds.add(item.customJobId); continue; }
       if (!item.productId) { problems.push(`${item.sku || item.title}: no matching inventory SKU`); continue; }
       const qty=(quantities.get(item.productId)??0)+item.quantity;
       if(!Number.isSafeInteger(qty))throw new Error("Paid quantity overflow");
@@ -34,6 +37,15 @@ export async function recordPaidOrder(database: StoreDatabase, values: NewOrder)
       if (!p || p.status!=="active" || p.quantity<qty) {problems.push(`${values.items.find(i=>i.productId===id)?.sku || id}: insufficient sellable stock`);continue;}
       if(p.category==="poles" && values.items.filter(i=>i.productId===id).some(i=>!i.saleUnitLabel || i.saleUnitLabel!==poleSaleLabel(p.poleSpec))) problems.push(`${p.sku}: purchased pole unit needs manual verification`);
     }
+    // Each custom job can be paid once, and only from the state that offered payment.
+    for (const jobId of [...jobIds].sort()) {
+      const [job] = await tx.update(customJobs).set({status:"paid",paidAt:new Date(),orderId:claimed.id,updatedAt:new Date(),
+        // Pole builds start checkout before we know who's paying.
+        email:sql`case when ${customJobs.email}='pending@checkout' then ${values.email} else ${customJobs.email} end`,
+        name:sql`case when ${customJobs.name}='' then ${values.customerName ?? ""} else ${customJobs.name} end`})
+        .where(and(eq(customJobs.id,jobId),inArray(customJobs.status,["quoted","checkout"]))).returning({id:customJobs.id});
+      if (!job) problems.push(`Custom job ${values.items.find(i=>i.customJobId===jobId)?.sku || jobId}: was not awaiting payment`);
+    }
     // Allocate the whole order or none of it. Shortages are held for manual resolution.
     if (!problems.length) for (const [id, qty] of quantities) await tx.update(products).set({
       quantity:sql`${products.quantity} - ${qty}`,
@@ -41,7 +53,9 @@ export async function recordPaidOrder(database: StoreDatabase, values: NewOrder)
       updatedAt:new Date(),
     }).where(eq(products.id,id));
     const [order]=await tx.update(orders).set({status:problems.length?"needs_attention":"paid",attentionReason:problems.length?`No stock allocated. Reconcile the full order before marking ready to ship: ${problems.join("; ")}`:null}).where(eq(orders.id,claimed.id)).returning();
-    const kinds=["stock_sync","owner_alert",...(values.source!=="ebay"?["confirmation"]:[])];
+    // Supplier purchase orders: anything a supplier ships (dropship, made to order, custom jobs).
+    const needsSupplier = jobIds.size>0 || stock.some(p=>p.fulfillment!=="stock");
+    const kinds=["stock_sync","owner_alert",...(values.source!=="ebay"?["confirmation"]:[]),...(needsSupplier && !problems.length?["supplier_po"]:[])];
     await tx.insert(orderTasks).values(kinds.map(kind=>({orderId:order.id,kind})));
     return {order,created:true};
   });

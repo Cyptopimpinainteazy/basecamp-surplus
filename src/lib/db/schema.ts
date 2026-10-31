@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   index,
   integer,
@@ -63,6 +64,8 @@ export type PoleSpec = {
   role?: string; // e.g. "main hub pole", "brow pole", "fly pole"
 };
 
+export type Fulfillment = "stock" | "dropship" | "made_to_order";
+
 export const products = pgTable(
   "products",
   {
@@ -98,6 +101,12 @@ export const products = pgTable(
     packagePreset: text("package_preset").notNull().default("medium-box"),
     fitment: jsonb("fitment").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
     poleSpec: jsonb("pole_spec").$type<PoleSpec>(),
+    /** stock: we ship it. dropship: a supplier ships it. made_to_order: a supplier makes then ships it. */
+    fulfillment: text("fulfillment").$type<Fulfillment>().notNull().default("stock"),
+    supplierId: uuid("supplier_id").references((): AnyPgColumn => suppliers.id),
+    supplierSku: text("supplier_sku").notNull().default(""),
+    /** Days from order to shipment for dropship / made-to-order items. */
+    leadTimeDays: integer("lead_time_days"),
     ebayCategoryId: text("ebay_category_id"),
     ebayAspects: jsonb("ebay_aspects").$type<Record<string, string[]>>(),
     pricingBasis: text("pricing_basis").notNull().default(""),
@@ -136,11 +145,15 @@ export const channelListings = pgTable(
 
 export type OrderItem = {
   productId: string;
+  /** Who ships it, copied from the listing at checkout. Missing means our own stock. */
+  fulfillment?: Fulfillment;
   sku: string;
   title: string;
   quantity: number;
   unitCents: number;
   saleUnitLabel?: string;
+  /** Set for custom jobs (logo canopies, pole builds, private-label quotes); these have no inventory row. */
+  customJobId?: string;
   lineSubtotalCents?: number;
   lineDiscountCents?: number;
   lineTaxCents?: number;
@@ -381,3 +394,139 @@ export const orderTasks=pgTable("order_tasks",{
   lastError:text("last_error"),
   createdAt:timestamp("created_at",{withTimezone:true}).notNull().defaultNow(),
 },t=>[uniqueIndex("order_tasks_order_kind_idx").on(t.orderId,t.kind),index("order_tasks_pending_idx").on(t.completedAt,t.lockedUntil)]);
+
+
+// ---------- Dropship suppliers, purchase orders and custom jobs ----------
+
+export const suppliers = pgTable("suppliers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  /** dropship | printer | factory | parts */
+  kind: text("kind").notNull().default("dropship"),
+  contactName: text("contact_name").notNull().default(""),
+  /** Where purchase orders are emailed. */
+  orderEmail: text("order_email").notNull(),
+  phone: text("phone").notNull().default(""),
+  website: text("website").notNull().default(""),
+  /** Confirmed in writing that they ship with no supplier branding or invoice. */
+  blindShip: boolean("blind_ship").notNull().default(false),
+  leadTimeDays: integer("lead_time_days"),
+  notes: text("notes").notNull().default(""),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type Supplier = typeof suppliers.$inferSelect;
+
+export type PurchaseOrderItem = {
+  title: string;
+  sku: string;
+  supplierSku: string;
+  quantity: number;
+  /** Our cost per unit, if known. */
+  unitCostCents: number | null;
+  customJobId?: string;
+  /** Plain-language build/print spec for custom jobs. */
+  spec?: string[];
+  artwork?: { url: string; name: string }[];
+};
+
+export const purchaseOrders = pgTable(
+  "purchase_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    number: text("number").notNull(),
+    orderId: uuid("order_id").notNull().references(() => orders.id),
+    supplierId: uuid("supplier_id").notNull().references(() => suppliers.id),
+    /** pending (not yet emailed) | sent | confirmed | shipped | cancelled */
+    status: text("status").notNull().default("pending"),
+    items: jsonb("items").$type<PurchaseOrderItem[]>().notNull(),
+    shipTo: jsonb("ship_to").$type<Address>(),
+    costCents: integer("cost_cents"),
+    /** Private link token for the supplier's confirm/tracking page. */
+    token: text("token").notNull(),
+    carrier: text("carrier"),
+    trackingNumber: text("tracking_number"),
+    trackingUrl: text("tracking_url"),
+    supplierNote: text("supplier_note").notNull().default(""),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("purchase_orders_number_idx").on(t.number),
+    uniqueIndex("purchase_orders_token_idx").on(t.token),
+    uniqueIndex("purchase_orders_order_supplier_idx").on(t.orderId, t.supplierId),
+    index("purchase_orders_status_idx").on(t.status),
+  ],
+);
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+
+export type CustomJobKind = "canopy" | "poles" | "private_label";
+/**
+ * requested -> quoted -> paid -> in_production -> shipped (canopy, private label)
+ * checkout -> paid -> in_production -> shipped (pole builds: priced instantly)
+ * plus declined / cancelled.
+ */
+export type CustomJobStatus = "requested" | "quoted" | "checkout" | "paid" | "in_production" | "shipped" | "declined" | "cancelled";
+
+export const customJobs = pgTable(
+  "custom_jobs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    number: text("number").notNull(),
+    kind: text("kind").$type<CustomJobKind>().notNull(),
+    status: text("status").$type<CustomJobStatus>().notNull().default("requested"),
+    email: text("email").notNull(),
+    name: text("name").notNull().default(""),
+    company: text("company").notNull().default(""),
+    phone: text("phone").notNull().default(""),
+    /** The builder's choices (sizes, walls, pole measurements...). Shape depends on kind. */
+    config: jsonb("config").$type<Record<string, unknown>>().notNull(),
+    /** Human-readable lines of the configuration, for emails, POs and admin. */
+    summary: jsonb("summary").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    artwork: jsonb("artwork").$type<{ url: string; name: string }[]>().notNull().default(sql`'[]'::jsonb`),
+    proofs: jsonb("proofs").$type<{ url: string; name: string }[]>().notNull().default(sql`'[]'::jsonb`),
+    quantity: integer("quantity").notNull().default(1),
+    estimateCents: integer("estimate_cents"),
+    /** Final price for the whole job (all units), set by the owner on the quote. */
+    priceCents: integer("price_cents"),
+    shippingCents: integer("shipping_cents").notNull().default(0),
+    costCents: integer("cost_cents"),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    neededBy: text("needed_by").notNull().default(""),
+    customerNote: text("customer_note").notNull().default(""),
+    ownerNote: text("owner_note").notNull().default(""),
+    /** Private link token for the customer's job page. */
+    token: text("token").notNull(),
+    ip: text("ip"),
+    stripeSessionId: text("stripe_session_id"),
+    orderId: uuid("order_id").references(() => orders.id),
+    quotedAt: timestamp("quoted_at", { withTimezone: true }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("custom_jobs_number_idx").on(t.number),
+    uniqueIndex("custom_jobs_token_idx").on(t.token),
+    index("custom_jobs_status_idx").on(t.status, t.kind),
+    index("custom_jobs_ip_idx").on(t.ip, t.createdAt),
+    uniqueIndex("custom_jobs_stripe_session_idx").on(t.stripeSessionId),
+  ],
+);
+export type CustomJob = typeof customJobs.$inferSelect;
+
+/** Lightweight per-key rate limiting for public endpoints (uploads, custom checkouts). */
+export const rateEvents = pgTable(
+  "rate_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bucket: text("bucket").notNull(),
+    key: text("key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("rate_events_lookup_idx").on(t.bucket, t.key, t.createdAt)],
+);

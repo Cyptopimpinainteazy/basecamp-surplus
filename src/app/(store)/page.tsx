@@ -91,8 +91,8 @@ export default async function Home() {
                   className="-mt-9 relative ml-4 mr-10 flex items-baseline justify-between gap-3 bg-spruce py-3 pl-5 pr-10 text-glacier shadow-[0_10px_24px_-12px_rgba(19,32,28,.6)] transition-colors group-hover:bg-spruce-2"
                   style={{ clipPath: "polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%)" }}
                 >
-                  <span className="display text-4xl sm:text-5xl">{s.name}</span>
-                  <span className="shrink-0 text-sm text-glacier/80">{s.count > 0 ? `${s.count} in stock` : "Restocking"}</span>
+                  <span className="display min-w-0 text-4xl sm:text-5xl md:text-3xl lg:text-4xl xl:text-5xl">{s.name}</span>
+                  <span className="shrink-0 text-sm text-glacier/80 md:hidden lg:inline">{s.count > 0 ? `${s.count} in stock` : "Restocking"}</span>
                 </div>
               </Link>
             </li>

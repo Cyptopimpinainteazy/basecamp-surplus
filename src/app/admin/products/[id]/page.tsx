@@ -5,6 +5,9 @@ import { listingPack, manualChannels } from "@/lib/channels/crosslist";
 import { ebayConfigured, ebayConnected, ebayPriceCents } from "@/lib/channels/ebay";
 import { listingsFor } from "@/lib/channels/sync";
 import { getProductById } from "@/lib/products";
+import { asc } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { suppliers } from "@/lib/db/schema";
 import { ChannelsPanel } from "./channels-panel";
 import { ProductEditor } from "./product-editor";
 
@@ -14,6 +17,7 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ new?: st
 
 export default async function EditProduct({ params, searchParams }: Props) {
   const { id } = await params;
+  const supplierRows = await db.select().from(suppliers).orderBy(asc(suppliers.name));
   const { new: isNew } = await searchParams;
   const p = await getProductById(id);
   if (!p) notFound();
@@ -56,6 +60,7 @@ export default async function EditProduct({ params, searchParams }: Props) {
           conditions={conditions.map((c) => ({ value: c.value, label: c.label }))}
           presets={packagePresets.map((x) => ({ value: x.id, label: x.name }))}
           aiNotes={{ readFromTags: ai.readFromTags ?? [], msrpConfidence: ai.msrpConfidence ?? "" }}
+          suppliers={supplierRows.map((x) => ({ value: x.id, label: x.active ? x.name : `${x.name} (inactive)` }))}
         />
         <ChannelsPanel
           productId={p.id}

@@ -7,6 +7,7 @@ import { syncStock } from "./channels/sync";
 import { sendEmail } from "./email/send";
 import { orderConfirmationEmail, ownerAlertEmail } from "./email/templates";
 import { site } from "./config";
+import { runSupplierPoTask } from "./purchase-orders";
 
 /** Durable follow-ups. Failures leave the job pending; payment/stock never repeat. */
 export async function runOrderTasks(orderId?:string) {
@@ -19,14 +20,16 @@ export async function runOrderTasks(orderId?:string) {
     try{
       const [order]=await db.select().from(orders).where(eq(orders.id,task.orderId));
       if(!order)throw new Error("Order missing");
-      if(task.kind==="stock_sync"){
+      if(task.kind==="supplier_po"){
+        await runSupplierPoTask(order.id);
+      }else if(task.kind==="stock_sync"){
         const result=await syncStock(allocatedProductIds(order.items));
         if(result.errors.length)throw new Error(result.errors.join("; "));
       }else{
         const to=task.kind==="confirmation"?order.email:site.ownerEmail;
         if(!to)throw new Error("Email recipient is not configured");
         const mail=task.kind==="confirmation"?orderConfirmationEmail(order):ownerAlertEmail(`New order ${order.number}`, [
-          ...order.items.map(i=>`${i.quantity} × ${i.title} (${i.sku})`),
+          ...order.items.map(i=>`${i.quantity} × ${i.title} (${i.sku})${i.customJobId?" [custom job]":""}`),
           order.attentionReason?`NEEDS ATTENTION: ${order.attentionReason}`:"Ready to ship.",
         ]);
         const result=await sendEmail({to,...mail,idempotencyKey:`order/${order.id}/${task.kind}`});

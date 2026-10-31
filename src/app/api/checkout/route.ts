@@ -6,6 +6,7 @@ import { getPackagePreset, shippingPolicy, site } from "@/lib/config";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { stripe } from "@/lib/stripe";
+import { shipNote } from "@/lib/fulfillment";
 
 export async function POST(req: Request) {
   const parsed = checkoutBody.safeParse(await req.json().catch(() => null));
@@ -64,9 +65,14 @@ export async function POST(req: Request) {
         unit_amount: p.priceCents,
         product_data: {
           name: p.title,
-          description: p.category === "poles" ? poleSaleLabel(p.poleSpec)! : undefined,
+          description: [p.category === "poles" ? poleSaleLabel(p.poleSpec) : null, shipNote(p)].filter(Boolean).join(" · ") || undefined,
           images: p.images.slice(0, 1).map((i) => i.url).filter((u) => u.startsWith("https://")),
-          metadata: { sku: p.sku, product_id: p.id, ...(p.category === "poles" ? {sale_unit: poleSaleLabel(p.poleSpec)!} : {}) },
+          metadata: {
+            sku: p.sku,
+            product_id: p.id,
+            ...(p.category === "poles" ? { sale_unit: poleSaleLabel(p.poleSpec)! } : {}),
+            ...(p.fulfillment !== "stock" ? { fulfillment: p.fulfillment } : {}),
+          },
         },
         tax_behavior: "exclusive",
       },

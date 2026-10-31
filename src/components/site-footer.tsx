@@ -41,6 +41,9 @@ export function SiteFooter() {
               <li><Link href="/poles/photo" className="hover:text-glacier hover:underline">Match a pole from a photo</Link></li>
               <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
               <li><Link href="/compare" className="hover:text-glacier hover:underline">Compare tents</Link></li>
+              <li><Link href="/custom/canopy-tents" className="hover:text-glacier hover:underline">Custom logo canopies</Link></li>
+              <li><Link href="/custom/tent-poles" className="hover:text-glacier hover:underline">Poles cut to size</Link></li>
+              <li><Link href="/custom/private-label" className="hover:text-glacier hover:underline">Private-label tents</Link></li>
             </ul>
           </div>
           <div>

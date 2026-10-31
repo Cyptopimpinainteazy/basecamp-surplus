@@ -49,11 +49,13 @@ export function ProductEditor({
   conditions,
   presets,
   aiNotes,
+  suppliers = [],
 }: {
   p: Product;
   categories: Opt[];
   conditions: Opt[];
   presets: Opt[];
+  suppliers?: Opt[];
   aiNotes: { readFromTags: string[]; msrpConfidence: string };
 }) {
   const [state, action, pending] = useActionState(saveProduct, null);
@@ -200,6 +202,28 @@ export function ProductEditor({
           <Field label="Quantity" name="quantity" type="number" defaultValue={p.quantity} hint="Count individual sale units. Use Stock & quantities for a reason and adjustment history." />
         </div>
         {p.pricingBasis && <p className="text-sm text-muted">Suggested price based on: {p.pricingBasis}</p>}
+        <fieldset className="rounded-md border-[1.5px] border-line p-4">
+          <legend className="px-1 text-sm font-semibold">Who ships it</legend>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Select
+              label="Fulfillment"
+              name="fulfillment"
+              defaultValue={p.fulfillment}
+              options={[
+                { value: "stock", label: "Our stock (we ship it)" },
+                { value: "dropship", label: "Dropship (supplier ships it)" },
+                { value: "made_to_order", label: "Made to order (supplier makes & ships)" },
+              ]}
+            />
+            <Select label="Supplier" name="supplierId" defaultValue={p.supplierId ?? ""} options={[{ value: "", label: "None" }, ...suppliers]} />
+            <Field label="Supplier SKU" name="supplierSku" defaultValue={p.supplierSku} />
+            <Field label="Ships in (days)" name="leadTimeDays" type="number" defaultValue={p.leadTimeDays} hint="Shown on the listing for dropship and made-to-order items." />
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            Dropship and made-to-order sales email a purchase order to the supplier automatically. Set Quantity to what the supplier
+            can fill and Your cost to what they charge you.
+          </p>
+        </fieldset>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Item weight (oz)" name="weightOz" type="number" defaultValue={p.weightOz} />
           <Select label="Ships in" name="packagePreset" options={presets} defaultValue={p.packagePreset} />

@@ -46,6 +46,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((c) => ({ url: `${site.url}/c/${c.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 })),
     ...brands.map((b) => ({ url: `${site.url}/brand/${b.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
     { url: `${site.url}/compare`, changeFrequency: "weekly" as const, priority: 0.7 },
+    { url: `${site.url}/custom`, changeFrequency: "monthly" as const, priority: 0.8 },
+    { url: `${site.url}/custom/canopy-tents`, changeFrequency: "monthly" as const, priority: 0.8 },
+    { url: `${site.url}/custom/tent-poles`, changeFrequency: "monthly" as const, priority: 0.8 },
+    { url: `${site.url}/custom/private-label`, changeFrequency: "monthly" as const, priority: 0.6 },
     ...versus.map((c) => ({
       url: `${site.url}/compare/${c.slug}`,
       lastModified: c.A.review.updatedAt > c.B.review.updatedAt ? c.A.review.updatedAt : c.B.review.updatedAt,

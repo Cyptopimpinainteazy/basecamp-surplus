@@ -1,7 +1,8 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { channelListings, orders, products, supportTickets } from "@/lib/db/schema";
+import { channelListings, customJobs, orders, products, purchaseOrders, supportTickets } from "@/lib/db/schema";
+import { jobKindLabel, jobStatusLabel } from "@/lib/custom-labels";
 import { money } from "@/lib/format";
 import { manualChannels } from "@/lib/channels/crosslist";
 import { DelistDone } from "./delist-done";
@@ -13,8 +14,18 @@ export const dynamic = "force-dynamic";
 export default async function AdminHome() {
   await syncEbayIfStale();
   const demand = await alertDemand();
+  const [jobsTodo, openPos] = await Promise.all([
+    db.select().from(customJobs).where(inArray(customJobs.status, ["requested", "paid", "in_production"])).orderBy(desc(customJobs.createdAt)).limit(8),
+    db.select().from(purchaseOrders).where(inArray(purchaseOrders.status, ["pending", "sent", "confirmed"])).orderBy(purchaseOrders.createdAt).limit(8),
+  ]);
   const [toShip, attention, drafts, tickets, delists, stats] = await Promise.all([
-    db.select().from(orders).where(eq(orders.status, "paid")).orderBy(orders.createdAt),
+    db
+      .select()
+      .from(orders)
+      .where(eq(orders.status, "paid"))
+      .orderBy(orders.createdAt)
+      // Orders that suppliers ship entirely are tracked under supplier orders instead.
+      .then((rows) => rows.filter((o) => !o.items.every((i) => i.fulfillment === "dropship" || i.fulfillment === "made_to_order"))),
     db.select().from(orders).where(eq(orders.status, "needs_attention")).orderBy(desc(orders.createdAt)),
     db.select({ n: sql<number>`count(*)::int` }).from(products).where(eq(products.status, "draft")),
     db.select().from(supportTickets).where(eq(supportTickets.status, "open")).orderBy(desc(supportTickets.createdAt)),
@@ -61,6 +72,53 @@ export default async function AdminHome() {
             ))}
           </ul>
         </section>
+      )}
+
+      {(jobsTodo.length > 0 || openPos.length > 0) && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section className={card}>
+            <div className="flex items-baseline justify-between">
+              <h2 className="display text-3xl">Custom jobs</h2>
+              <Link href="/admin/custom" className="text-sm underline">All jobs</Link>
+            </div>
+            {jobsTodo.length === 0 ? (
+              <p className="mt-2 text-muted">No requests waiting.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {jobsTodo.map((j) => (
+                  <li key={j.id} className="flex items-center justify-between gap-3 py-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold">{jobKindLabel[j.kind]} <span className="font-mono font-normal text-muted">{j.number}</span></p>
+                      <p className="truncate text-sm text-muted">{j.company || j.name || j.email} · {jobStatusLabel[j.status]}</p>
+                    </div>
+                    <Link href={`/admin/custom/${j.id}`} className="btn btn-line min-h-10 shrink-0 px-4 text-sm">{j.status === "requested" ? "Quote" : "Open"}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className={card}>
+            <h2 className="display text-3xl">Supplier orders not shipped</h2>
+            {openPos.length === 0 ? (
+              <p className="mt-2 text-muted">Every purchase order has shipped.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {openPos.map((po) => {
+                  const days = Math.floor((Date.now() - po.createdAt.getTime()) / 86_400_000);
+                  return (
+                    <li key={po.id} className="flex items-center justify-between gap-3 py-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold">{po.number}</p>
+                        <p className="text-sm text-muted">{po.status === "pending" ? "Not emailed yet" : po.status === "sent" ? "Not confirmed" : "Confirmed, no tracking"} · {days === 0 ? "today" : `${days} day${days > 1 ? "s" : ""} old`}</p>
+                      </div>
+                      <Link href={`/admin/orders/${po.orderId}`} className={`btn min-h-10 shrink-0 px-4 text-sm ${po.status === "pending" || days >= 3 ? "btn-blaze" : "btn-line"}`}>Open</Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">

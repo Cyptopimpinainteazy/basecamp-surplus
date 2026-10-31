@@ -13,6 +13,8 @@ const nav = [
   { href: "/admin/stock", label: "Stock & quantities" },
   { href: "/admin/poles/match", label: "Loose poles" },
   { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/custom", label: "Custom jobs" },
+  { href: "/admin/suppliers", label: "Suppliers" },
   { href: "/admin/reviews", label: "Reviews" },
   { href: "/admin/support", label: "Support" },
   { href: "/admin/channels", label: "Channels" },

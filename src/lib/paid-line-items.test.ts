@@ -27,3 +27,15 @@ test("30-line paid cart needs no whole-cart metadata",()=>{
  const {line,session}=fixtures();const lines=Array.from({length:30},()=>structuredClone(line));session.amount_subtotal=450000;
  assert.equal(paidLineItems(lines,session).length,30);assert.ok(Object.values(session.metadata!).every(value=>value.length<=500));
 });
+test("custom job lines carry the job id instead of an inventory id",()=>{
+ const {line,session}=fixtures();const product=(line.price!.product as Stripe.Product);
+ product.metadata={custom_job_id:id,sku:"CJ-ABC123"};
+ const [item]=paidLineItems([line],session);
+ assert.equal(item.productId,"");assert.equal(item.customJobId,id);assert.equal(item.sku,"CJ-ABC123");
+});
+test("dropship fulfillment is copied from the listing snapshot",()=>{
+ const {line,session}=fixtures();(line.price!.product as Stripe.Product).metadata.fulfillment="dropship";
+ assert.equal(paidLineItems([line],session)[0].fulfillment,"dropship");
+ (line.price!.product as Stripe.Product).metadata.fulfillment="teleport";
+ assert.equal(paidLineItems([line],session)[0].fulfillment,undefined);
+});
