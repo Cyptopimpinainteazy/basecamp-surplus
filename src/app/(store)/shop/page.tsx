@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { catalogSeo } from "@/lib/seo";
 import { Catalog } from "@/components/catalog";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -6,14 +7,14 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const sp = await searchParams;
   const used = sp.condition === "used";
-  const hasFilters = Object.keys(sp).some((k) => k !== "condition");
+  const seo = catalogSeo("/shop", sp);
   return {
-    title: used ? "Pre-owned Patagonia & outdoor gear" : "Shop all outdoor gear",
+    title: `${used ? "Pre-owned Patagonia & outdoor gear" : "Shop all outdoor gear"}${seo.page > 1 ? ` — Page ${seo.page}` : ""}`,
     description: used
       ? "Inspected pre-owned Patagonia jackets and outdoor gear, graded and photographed. Ships from Denver."
       : "New-with-tags tents, jackets, snow gear and replacement tent poles below retail. Ships from Denver.",
-    alternates: { canonical: used ? "/shop?condition=used" : "/shop" },
-    robots: hasFilters ? { index: false, follow: true } : undefined,
+    alternates: { canonical: seo.canonical },
+    robots: seo.noindex ? { index: false, follow: true } : undefined,
   };
 }
 

@@ -1,4 +1,5 @@
 import "server-only";
+import { orderableProblem } from "../checkout-rules";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { channelListings, products, type Channel, type Product } from "../db/schema";
@@ -25,6 +26,8 @@ export async function upsertListing(
 }
 
 export async function pushToEbay(p: Product) {
+  const problem = orderableProblem(p);
+  if (problem) return {ok:false as const,error:problem};
   const [existing] = await db
     .select()
     .from(channelListings)
@@ -55,7 +58,8 @@ export async function pushToEbay(p: Product) {
  * Keeps eBay quantity in sync and flags manual marketplaces that need delisting.
  */
 export async function syncStock(productIds: string[]) {
-  if (productIds.length === 0) return;
+  const errors: string[] = [];
+  if (productIds.length === 0) return {errors};
   const rows = await db.select().from(products).where(inArray(products.id, productIds));
   const listings = await db.select().from(channelListings).where(inArray(channelListings.productId, productIds));
   const ebayReady = ebayConfigured() && (await ebayConnected());
@@ -65,6 +69,7 @@ export async function syncStock(productIds: string[]) {
     const soldOut = p.quantity <= 0 || p.status !== "active";
 
     const ebay = mine.find((l) => l.channel === "ebay" && l.status === "listed" && l.offerId);
+    if (ebay && !ebayReady) errors.push(`${p.sku}: eBay is not connected`);
     if (ebay && ebayReady) {
       try {
         if (soldOut) {
@@ -75,6 +80,7 @@ export async function syncStock(productIds: string[]) {
           await upsertListing(p.id, "ebay", { lastSyncedAt: new Date(), error: null });
         }
       } catch (e) {
+        errors.push(`${p.sku}: ${e instanceof Error ? e.message : String(e)}`);
         await upsertListing(p.id, "ebay", { error: e instanceof Error ? e.message : String(e) });
       }
     }
@@ -85,4 +91,5 @@ export async function syncStock(productIds: string[]) {
       }
     }
   }
+  return {errors};
 }

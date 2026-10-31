@@ -9,11 +9,6 @@ import { TopoCanvas } from "./topo-canvas";
 // Atmospheric perspective: far ridges are lighter and bluer, near ridges darker.
 const ridgeFills = ["#3d5e57", "#2c4a42", "#1c332d", "#13201c"];
 
-/**
- * The one bold moment on the site: a Front Range dusk. The headline sits between
- * ridgelines so the nearest mountains rise over its baseline, and a hang tag on the
- * right shows a real piece of stock with its price.
- */
 export function Hero({ inStock, brandsLine, featured }: { inStock: number; brandsLine: string; featured: Product | null }) {
   const save = featured ? savingsPercent(featured.priceCents, featured.msrpCents) : 0;
   return (

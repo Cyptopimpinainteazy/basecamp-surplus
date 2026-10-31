@@ -2,7 +2,9 @@
 
 import { useActionState, useState, useTransition } from "react";
 import type { Product } from "@/lib/db/schema";
-import { deleteProductImage, saveProduct, setProductStatus } from "../../actions";
+import { attachProductPhotos, deleteProductImage, saveProduct, setProductStatus } from "../../actions";
+
+import { uploadPhotos } from "../../intake/upload";
 
 type Opt = { value: string; label: string };
 
@@ -56,6 +58,7 @@ export function ProductEditor({
 }) {
   const [state, action, pending] = useActionState(saveProduct, null);
   const [images, setImages] = useState(p.images);
+  const [photoStatus, setPhotoStatus] = useState("");
   const [busy, start] = useTransition();
   const cents = (c: number | null) => (c == null ? "" : (c / 100).toFixed(2));
   const move = (i: number, d: -1 | 1) =>
@@ -70,10 +73,28 @@ export function ProductEditor({
   return (
     <form action={action} className="space-y-6">
       <input type="hidden" name="id" value={p.id} />
+      <input type="hidden" name="originalQuantity" value={p.quantity} />
       <input type="hidden" name="images" value={images.map((i) => i.url).join("\n")} />
 
       <section className="rounded-[var(--radius-tag)] bg-card p-5">
         <h2 className="display mb-3 text-3xl">Photos</h2>
+        <label className="label" htmlFor="add-photos">Upload product photos (up to 12 at a time)</label>
+        <input id="add-photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple disabled={busy || pending} className="mb-2 block w-full text-sm" onChange={e => {
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = "";
+          if (!files.length) return;
+          if (files.length > 12 || files.some(f => f.size > 15 * 1024 * 1024)) { setPhotoStatus("Choose up to 12 photos, each under 15 MB."); return; }
+          start(async () => {
+            try {
+              const uploaded = await uploadPhotos(files, pct => setPhotoStatus(`Uploading ${pct}%…`));
+              const result = await attachProductPhotos(p.id, uploaded.map(i => i.url));
+              if (result.error) { setPhotoStatus(result.error); return; }
+              if (result.images) setImages(result.images);
+              setPhotoStatus("Photos attached. Save any other listing changes below.");
+            } catch { setPhotoStatus("Photo upload failed. Check Blob storage configuration and try again."); }
+          });
+        }} />
+        <p role="status" className="mb-4 text-sm text-muted">{photoStatus}</p>
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {images.map((img, i) => (
             <li key={img.url}>
@@ -127,13 +148,18 @@ export function ProductEditor({
         <Area label="Condition notes" name="conditionNotes" defaultValue={p.conditionNotes} rows={2} />
         <Area label="Description" name="description" defaultValue={p.description} rows={9} hint="Blank lines separate paragraphs." />
         <Area label="Highlights (one per line)" name="highlights" defaultValue={p.highlights.join("\n")} rows={4} />
-        <Area label="Specs (Label: value, one per line)" name="specs" defaultValue={p.specs.map((s) => `${s.label}: ${s.value}`).join("\n")} rows={5} />
-        {(p.category === "poles" || p.fitment.length > 0) && (
+        <Area label="Specs (Label: value, one per line)" name="specs" defaultValue={p.specs.map((s) => `${s.label}: ${s.value}`).join("\n")} rows={5} hint="For Google Shopping, enter MPN: manufacturer part number and GTIN: barcode digits only when verified from the product/tag. Never use your internal SKU as MPN." />
+        {(p.category === "poles" || p.category === "parts" || p.fitment.length > 0) && (
           <Area label="Fits these tents (one per line)" name="fitment" defaultValue={p.fitment.join("\n")} rows={3} hint="Powers the pole finder. Use 'Brand Model', e.g. The North Face Stormbreak 2." />
         )}
         {p.category === "poles" && (
           <fieldset className="rounded-md border-[1.5px] border-line p-4">
-            <legend className="px-1 text-sm font-semibold">Pole size (shows in the public Pole sizes chart)</legend>
+            <legend className="px-1 text-sm font-semibold">Pole sale unit & measurements</legend>
+            <div className="mb-5 grid gap-4 sm:grid-cols-2">
+              <Select label="What does one purchase include?" name="poleSaleUnit" defaultValue={p.poleSpec?.saleUnit ?? ""} options={[{value:"",label:"Choose before publishing"},{value:"section",label:"One loose pole section"},{value:"assembly",label:"One complete pole assembly"},{value:"set",label:"Full tent pole set"}]} />
+              <Field label="Assemblies in a full set" name="poleAssemblies" type="number" defaultValue={p.poleSpec?.assembliesIncluded} hint="Full sets only. Count complete assemblies, not individual sections." />
+            </div>
+            <p className="mb-4 text-sm text-muted">Stock quantity counts the sale units chosen above. Do not list a full set and its component poles as separate available stock at the same time. Splitting a set requires removing it from set inventory first.</p>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <label className="label" htmlFor="poleShape">Type</label>
@@ -171,7 +197,7 @@ export function ProductEditor({
           <Field label="Price ($)" name="price" defaultValue={cents(p.priceCents)} />
           <Field label="Original retail ($)" name="msrp" defaultValue={cents(p.msrpCents)} hint={aiNotes.msrpConfidence ? `AI confidence: ${aiNotes.msrpConfidence}` : undefined} />
           <Field label="Your cost ($)" name="cost" defaultValue={cents(p.costCents)} hint="Private. For profit tracking." />
-          <Field label="Quantity" name="quantity" type="number" defaultValue={p.quantity} />
+          <Field label="Quantity" name="quantity" type="number" defaultValue={p.quantity} hint="Count individual sale units. Use Stock & quantities for a reason and adjustment history." />
         </div>
         {p.pricingBasis && <p className="text-sm text-muted">Suggested price based on: {p.pricingBasis}</p>}
         <div className="grid gap-4 sm:grid-cols-3">
@@ -195,11 +221,11 @@ export function ProductEditor({
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-3 border-t border-line bg-page/95 px-4 py-3 backdrop-blur">
         {p.status !== "active" && p.status !== "sold_out" && (
-          <button name="intent" value="publish" disabled={pending} className="btn btn-blaze">
+          <button name="intent" value="publish" disabled={pending || busy} className="btn btn-blaze">
             {pending ? "Publishing…" : "Publish"}
           </button>
         )}
-        <button name="intent" value="save" disabled={pending} className="btn btn-spruce">
+        <button name="intent" value="save" disabled={pending || busy} className="btn btn-spruce">
           {pending ? "Saving…" : "Save changes"}
         </button>
         {p.status === "active" && (

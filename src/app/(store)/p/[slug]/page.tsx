@@ -8,7 +8,10 @@ import { JsonLd } from "@/components/json-ld";
 import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
 import { money, savingsPercent, truncate } from "@/lib/format";
-import { getProductBySlug, relatedProducts } from "@/lib/products";
+import { complementaryProducts, getProductBySlug, relatedProducts } from "@/lib/products";
+import { poleSaleLabel } from "@/lib/pole-sale";
+import { orderableProblem } from "@/lib/checkout-rules";
+import { productIdentifiers } from "@/lib/product-identifiers";
 import { reviewForProduct } from "@/lib/articles";
 import { toModel } from "@/lib/models";
 
@@ -37,10 +40,12 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p || p.status === "draft" || p.status === "archived") notFound();
-  const [related, review] = await Promise.all([relatedProducts(p), reviewForProduct(`${p.title} ${p.model}`)]);
+  const [related, review, complements] = await Promise.all([relatedProducts(p), reviewForProduct(`${p.title} ${p.model}`), complementaryProducts(p)]);
   const cat = getCategory(p.category);
   const cond = getCondition(p.condition);
   const available = p.status === "active" && p.quantity > 0;
+  const saleLabel = p.category === "poles" ? poleSaleLabel(p.poleSpec) : null;
+  const purchaseProblem = orderableProblem(p);
   const save = savingsPercent(p.priceCents, p.msrpCents);
   const url = `${site.url}/p/${p.slug}`;
   const bulky = shippingPolicy.bulkyCategories.includes(p.category);
@@ -55,7 +60,7 @@ export default async function ProductPage({ params }: Props) {
             "@type": "Product",
             name: p.title,
             sku: p.sku,
-            mpn: p.sku,
+            ...productIdentifiers(p.specs),
             brand: { "@type": "Brand", name: p.brand },
             model: p.model || undefined,
             color: p.color || undefined,
@@ -69,7 +74,7 @@ export default async function ProductPage({ params }: Props) {
               url,
               priceCurrency: "USD",
               price: (p.priceCents / 100).toFixed(2),
-              availability: available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+              availability: available && !purchaseProblem ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
               itemCondition: isNewCondition(p.condition) ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
               seller: { "@type": "Organization", name: site.name },
               shippingDetails: {
@@ -140,10 +145,12 @@ export default async function ProductPage({ params }: Props) {
           </div>
           <p className="mt-3 text-muted">{p.conditionNotes || cond.detail}</p>
 
+          {p.category === "poles" && <div className="mt-5 rounded-md border border-accent/20 bg-lichen/30 p-4"><p className="text-xs font-semibold uppercase tracking-widest text-muted">One purchase includes</p><p className="mt-2 font-semibold">{saleLabel ?? "Sale unit needs confirmation"}</p><p className="mt-2 text-sm text-muted">{saleLabel ? "Quantity 1 buys the unit described above. Check the included-parts photos and model generation." : "Ask us to confirm whether this listing is a section, one assembly or a full tent set before ordering."}</p></div>}
           <div className="mt-6">
             <AddToCart
-              disabled={!available}
-              line={{ id: p.id, slug: p.slug, title: p.title, priceCents: p.priceCents, image: p.images[0]?.url, max: p.quantity }}
+              disabled={!available || Boolean(purchaseProblem)}
+              disabledLabel={available && purchaseProblem ? "Listing needs confirmation" : "Sold out"}
+              line={{ id: p.id, slug: p.slug, title: p.title, priceCents: p.priceCents, image: p.images[0]?.url, max: p.quantity, saleUnitLabel: saleLabel ?? undefined }}
             />
             <p className="mt-3 text-sm text-muted">
               {available
@@ -226,6 +233,16 @@ export default async function ProductPage({ params }: Props) {
           <p className="mt-6 text-xs text-muted">SKU {p.sku}. {site.name} is an independent reseller and is not affiliated with {p.brand}.</p>
         </div>
       </div>
+
+      {(p.category === "tents" || p.category === "poles" || p.category === "parts") && (
+        <section className="mt-16 rounded-[var(--radius-tag)] bg-lichen/35 p-5 sm:p-8" aria-labelledby="complete-setup">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">Build your basecamp</p>
+          <h2 id="complete-setup" className="display mt-3 text-4xl sm:text-5xl">{p.category === "tents" ? "Keep your setup going." : "Meet the rest of the setup."}</h2>
+          <p className="mb-6 mt-3 max-w-3xl text-muted">{complements.length ? "In-stock gear listed for the same brand and model. Confirm model year, pole geometry and end fittings before adding a replacement. Each item is sold separately." : "No complementary stock is linked to this exact model yet. Browse tents or check your pole measurements; a shared brand alone does not establish fit."}</p>
+          {complements.length > 0 && <ProductGrid items={complements} />}
+          <div className="mt-5 flex flex-wrap gap-3"><Link href="/poles/size" className="btn btn-spruce">Check pole measurements</Link><Link href={p.category === "tents" && p.model ? `/poles?model=${encodeURIComponent(`${p.brand} ${p.model}`)}` : "/c/tents"} className="btn btn-line">{p.category === "tents" && p.model ? "Browse model parts" : "Explore tents"}</Link><Link href="/c/parts?q=stake" className="btn btn-line">Browse stakes</Link></div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="mt-20" aria-labelledby="related">

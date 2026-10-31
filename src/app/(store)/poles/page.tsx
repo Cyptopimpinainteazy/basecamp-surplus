@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { guideForModel, poleGuides, poleModelHref } from "@/lib/pole-guides";
 import { headers } from "next/headers";
 import { permanentRedirect } from "next/navigation";
 import { modelForQuery } from "@/lib/models";
@@ -13,7 +14,7 @@ import type { Product } from "@/lib/db/schema";
 import { listProducts, poleFitmentIndex, polesForModel } from "@/lib/products";
 import { publishedArticles, mentionsModel } from "@/lib/articles";
 
-type Props = { searchParams: Promise<{ model?: string }> };
+type Props = { searchParams: Promise<{ model?: string; q?: string }> };
 
 async function onPolesDomain() {
   const host = (await headers()).get("host")?.replace(/^www\./, "") ?? "";
@@ -21,14 +22,15 @@ async function onPolesDomain() {
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { model } = await searchParams;
+  const { model, q } = await searchParams;
   const polesHost = await onPolesDomain();
   const base = polesHost ? `https://${site.polesDomain}` : site.url;
   if (model) {
     return {
       title: `Replacement poles & parts for ${model}`,
-      description: `Factory replacement poles, rainflies, footprints and stakes that fit the ${model}. In stock and shipped from Denver.`,
-      alternates: { canonical: `${base}/poles?model=${encodeURIComponent(model)}` },
+      description: `Search listed replacement tent parts for ${model}. Compare the listing’s model, dimensions and fittings before choosing.`,
+      alternates: { canonical: guideForModel(model) ? `${site.url}${poleModelHref(model)}` : `${base}/poles` },
+      robots: {index:false,follow:true},
     };
   }
   return {
@@ -36,6 +38,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     description:
       "Snapped a tent pole or lost a rainfly? Search by tent model to find factory replacement poles, flies, footprints and stakes for The North Face tents. Shipped from Denver.",
     alternates: { canonical: polesHost ? `https://${site.polesDomain}/` : `${site.url}/poles` },
+    robots: q ? {index:false,follow:true} : undefined,
   };
 }
 
@@ -59,16 +62,17 @@ function partGroups(items: Product[]) {
 }
 
 export default async function PolesPage({ searchParams }: Props) {
-  const { model } = await searchParams;
+  const { model, q } = await searchParams;
   // Known models have a permanent parts page; send searches there.
   if (model) {
-    const known = await modelForQuery(model);
+    const known = guideForModel(model) ? null : await modelForQuery(model);
+    if (guideForModel(model)) permanentRedirect(poleModelHref(model));
     if (known) permanentRedirect(`/parts/${known.slug}`);
   }
   const [index, results, all] = await Promise.all([
     poleFitmentIndex(),
     model ? polesForModel(model) : Promise.resolve(null),
-    model ? Promise.resolve([]) : listProducts({ category: "poles", limit: 24 }),
+    model ? Promise.resolve([]) : listProducts({ category: "poles", q: q?.slice(0,100), limit: 24 }),
   ]);
   const polesHost = await onPolesDomain();
   const allReviews = await publishedArticles(200);
@@ -154,7 +158,7 @@ export default async function PolesPage({ searchParams }: Props) {
                 <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                   {index.map((m) => (
                     <li key={m.model}>
-                      <Link href={`/poles?model=${encodeURIComponent(m.model)}`} className="flex justify-between gap-4 border-b border-line py-2 hover:text-blaze-deep">
+                      <Link href={poleModelHref(m.model)} className="flex justify-between gap-4 border-b border-line py-2 hover:text-blaze-deep">
                         <span>{m.model}</span>
                         <span className="text-muted">{m.count}</span>
                       </Link>
@@ -163,21 +167,43 @@ export default async function PolesPage({ searchParams }: Props) {
                 </ul>
               </section>
             )}
-            <h2 className="display mb-5 text-4xl">All poles in stock</h2>
+            <h2 className="display mb-5 text-4xl">{q ? `Poles matching “${q.slice(0, 100)}”` : "All poles in stock"}</h2>
             {all.length > 0 ? <ProductGrid items={all} /> : <p className="text-muted">Poles are being sorted and photographed now.</p>}
           </>
         )}
 
-        {!model && guides.length > 0 && (
-          <section className="mt-16" aria-labelledby="guides">
-            <h2 id="guides" className="display text-4xl">Tent and pole guides</h2>
-            <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-              {guides.map((g) => (
-                <li key={g.slug}>
-                  <Link href={`/reviews/${g.slug}`} className="block border-b border-line py-2 hover:text-blaze-deep">{g.subject.replace(/^The North Face /, "")}</Link>
+        {!model && (
+          <section className="mt-14" aria-labelledby="model-guides">
+            <h2 id="model-guides" className="display text-4xl">North Face tent pole guides</h2>
+            <p className="mt-3 max-w-3xl text-muted">
+              Sourced reference details for identifying your tent frame: reported pole systems, diameters and what still needs
+              measuring. A reference entry is not an availability or compatibility claim.
+            </p>
+            <ul className="reveal-stagger mt-5 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              {poleGuides.map((t) => (
+                <li key={t.slug}>
+                  <Link href={`/parts/${t.partsSlug}`} className="block border-b border-line py-2 hover:text-blaze-deep">
+                    {t.model.replace(/^The North Face /, "")} poles &amp; parts
+                  </Link>
                 </li>
               ))}
             </ul>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Link href="/collections/easton-tent-poles" className="font-semibold underline">Easton tent poles</Link>
+              <Link href="/collections/dac-tent-poles" className="font-semibold underline">DAC tent poles</Link>
+              <Link href="/collections/north-face-replacement-poles" className="font-semibold underline">North Face replacement poles</Link>
+            </div>
+            {guides.length > 0 && (
+              <p className="mt-6 text-muted">
+                Reviews and guides:{" "}
+                {guides.map((g, i) => (
+                  <span key={g.slug}>
+                    {i > 0 && " · "}
+                    <Link href={`/reviews/${g.slug}`} className="underline hover:text-fg">{g.subject.replace(/^The North Face /, "")}</Link>
+                  </span>
+                ))}
+              </p>
+            )}
           </section>
         )}
 

@@ -43,6 +43,9 @@ export const ticketStatus = pgEnum("ticket_status", ["open", "waiting", "closed"
 export type ProductImage = { url: string; alt: string; width?: number; height?: number };
 export type Spec = { label: string; value: string };
 export type PoleSpec = {
+  /** One sale unit: a loose section, a complete assembly, or a full tent set. */
+  saleUnit?: "section" | "assembly" | "set";
+  assembliesIncluded?: number;
   sections?: number;
   /** Assembled length, tip to tip, measured straight. */
   lengthIn?: number;
@@ -137,6 +140,11 @@ export type OrderItem = {
   title: string;
   quantity: number;
   unitCents: number;
+  saleUnitLabel?: string;
+  lineSubtotalCents?: number;
+  lineDiscountCents?: number;
+  lineTaxCents?: number;
+  lineTotalCents?: number;
   image?: string;
 };
 export type Address = {
@@ -349,3 +357,27 @@ export const polePhotoChecks = pgTable(
   (t) => [index("pole_photo_checks_ip_idx").on(t.ip, t.createdAt), index("pole_photo_checks_created_idx").on(t.createdAt)],
 );
 export type PolePhotoCheck = typeof polePhotoChecks.$inferSelect;
+
+/** Manual stock counts made in the dedicated stock workspace (not a sales ledger). */
+export const stockAdjustments = pgTable("stock_adjustments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productId: uuid("product_id").notNull().references(() => products.id),
+  previousQuantity: integer("previous_quantity").notNull(),
+  quantity: integer("quantity").notNull(),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("stock_adjustments_product_idx").on(t.productId, t.createdAt)]);
+
+
+/** Durable follow-up jobs; a failed remote call must not cause another stock deduction. */
+export const orderTasks=pgTable("order_tasks",{
+  id:uuid("id").primaryKey().defaultRandom(),
+  orderId:uuid("order_id").notNull().references(()=>orders.id),
+  kind:text("kind").notNull(),
+  attempts:integer("attempts").notNull().default(0),
+  leaseToken:uuid("lease_token"),
+  lockedUntil:timestamp("locked_until",{withTimezone:true}),
+  completedAt:timestamp("completed_at",{withTimezone:true}),
+  lastError:text("last_error"),
+  createdAt:timestamp("created_at",{withTimezone:true}).notNull().defaultNow(),
+},t=>[uniqueIndex("order_tasks_order_kind_idx").on(t.orderId,t.kind),index("order_tasks_pending_idx").on(t.completedAt,t.lockedUntil)]);

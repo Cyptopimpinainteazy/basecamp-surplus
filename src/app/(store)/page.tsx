@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { PoleWorkbench } from "@/components/pole-workbench";
+import { GearRoom } from "@/components/gear-room";
 import { Hero } from "@/components/hero";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
@@ -70,6 +72,9 @@ export default async function Home() {
       />
       <Hero inStock={stats.total} brandsLine={brandsLine} featured={fresh.find((p) => p.featured && p.msrpCents) ?? fresh[0] ?? null} />
 
+      <GearRoom />
+      <PoleWorkbench />
+
       <section className="mx-auto max-w-7xl px-4 pt-14 sm:px-6" aria-labelledby="shelves">
         <h2 id="shelves" className="sr-only">Shop by category</h2>
         <ul className="reveal-stagger grid gap-5 md:grid-cols-3">
@@ -116,7 +121,7 @@ export default async function Home() {
           <div>
             <h2 id="poles" className="display text-5xl sm:text-6xl">Snapped a pole?</h2>
             <p className="mt-3 max-w-md text-lg text-glacier/80">
-              We have a truckload of factory replacement poles. Type your tent model to see the ones that fit.
+              Explore Easton and DAC replacement poles. Search your tent model, then check the listed measurements and fittings.
             </p>
           </div>
           <div className="text-glacier">

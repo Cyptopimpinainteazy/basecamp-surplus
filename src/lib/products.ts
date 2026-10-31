@@ -14,12 +14,18 @@ export type ProductQuery = {
   sort?: "new" | "price_asc" | "price_desc" | "savings";
   limit?: number;
   offset?: number;
+  productTypeTerms?: string[];
+  collectionSearch?: string;
 };
 
 const NEW_CONDITIONS = ["new_with_tags", "new_without_tags"];
 
 function filters(q: ProductQuery): SQL[] {
   const where: SQL[] = [eq(products.status, "active"), gt(products.quantity, 0)];
+  if (q.productTypeTerms?.length) where.push(or(...q.productTypeTerms.map(term => {
+    const pattern = `%${term.replace(/[%_]/g, "")}%`;
+    return or(ilike(products.productType, pattern), ilike(products.title, pattern))!;
+  }))!);
   if (q.category) where.push(eq(products.category, q.category));
   if (q.brand) where.push(eq(products.brandSlug, q.brand));
   if (q.size) where.push(ilike(products.size, q.size));
@@ -27,8 +33,9 @@ function filters(q: ProductQuery): SQL[] {
   if (q.condition === "new") where.push(inArray(products.condition, NEW_CONDITIONS));
   if (q.condition === "used")
     where.push(sql`${products.condition} not in ('new_with_tags','new_without_tags')`);
-  if (q.q?.trim()) {
-    const terms = q.q.trim().split(/\s+/).slice(0, 8);
+  const search = [q.collectionSearch, q.q].filter(Boolean).join(" ").trim();
+  if (search) {
+    const terms = search.split(/\s+/).slice(0, 16);
     for (const term of terms) {
       const like = `%${term.replace(/[%_]/g, "")}%`;
       where.push(
@@ -38,6 +45,8 @@ function filters(q: ProductQuery): SQL[] {
           ilike(products.model, like),
           ilike(products.color, like),
           ilike(products.productType, like),
+          ilike(products.material, like),
+          sql`${products.poleSpec}->>'material' ilike ${like}`,
           sql`${products.keywords}::text ilike ${like}`,
           sql`${products.fitment}::text ilike ${like}`,
         )!,
@@ -254,4 +263,30 @@ export async function poleSizeChart() {
       poles: poles.sort((a, b) => (b.lengthIn ?? 0) - (a.lengthIn ?? 0)),
     }))
     .sort((a, b) => (a.tent === "Unmatched poles" ? 1 : b.tent === "Unmatched poles" ? -1 : a.tent.localeCompare(b.tent)));
+}
+
+/** Complementary stock linked by an exact, explicitly recorded brand/model key. */
+export async function complementaryProducts(p: Product, limit = 4) {
+  const { crossSellPlan } = await import("./cross-sell");
+  const plan = crossSellPlan(p);
+  if (!plan) return [];
+  const normalize = (value: SQL) => sql`lower(regexp_replace(trim(${value}), '\\s+', ' ', 'g'))`;
+  const tentKey = normalize(sql`case when lower(${products.model}) like lower(${products.brand}) || ' %' then ${products.model} else ${products.brand} || ' ' || ${products.model} end`);
+  const linked = p.category === "tents"
+    ? sql`exists (select 1 from jsonb_array_elements_text(${products.fitment}) as fit(model) where ${inArray(normalize(sql`fit.model`), plan.models)})`
+    : inArray(tentKey, plan.models);
+  return db.select().from(products).where(and(
+    eq(products.status, "active"), gt(products.quantity, 0), sql`${products.id} <> ${p.id}`,
+    inArray(products.category, plan.categories), linked,
+  )).orderBy(asc(products.category), desc(products.publishedAt)).limit(limit);
+}
+
+
+/** Exact normalized fitment for model guides; never treats Tadpole 2 as Tadpole 23. */
+export async function polesForExactModel(model: string) {
+  const key = model.trim().toLowerCase().replace(/\s+/g, " ");
+  return db.select().from(products).where(and(
+    eq(products.status, "active"), gt(products.quantity, 0), inArray(products.category, fitmentCategories),
+    sql`exists (select 1 from jsonb_array_elements_text(${products.fitment}) f where lower(regexp_replace(trim(f), '\\s+', ' ', 'g')) = ${key})`,
+  )).orderBy(asc(products.category), asc(products.priceCents)).limit(24);
 }

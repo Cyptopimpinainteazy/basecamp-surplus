@@ -14,6 +14,8 @@ import { buyLabel, getRate, getRates } from "@/lib/shipping";
 import { markOrderShipped } from "@/lib/orders";
 import { requireAdmin } from "@/lib/require-admin";
 import { pushToEbay, syncStock, upsertListing } from "@/lib/channels/sync";
+import { parsePoleSale } from "@/lib/pole-sale";
+import { parseStockCount } from "@/lib/stock-rules";
 import { slugify } from "@/lib/format";
 import { importEbayOrders } from "@/lib/orders";
 import { notifyStockAlerts } from "@/lib/alerts";
@@ -83,9 +85,14 @@ export async function saveProduct(_: unknown, form: FormData) {
     return Number.isFinite(n) && n > 0 ? n : undefined;
   };
   const txt = (k: string) => String(form.get(k) ?? "").trim() || undefined;
+  const poleSale = parsePoleSale(form.get("poleSaleUnit"), form.get("poleAssemblies"));
+  const publishing = String(form.get("intent")) === "publish" || current.status === "active";
+  if (category === "poles" && publishing && !poleSale) return { error: "Confirm whether this listing sells a loose section, one assembly or a full set. Full sets need an assembly count (1–100)." };
   const poleSpec =
     category === "poles"
       ? {
+          saleUnit: poleSale?.saleUnit,
+          assembliesIncluded: poleSale?.assembliesIncluded,
           lengthIn: num("poleLengthIn"),
           sections: num("poleSections"),
           packedLengthIn: num("polePackedIn"),
@@ -105,8 +112,11 @@ export async function saveProduct(_: unknown, form: FormData) {
     .filter((i): i is NonNullable<typeof i> => Boolean(i));
 
   const requestedSlug = slugify(String(form.get("slug") ?? "")) || current.slug;
-  const quantity = Math.max(0, Math.floor(Number(form.get("quantity") ?? 1)));
-  const status = String(form.get("intent")) === "publish" ? "active" : current.status === "sold_out" && quantity > 0 ? "active" : current.status;
+  const quantity = parseStockCount(form.get("quantity"));
+  const originalQuantity = parseStockCount(form.get("originalQuantity"));
+  if (quantity === null) return { error: "Quantity must be a whole number from 0 to 2 billion." };
+  if (originalQuantity === null || current.quantity !== originalQuantity) return { error: "Stock changed since you opened this item. Refresh before saving." };
+  const status = String(form.get("intent")) === "publish" ? "active" : current.status;
 
   const [updated] = await db
     .update(products)
@@ -146,9 +156,10 @@ export async function saveProduct(_: unknown, form: FormData) {
       publishedAt: status === "active" && !current.publishedAt ? new Date() : current.publishedAt,
       updatedAt: new Date(),
     })
-    .where(eq(products.id, id))
+    .where(and(eq(products.id, id), eq(products.quantity, current.quantity), sql`date_trunc('milliseconds', ${products.updatedAt}) = ${current.updatedAt.toISOString()}::timestamptz`))
     .returning();
 
+  if (!updated) return { error: "This item changed while saving. Refresh and try again." };
   if (current.quantity !== updated.quantity || current.status !== updated.status) await syncStock([id]);
   const wentLive = updated.status === "active" && (current.status !== "active" || updated.quantity > current.quantity);
   const alerted = wentLive ? await notifyStockAlerts([id]).catch(() => 0) : 0;
@@ -235,6 +246,7 @@ export async function purchaseLabel(orderId: string, rateId: string, presetId: s
   await requireAdmin();
   const [o] = await db.select().from(orders).where(eq(orders.id, orderId));
   if (!o) return { error: "Order not found." };
+  if (o.status !== "paid") return { error: "Resolve inventory and mark this order ready to ship before buying a label." };
   if (o.labelUrl) return { error: "A label was already bought for this order." };
   try {
     const rate = await getRate(rateId);
@@ -464,4 +476,32 @@ export async function listUnmatchedPole(_: unknown, form: FormData) {
     .returning({ id: products.id });
   revalidatePath("/admin/products");
   return { ok: "Draft created. Add a photo and publish it.", id: row.id };
+}
+
+
+/** Attach admin-uploaded Blob photos to existing drafts without AI intake. */
+export async function attachProductPhotos(id: string, urls: string[]) {
+  await requireAdmin();
+  if (!Array.isArray(urls) || urls.length < 1 || urls.length > 12 || !urls.every(url => {
+    try { const u = new URL(url); return u.protocol === "https:" && u.hostname.endsWith(".public.blob.vercel-storage.com") && !u.username && !u.password; } catch { return false; }
+  })) return { error: "Use photos uploaded to the configured public Blob store." };
+  const result = await db.transaction(async tx => {
+    const [p] = await tx.select().from(products).where(eq(products.id, id)).for("update");
+    if (!p) return { error: "Product not found." };
+    const images = [...p.images, ...urls.filter(url => !p.images.some(i => i.url === url)).map(url => ({ url, alt: p.title }))];
+    if (images.length > 24) return { error: "Keep at most 24 photos per listing." };
+    await tx.update(products).set({ images, updatedAt: new Date() }).where(eq(products.id, id));
+    return { images, slug: p.slug };
+  });
+  if (result.error) return { error: result.error };
+  revalidateProduct(result.slug!);
+  return { images: result.images };
+}
+
+/** Retry only durable follow-ups; this never allocates stock or creates another order. */
+export async function retryOrderFollowups(orderId: string) {
+  await requireAdmin();
+  const { runOrderTasks } = await import("@/lib/order-tasks");
+  await runOrderTasks(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
 }

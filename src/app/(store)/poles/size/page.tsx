@@ -43,7 +43,7 @@ export default async function FindBySize({ searchParams }: Props) {
         <div className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
           <h1 className="display text-[clamp(3rem,9vw,6.5rem)]">Find a pole by size</h1>
           <p className="mb-8 mt-3 max-w-2xl text-lg text-glacier/80">
-            No tag, no tent name? Measure the broken pole and we&apos;ll show every pole in stock that matches, within 2 inches.
+            No tag, no tent name? Compare stocked poles against your measurements. The search allows up to 2 inches of length difference; results are candidates, not confirmed replacements.
           </p>
           <PoleSizeForm action="/poles/size" values={sp} submitLabel="Find matches" dark />
           <div className="mt-8">
@@ -107,8 +107,10 @@ export default async function FindBySize({ searchParams }: Props) {
             <li><strong>Diameter:</strong> look for a printed number near a joint (like 8.7 or 9.5). Otherwise use calipers on the tube, not the joint.</li>
           </ol>
           <p className="mt-4 text-muted">
-            A pole within half an inch and with the same sections and diameter usually fits. Longer differences change how tight
-            the tent pitches. Know your tent model? <Link href="/poles" className="font-semibold text-fg underline">Search by tent</Link> instead, or <Link href="/poles/photo" className="font-semibold text-fg underline">match from a photo</Link>.
+            Similar length, sections and diameter do not prove compatibility. Confirm the tent model and year, end fittings,
+            ferrules, hub layout and any factory bends. Length differences change the pitch and can stress the tent. Know your
+            tent model? <Link href="/poles" className="font-semibold text-fg underline">Search by tent</Link> instead, or{" "}
+            <Link href="/poles/photo" className="font-semibold text-fg underline">match from a photo</Link>.
           </p>
         </section>
       </div>

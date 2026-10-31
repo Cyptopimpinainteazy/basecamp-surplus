@@ -36,6 +36,20 @@
       "when": 1793440014396,
       "tag": "0004_pole_photo_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793469600000,
+      "tag": "0005_stock_adjustments",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793473200000,
+      "tag": "0006_order_tasks",
+      "breakpoints": true
     }
   ]
 }

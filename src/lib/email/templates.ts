@@ -20,11 +20,12 @@ function itemsTable(order: Order) {
   const rows = order.items
     .map(
       (i) =>
-        `<tr><td style="padding:8px 0;border-bottom:1px solid #e3e8ea">${esc(i.title)}${i.quantity > 1 ? ` × ${i.quantity}` : ""}</td><td align="right" style="padding:8px 0;border-bottom:1px solid #e3e8ea">${money(i.unitCents * i.quantity)}</td></tr>`,
+        `<tr><td style="padding:8px 0;border-bottom:1px solid #e3e8ea">${esc(i.title)}${i.saleUnitLabel ? `<br><small>${esc(i.saleUnitLabel)}</small>` : ""}${i.quantity > 1 ? ` × ${i.quantity}` : ""}</td><td align="right" style="padding:8px 0;border-bottom:1px solid #e3e8ea">${money(i.unitCents * i.quantity)}</td></tr>`,
     )
     .join("");
   return `<table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px">${rows}
 <tr><td style="padding:8px 0">Shipping</td><td align="right">${order.shippingCents ? money(order.shippingCents) : "Free"}</td></tr>
+${order.items.some(i => (i.lineDiscountCents ?? 0) > 0) ? `<tr><td style="padding:4px 0">Discount</td><td align="right">−${money(order.items.reduce((sum,i)=>sum+(i.lineDiscountCents ?? 0),0))}</td></tr>` : ""}
 ${order.taxCents ? `<tr><td style="padding:4px 0">Tax</td><td align="right">${money(order.taxCents)}</td></tr>` : ""}
 <tr><td style="padding:8px 0;font-weight:bold">Total</td><td align="right" style="font-weight:bold">${money(order.totalCents)}</td></tr></table>`;
 }
@@ -34,7 +35,7 @@ export function orderConfirmationEmail(order: Order) {
     subject: `Order ${order.number} confirmed`,
     html: shell(
       `Thanks${order.customerName ? `, ${esc(order.customerName.split(" ")[0])}` : ""}. Your order is in.`,
-      `<p style="font-size:15px;line-height:1.5">Order <b>${order.number}</b> ships from Denver within 1–2 business days. You'll get another email with tracking as soon as the label is printed.</p>${itemsTable(order)}`,
+      `<p style="font-size:15px;line-height:1.5">${order.status === "needs_attention" ? `Payment received for order <b>${order.number}</b>. We are checking an inventory issue and will contact you before shipping.` : `Order <b>${order.number}</b> ships from Denver within 1–2 business days. You'll get another email with tracking as soon as the label is printed.`}</p>${itemsTable(order)}`,
     ),
   };
 }

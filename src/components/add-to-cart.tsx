@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCart, type CartLine } from "./cart";
 
-export function AddToCart({ line, disabled }: { line: Omit<CartLine, "qty">; disabled?: boolean }) {
+export function AddToCart({ line, disabled, disabledLabel }: { line: Omit<CartLine, "qty">; disabled?: boolean; disabledLabel?: string }) {
   const { add, lines } = useCart();
   const [justAdded, setJustAdded] = useState(false);
   const inCart = lines.find((l) => l.id === line.id);
@@ -35,7 +35,7 @@ export function AddToCart({ line, disabled }: { line: Omit<CartLine, "qty">; dis
           Added to cart
         </>
       ) : disabled ? (
-        "Sold out"
+        disabledLabel ?? "Sold out"
       ) : atMax ? (
         "In your cart"
       ) : (

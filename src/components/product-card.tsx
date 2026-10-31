@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCondition, isNewCondition } from "@/lib/config";
 import type { Product } from "@/lib/db/schema";
 import { money, savingsPercent } from "@/lib/format";
+import { poleSaleLabel } from "@/lib/pole-sale";
 import { GearImage } from "./gear-image";
 
 export function ConditionMark({ condition }: { condition: string }) {
@@ -56,6 +57,7 @@ export function ProductCard({ p, priority }: { p: Product; priority?: boolean })
       <div className="space-y-1.5 p-3.5 sm:p-4">
         <p className="text-sm text-muted">{p.brand}</p>
         <h3 className="line-clamp-2 min-h-[2.6em] font-semibold leading-snug">{p.title}</h3>
+        {p.category === "poles" && <p className="text-xs font-semibold text-accent">{poleSaleLabel(p.poleSpec) ?? "Sale unit awaiting confirmation"}</p>}
         <div className="flex flex-wrap items-baseline gap-x-2">
           <span className="display text-[2rem] leading-none transition-colors group-hover:text-blaze-deep">{money(p.priceCents)}</span>
           {save > 0 && (

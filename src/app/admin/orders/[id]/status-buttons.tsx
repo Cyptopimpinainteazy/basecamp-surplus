@@ -8,7 +8,7 @@ export function OrderStatusButtons({ id, status, stripePi }: { id: string; statu
   const b = "btn btn-line min-h-10 px-3 text-sm";
   return (
     <section className="flex flex-wrap gap-2">
-      {status === "needs_attention" && <button disabled={pending} onClick={() => start(() => setOrderStatus(id, "paid"))} className={b}>Resolved, ready to ship</button>}
+      {status === "needs_attention" && <button disabled={pending} onClick={() => start(() => setOrderStatus(id, "paid"))} className={b}>Stock reconciled, ready to ship</button>}
       {status === "label_created" && <button disabled={pending} onClick={() => start(() => setOrderStatus(id, "shipped"))} className={b}>Mark handed to carrier</button>}
       {(status === "label_created" || status === "shipped") && <button disabled={pending} onClick={() => start(() => setOrderStatus(id, "delivered"))} className={b}>Mark delivered</button>}
       {stripePi && (

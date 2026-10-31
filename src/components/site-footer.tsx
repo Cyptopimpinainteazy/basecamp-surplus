@@ -34,6 +34,9 @@ export function SiteFooter() {
               <li><Link href="/contact" className="hover:text-glacier hover:underline">Contact us</Link></li>
               <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
               <li><Link href="/returns" className="hover:text-glacier hover:underline">Returns</Link></li>
+              <li><Link href="/collections/north-face-replacement-poles" className="hover:text-glacier hover:underline">North Face replacement poles</Link></li>
+              <li><Link href="/collections/dac-tent-poles" className="hover:text-glacier hover:underline">DAC tent poles</Link></li>
+              <li><Link href="/collections/easton-tent-poles" className="hover:text-glacier hover:underline">Easton tent poles</Link></li>
               <li><Link href="/poles/size" className="hover:text-glacier hover:underline">Find a pole by size</Link></li>
               <li><Link href="/poles/photo" className="hover:text-glacier hover:underline">Match a pole from a photo</Link></li>
               <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>

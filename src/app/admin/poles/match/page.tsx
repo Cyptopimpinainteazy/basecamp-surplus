@@ -59,7 +59,7 @@ export default async function MatchLoosePole({ searchParams }: { searchParams: P
                         <img src={m.product.images[0].url} alt="" className="h-14 w-12 shrink-0 rounded object-cover" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className={`text-sm font-semibold ${matchLabel(m) === "Exact match" ? "text-accent" : "text-muted"}`}>
+                        <p className={`text-sm font-semibold ${matchLabel(m) === "Close measurements" ? "text-accent" : "text-muted"}`}>
                           {matchLabel(m)}
                         </p>
                         <Link href={`/admin/products/${m.product.id}`} className="font-semibold hover:underline">{m.product.title}</Link>

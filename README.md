@@ -39,3 +39,15 @@ Local preview: `cp .env.example .env.local`, point at a local Postgres, `npx dri
 2. **List on eBay** from the product page; copy packs for Poshmark/Mercari/Depop.
 3. **Today** shows orders to ship, tickets, and marketplaces to delist.
 4. Open an order → *Get rates* → *Buy label* → print → done; the customer gets tracking.
+
+## Stock workspace and tent/pole cross-selling
+
+- `/admin/stock` is authenticated and paginated (40 SKUs). Filter by brand, category, search, live/low/zero stock or drafts. Low stock means 1–3 live units. Totals follow the filters; list value is active inventory at asking price, not profit.
+- Count sale units, not cartons or tent sets unless the listing itself sells a complete set. North Face stakes use **Tent parts** with product type **stakes**; jackets use **Jackets & coats**. Brands include Easton, DAC, The North Face, Patagonia, Fjällräven, Dope and Montec.
+- The stock workspace also creates manual draft items without AI: unique SKU, brand, category, condition, quantity, model, size and item type. Upload photos directly in the item editor (uses the configured Vercel Blob store); review pricing and fitment before publishing.
+- Manual counts require a reason and record before/after quantities atomically in `stock_adjustments`. A database timestamp and previous count reject stale edits after sales or other changes. Zeroing a live SKU marks it sold out. Receiving stock never auto-publishes a draft, archived or sold-out listing; review it in Listings before publishing.
+- Stock edits call the existing marketplace synchronizer. Check Channels for eBay failures and Today for manual delisting tasks; this is not a guarantee of synchronous marketplace inventory.
+- Home links shoppers into Easton/DAC pole searches, tents, stakes and clothing brands. Pole search includes material fields. Product pages cross-sell only active stock with exact recorded brand/model fitment. Capacity/year/generation remain part of the key; no title-based compatibility guessing. List a tent model consistently, e.g. brand `The North Face`, model `Wawona 4`, and a part fitment line `The North Face Wawona 4`.
+- Apply the additive `0002_stock_adjustments` migration with `npm run db:migrate` before opening Stock. The manual adjustment log covers this workspace only; it is not a full sales or staff audit ledger. Admin authentication remains the existing shared-admin session.
+
+Validation: `npm run typecheck`, `node --import tsx --test src/lib/stock-rules.test.ts`, `npm run build`. A real database and configured marketplace/payment credentials are required for end-to-end stock, checkout and channel verification. Never seed demo listings into real stock.

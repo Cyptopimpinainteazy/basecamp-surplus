@@ -4,44 +4,24 @@ import type Stripe from "stripe";
 import { db } from "./db";
 import { orders, products, type Address, type Order, type OrderItem } from "./db/schema";
 import { orderNumber } from "./format";
-import { decrementStock } from "./products";
-import { syncStock } from "./channels/sync";
+import { recordPaidOrder } from "./order-transaction";
+import { paidLineItems } from "./paid-line-items";
+import { stripe } from "./stripe";
+import { runOrderTasks } from "./order-tasks";
+import { poleSaleLabel } from "./pole-sale";
 import { fetchEbayOrdersSince, markEbayShipped, type EbayOrder } from "./channels/ebay";
 import { getSetting, setSetting } from "./settings";
 import { sendEmail } from "./email/send";
-import { orderConfirmationEmail, ownerAlertEmail, shippedEmail } from "./email/templates";
-import { site } from "./config";
-
-async function alertOwner(subject: string, lines: string[]) {
-  if (!site.ownerEmail) return;
-  const mail = ownerAlertEmail(subject, lines);
-  await sendEmail({ to: site.ownerEmail, ...mail }).catch((e) => console.error("[owner alert]", e));
-}
-
-async function applyStock(items: OrderItem[]) {
-  const short: string[] = [];
-  for (const item of items) {
-    const ok = await decrementStock(item.productId, item.quantity);
-    if (!ok) short.push(`${item.title} (${item.sku}) × ${item.quantity}`);
-  }
-  await syncStock(items.map((i) => i.productId));
-  return short;
-}
+import { shippedEmail } from "./email/templates";
 
 /** Idempotent: Stripe retries webhooks, so we key on the session id. */
 export async function createOrderFromCheckout(session: Stripe.Checkout.Session) {
   const [existing] = await db.select().from(orders).where(eq(orders.stripeSessionId, session.id));
-  if (existing) return existing;
-
-  const raw = session.metadata?.items;
-  if (!raw) throw new Error(`Checkout session ${session.id} has no item metadata`);
-  const cart = JSON.parse(raw) as { id: string; q: number }[];
-  const rows = await db.select().from(products).where(inArray(products.id, cart.map((c) => c.id)));
-  const items: OrderItem[] = cart.map((c) => {
-    const p = rows.find((r) => r.id === c.id);
-    if (!p) throw new Error(`Product ${c.id} in session ${session.id} no longer exists`);
-    return { productId: p.id, sku: p.sku, title: p.title, quantity: c.q, unitCents: p.priceCents, image: p.images[0]?.url };
-  });
+  if (existing) { await runOrderTasks(existing.id); return existing; }
+  if (session.payment_status !== "paid" || session.currency !== "usd") throw new Error("Session is not a paid USD checkout");
+  const lines: Stripe.LineItem[] = [];
+  for await (const line of stripe().checkout.sessions.listLineItems(session.id, {limit:100,expand:["data.price.product"]})) lines.push(line);
+  const items = paidLineItems(lines, session);
 
   const ship = session.collected_information?.shipping_details;
   const address: Address | null = ship?.address
@@ -57,14 +37,9 @@ export async function createOrderFromCheckout(session: Stripe.Checkout.Session) 
       }
     : null;
 
-  const short = await applyStock(items);
-  const [order] = await db
-    .insert(orders)
-    .values({
+  const {order} = await recordPaidOrder(db, {
       number: orderNumber(),
       source: "site",
-      status: short.length ? "needs_attention" : "paid",
-      attentionReason: short.length ? `Oversold (sold elsewhere first): ${short.join("; ")}` : null,
       email: session.customer_details?.email ?? "",
       customerName: session.customer_details?.name ?? address?.name ?? "",
       items,
@@ -77,21 +52,8 @@ export async function createOrderFromCheckout(session: Stripe.Checkout.Session) 
       packagePreset: session.metadata?.package ?? null,
       stripeSessionId: session.id,
       stripePaymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
-    })
-    .onConflictDoNothing({ target: orders.stripeSessionId })
-    .returning();
-
-  if (!order) {
-    const [again] = await db.select().from(orders).where(eq(orders.stripeSessionId, session.id));
-    return again;
-  }
-  if (order.email) {
-    await sendEmail({ to: order.email, ...orderConfirmationEmail(order) }).catch((e) => console.error("[confirm email]", e));
-  }
-  await alertOwner(`New order ${order.number}: ${(order.totalCents / 100).toFixed(2)}`, [
-    ...items.map((i) => `${i.quantity} × ${i.title} (${i.sku})`),
-    short.length ? `NEEDS ATTENTION: ${order.attentionReason}` : "Ready to ship.",
-  ]);
+    });
+  await runOrderTasks(order.id);
   return order;
 }
 
@@ -122,23 +84,15 @@ export async function importEbayOrders() {
         quantity: l.quantity,
         unitCents: Math.round(Number(l.lineItemCost?.value ?? 0) * 100 / Math.max(1, l.quantity)),
         image: p?.images[0]?.url,
+        saleUnitLabel: p?.category === "poles" ? poleSaleLabel(p.poleSpec) ?? undefined : undefined,
       };
     });
-    const known = items.filter((i) => i.productId);
-    const short = await applyStock(known);
-    const unknown = items.filter((i) => !i.productId).map((i) => `${i.title} (no matching SKU)`);
     const shipTo = eo.fulfillmentStartInstructions?.[0]?.shippingStep?.shipTo;
     const addr = shipTo?.contactAddress;
-    const problems = [...short.map((s) => `Oversold: ${s}`), ...unknown];
-
-    await db
-      .insert(orders)
-      .values({
+    const result = await recordPaidOrder(db, {
         number: orderNumber(),
         source: "ebay",
         externalId: eo.orderId,
-        status: problems.length ? "needs_attention" : "paid",
-        attentionReason: problems.length ? problems.join("; ") : null,
         email: shipTo?.email ?? eo.buyer?.buyerRegistrationAddress?.email ?? "",
         customerName: shipTo?.fullName ?? "",
         items,
@@ -158,13 +112,10 @@ export async function importEbayOrders() {
             }
           : null,
         createdAt: new Date(eo.creationDate),
-      })
-      .onConflictDoNothing();
-    imported++;
-    await alertOwner(`New eBay order ${eo.orderId}`, [
-      ...items.map((i) => `${i.quantity} × ${i.title}`),
-      problems.length ? `NEEDS ATTENTION: ${problems.join("; ")}` : "Ready to ship.",
-    ]);
+      });
+    if (result.created) imported++;
+    await runOrderTasks(result.order.id);
+
   }
   await setSetting("ebay_orders_synced_at", startedAt.toISOString());
   return { checked: ebayOrders.length, imported };
