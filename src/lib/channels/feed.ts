@@ -1,4 +1,5 @@
 import "server-only";
+import { productIdentifiers } from "../product-identifiers";
 import { getCategory, getCondition, shippingPolicy, site } from "../config";
 import type { Product } from "../db/schema";
 import { escapeXml, truncate } from "../format";
@@ -13,6 +14,7 @@ export function productFeedXml(items: Product[]) {
   const entries = items
     .filter((p) => p.images.length > 0 && p.priceCents > 0)
     .map((p) => {
+      const identifiers = productIdentifiers(p.specs ?? []);
       const cat = getCategory(p.category);
       const cond = getCondition(p.condition);
       const link = `${site.url}/p/${p.slug}`;
@@ -30,12 +32,11 @@ export function productFeedXml(items: Product[]) {
         ["g:image_link", p.images[0].url],
         ...p.images.slice(1, 11).map((i) => ["g:additional_image_link", i.url] as [string, string]),
         ["g:availability", inStock ? "in_stock" : "out_of_stock"],
-        ["g:price", `${(p.msrpCents && p.msrpCents > p.priceCents ? p.msrpCents : p.priceCents) / 100} USD`],
-        ...(p.msrpCents && p.msrpCents > p.priceCents ? [["g:sale_price", `${(p.priceCents / 100).toFixed(2)} USD`] as [string, string]] : []),
+        ["g:price", `${(p.priceCents / 100).toFixed(2)} USD`],
         ["g:condition", cond.google],
         ["g:brand", p.brand],
-        ["g:mpn", p.sku],
-        ["g:identifier_exists", "no"],
+        ["g:mpn", identifiers.mpn],
+        ["g:gtin", identifiers.gtin],
         ["g:google_product_category", cat?.googleCategoryId],
         ["g:product_type", [cat?.name, p.productType].filter(Boolean).join(" > ")],
         ["g:color", p.color || undefined],

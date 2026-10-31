@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { catalogSeo } from "@/lib/seo";
 import { countProducts, listProducts, sizesInCategory, type ProductQuery } from "@/lib/products";
 import { ProductGrid } from "./product-card";
 
@@ -7,7 +8,7 @@ type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 export function parseQuery(sp: SP, base: Partial<ProductQuery> = {}): ProductQuery & { page: number } {
-  const page = Math.max(1, Number(one(sp.page)) || 1);
+  const page = catalogSeo("", sp).page;
   const sort = one(sp.sort);
   const condition = one(sp.condition);
   return {

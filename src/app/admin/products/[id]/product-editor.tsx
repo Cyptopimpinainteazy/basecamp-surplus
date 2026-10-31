@@ -148,7 +148,7 @@ export function ProductEditor({
         <Area label="Condition notes" name="conditionNotes" defaultValue={p.conditionNotes} rows={2} />
         <Area label="Description" name="description" defaultValue={p.description} rows={9} hint="Blank lines separate paragraphs." />
         <Area label="Highlights (one per line)" name="highlights" defaultValue={p.highlights.join("\n")} rows={4} />
-        <Area label="Specs (Label: value, one per line)" name="specs" defaultValue={p.specs.map((s) => `${s.label}: ${s.value}`).join("\n")} rows={5} />
+        <Area label="Specs (Label: value, one per line)" name="specs" defaultValue={p.specs.map((s) => `${s.label}: ${s.value}`).join("\n")} rows={5} hint="For Google Shopping, enter MPN: manufacturer part number and GTIN: barcode digits only when verified from the product/tag. Never use your internal SKU as MPN." />
         {(p.category === "poles" || p.category === "parts" || p.fitment.length > 0) && (
           <Area label="Fits these tents (one per line)" name="fitment" defaultValue={p.fitment.join("\n")} rows={3} hint="Powers the pole finder. Use 'Brand Model', e.g. The North Face Stormbreak 2." />
         )}

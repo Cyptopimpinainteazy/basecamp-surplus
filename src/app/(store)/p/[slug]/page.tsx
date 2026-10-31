@@ -8,6 +8,7 @@ import { ConditionMark, ProductGrid } from "@/components/product-card";
 import { getCategory, getCondition, isNewCondition, policies, shippingPolicy, site } from "@/lib/config";
 import { money, savingsPercent, truncate } from "@/lib/format";
 import { complementaryProducts, getProductBySlug, relatedProducts } from "@/lib/products";
+import { productIdentifiers } from "@/lib/product-identifiers";
 import { reviewForProduct } from "@/lib/articles";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -53,7 +54,7 @@ export default async function ProductPage({ params }: Props) {
             "@type": "Product",
             name: p.title,
             sku: p.sku,
-            mpn: p.sku,
+            ...productIdentifiers(p.specs),
             brand: { "@type": "Brand", name: p.brand },
             model: p.model || undefined,
             color: p.color || undefined,

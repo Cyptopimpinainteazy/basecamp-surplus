@@ -14,12 +14,18 @@ export type ProductQuery = {
   sort?: "new" | "price_asc" | "price_desc" | "savings";
   limit?: number;
   offset?: number;
+  productTypeTerms?: string[];
+  collectionSearch?: string;
 };
 
 const NEW_CONDITIONS = ["new_with_tags", "new_without_tags"];
 
 function filters(q: ProductQuery): SQL[] {
   const where: SQL[] = [eq(products.status, "active"), gt(products.quantity, 0)];
+  if (q.productTypeTerms?.length) where.push(or(...q.productTypeTerms.map(term => {
+    const pattern = `%${term.replace(/[%_]/g, "")}%`;
+    return or(ilike(products.productType, pattern), ilike(products.title, pattern))!;
+  }))!);
   if (q.category) where.push(eq(products.category, q.category));
   if (q.brand) where.push(eq(products.brandSlug, q.brand));
   if (q.size) where.push(ilike(products.size, q.size));
@@ -27,8 +33,9 @@ function filters(q: ProductQuery): SQL[] {
   if (q.condition === "new") where.push(inArray(products.condition, NEW_CONDITIONS));
   if (q.condition === "used")
     where.push(sql`${products.condition} not in ('new_with_tags','new_without_tags')`);
-  if (q.q?.trim()) {
-    const terms = q.q.trim().split(/\s+/).slice(0, 8);
+  const search = [q.collectionSearch, q.q].filter(Boolean).join(" ").trim();
+  if (search) {
+    const terms = search.split(/\s+/).slice(0, 16);
     for (const term of terms) {
       const like = `%${term.replace(/[%_]/g, "")}%`;
       where.push(
@@ -272,4 +279,14 @@ export async function complementaryProducts(p: Product, limit = 4) {
     eq(products.status, "active"), gt(products.quantity, 0), sql`${products.id} <> ${p.id}`,
     inArray(products.category, plan.categories), linked,
   )).orderBy(asc(products.category), desc(products.publishedAt)).limit(limit);
+}
+
+
+/** Exact normalized fitment for model guides; never treats Tadpole 2 as Tadpole 23. */
+export async function polesForExactModel(model: string) {
+  const key = model.trim().toLowerCase().replace(/\s+/g, " ");
+  return db.select().from(products).where(and(
+    eq(products.status, "active"), gt(products.quantity, 0), inArray(products.category, fitmentCategories),
+    sql`exists (select 1 from jsonb_array_elements_text(${products.fitment}) f where lower(regexp_replace(trim(f), '\\s+', ' ', 'g')) = ${key})`,
+  )).orderBy(asc(products.category), asc(products.priceCents)).limit(24);
 }

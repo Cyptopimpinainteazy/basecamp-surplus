@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { poleModelHref } from "@/lib/pole-guides";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 
@@ -9,7 +11,7 @@ export function PoleFinder({ models, compact }: { models: { model: string; count
   const listId = useId();
   const go = (m: string) => {
     const v = m.trim();
-    if (v) router.push(`/poles?model=${encodeURIComponent(v)}`);
+    if (v) router.push(poleModelHref(v));
   };
   return (
     <div>
@@ -41,14 +43,13 @@ export function PoleFinder({ models, compact }: { models: { model: string; count
       {!compact && models.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {models.slice(0, 10).map((m) => (
-            <button
+            <Link
               key={m.model}
-              type="button"
-              onClick={() => go(m.model)}
+              href={poleModelHref(m.model)}
               className="rounded-full border-[1.5px] border-current/30 px-3 py-1 text-sm hover:border-current"
             >
               {m.model}
-            </button>
+            </Link>
           ))}
         </div>
       )}

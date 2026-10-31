@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   },
   description: site.description,
   applicationName: site.name,
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
   openGraph: { type: "website", siteName: site.name, locale: "en_US", url: site.url },
   twitter: { card: "summary_large_image" },
   alternates: { canonical: "/" },

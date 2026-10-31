@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { permanentRedirect } from "next/navigation";
+import { guideForModel, poleGuides, poleModelHref } from "@/lib/pole-guides";
 import { headers } from "next/headers";
 import { JsonLd } from "@/components/json-ld";
 import { PoleFinder } from "@/components/pole-finder";
@@ -9,7 +11,7 @@ import { site } from "@/lib/config";
 import type { Product } from "@/lib/db/schema";
 import { listProducts, poleFitmentIndex, polesForModel } from "@/lib/products";
 
-type Props = { searchParams: Promise<{ model?: string }> };
+type Props = { searchParams: Promise<{ model?: string; q?: string }> };
 
 async function onPolesDomain() {
   const host = (await headers()).get("host")?.replace(/^www\./, "") ?? "";
@@ -17,14 +19,15 @@ async function onPolesDomain() {
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { model } = await searchParams;
+  const { model, q } = await searchParams;
   const polesHost = await onPolesDomain();
   const base = polesHost ? `https://${site.polesDomain}` : site.url;
   if (model) {
     return {
       title: `Replacement poles & parts for ${model}`,
-      description: `Factory replacement poles, rainflies, footprints and stakes that fit the ${model}. In stock and shipped from Denver.`,
-      alternates: { canonical: `${base}/poles?model=${encodeURIComponent(model)}` },
+      description: `Search listed replacement tent parts for ${model}. Compare the listing’s model, dimensions and fittings before choosing.`,
+      alternates: { canonical: guideForModel(model) ? `${site.url}${poleModelHref(model)}` : `${base}/poles` },
+      robots: {index:false,follow:true},
     };
   }
   return {
@@ -32,6 +35,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     description:
       "Snapped a tent pole or lost a rainfly? Search by tent model to find factory replacement poles, flies, footprints and stakes for The North Face tents. Shipped from Denver.",
     alternates: { canonical: polesHost ? `https://${site.polesDomain}/` : `${site.url}/poles` },
+    robots: q ? {index:false,follow:true} : undefined,
   };
 }
 
@@ -55,11 +59,12 @@ function partGroups(items: Product[]) {
 }
 
 export default async function PolesPage({ searchParams }: Props) {
-  const { model } = await searchParams;
+  const { model, q } = await searchParams;
+  if (model && guideForModel(model)) permanentRedirect(poleModelHref(model));
   const [index, results, all] = await Promise.all([
     poleFitmentIndex(),
     model ? polesForModel(model) : Promise.resolve(null),
-    model ? Promise.resolve([]) : listProducts({ category: "poles", limit: 24 }),
+    model ? Promise.resolve([]) : listProducts({ category: "poles", q: q?.slice(0,100), limit: 24 }),
   ]);
   const polesHost = await onPolesDomain();
 
@@ -121,7 +126,7 @@ export default async function PolesPage({ searchParams }: Props) {
                 <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                   {index.map((m) => (
                     <li key={m.model}>
-                      <Link href={`/poles?model=${encodeURIComponent(m.model)}`} className="flex justify-between gap-4 border-b border-ice py-2 hover:text-blaze-deep">
+                      <Link href={poleModelHref(m.model)} className="flex justify-between gap-4 border-b border-ice py-2 hover:text-blaze-deep">
                         <span>{m.model}</span>
                         <span className="text-granite">{m.count}</span>
                       </Link>
@@ -130,11 +135,17 @@ export default async function PolesPage({ searchParams }: Props) {
                 </ul>
               </section>
             )}
-            <h2 className="display mb-5 text-4xl">All poles in stock</h2>
+            <h2 className="display mb-5 text-4xl">{q ? `Poles matching “${q.slice(0,100)}”` : "All poles in stock"}</h2>
             {all.length > 0 ? <ProductGrid items={all} /> : <p className="text-granite">Poles are being sorted and photographed now.</p>}
           </>
         )}
 
+        <section className="mt-14" aria-labelledby="model-guides">
+          <h2 id="model-guides" className="display text-4xl">North Face tent pole guides</h2>
+          <p className="mt-3 max-w-3xl text-granite">Sourced reference details for identifying your tent frame, including reported pole systems, diameters and what still needs measuring. A reference entry is not an availability or compatibility claim.</p>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{poleGuides.map(t => <li key={t.slug}><Link href={`/poles/tents/${t.slug}`} className="underline underline-offset-4">{t.model} pole guide</Link></li>)}</ul>
+          <div className="mt-6 flex flex-wrap gap-4"><Link href="/collections/easton-tent-poles" className="font-semibold underline">Easton tent poles</Link><Link href="/collections/dac-tent-poles" className="font-semibold underline">DAC tent poles</Link><Link href="/collections/north-face-replacement-poles" className="font-semibold underline">North Face replacement poles</Link></div>
+        </section>
         <section className="mt-16 max-w-3xl" aria-labelledby="faq">
           <h2 id="faq" className="display text-4xl">Matching a replacement pole</h2>
           <div className="prose-gear mt-4 text-granite">

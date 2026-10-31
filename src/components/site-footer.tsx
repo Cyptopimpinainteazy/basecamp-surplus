@@ -30,6 +30,9 @@ export function SiteFooter() {
         <div>
           <p className="mb-3 font-semibold text-glacier">Help</p>
           <ul className="space-y-2">
+            <li><Link href="/collections/north-face-replacement-poles" className="hover:text-glacier hover:underline">North Face pole guides</Link></li>
+            <li><Link href="/collections/easton-tent-poles" className="hover:text-glacier hover:underline">Easton tent poles</Link></li>
+            <li><Link href="/collections/dac-tent-poles" className="hover:text-glacier hover:underline">DAC tent poles</Link></li>
             <li><Link href="/reviews" className="hover:text-glacier hover:underline">Gear reviews</Link></li>
             <li><Link href="/help#shipping" className="hover:text-glacier hover:underline">Shipping</Link></li>
             <li><Link href="/help#returns" className="hover:text-glacier hover:underline">Returns</Link></li>

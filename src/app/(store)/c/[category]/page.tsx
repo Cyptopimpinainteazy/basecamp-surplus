@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Catalog } from "@/components/catalog";
 import { JsonLd } from "@/components/json-ld";
+import { countProducts } from "@/lib/products";
+import { catalogSeo, serializeParams } from "@/lib/seo";
 import { categories, getCategory, site } from "@/lib/config";
 
 type Props = {
@@ -19,17 +21,22 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const sp = await searchParams;
   const c = getCategory(category);
   if (!c) return {};
+  const seo = catalogSeo(`/c/${c.slug}`, sp);
+  const count = await countProducts({ category: c.slug });
   return {
-    title: `${c.heading}, new with tags`,
+    title: `${c.heading}${seo.page > 1 ? ` — Page ${seo.page}` : ""}`,
     description: `${c.blurb} Below retail, shipped from Denver.`.slice(0, 160),
-    alternates: { canonical: `/c/${c.slug}` },
-    robots: Object.keys(sp).length ? { index: false, follow: true } : undefined,
+    alternates: { canonical: seo.canonical },
+    robots: seo.noindex || count === 0 ? { index: false, follow: true } : undefined,
   };
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { category } = await params;
-  if (category === "poles") redirect("/poles");
+  if (category === "poles") {
+    const query = serializeParams(await searchParams);
+    redirect(query ? `/poles?${query}` : "/poles");
+  }
   const c = getCategory(category);
   if (!c) notFound();
   const sp = await searchParams;
