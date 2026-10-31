@@ -60,6 +60,16 @@ export const categories = [
     packagePreset: "pole-tube",
   },
   {
+    slug: "parts",
+    name: "Tent parts",
+    heading: "Replacement rainflies, footprints & stakes",
+    blurb:
+      "Factory rainflies, footprints, stakes and other spare parts, matched to the tents they fit. Search your tent model to find them.",
+    googleCategory: "Sporting Goods > Outdoor Recreation > Camping & Hiking > Tent Accessories",
+    googleCategoryId: "499680",
+    packagePreset: "medium-box",
+  },
+  {
     slug: "pants",
     name: "Snow pants & bibs",
     heading: "Snow pants & bibs",
@@ -81,7 +91,7 @@ export const categories = [
     slug: "gear",
     name: "Camp gear",
     heading: "Camp gear & accessories",
-    blurb: "Footprints, stakes, sleeping gear and the rest of the camp kit.",
+    blurb: "Sleeping gear, cook kit and the rest of the camp setup.",
     googleCategory: "Sporting Goods > Outdoor Recreation > Camping & Hiking",
     googleCategoryId: "1011",
     packagePreset: "medium-box",
@@ -91,6 +101,9 @@ export const categories = [
 export type CategorySlug = (typeof categories)[number]["slug"];
 export const categorySlugs = categories.map((c) => c.slug) as [CategorySlug, ...CategorySlug[]];
 export const getCategory = (slug: string) => categories.find((c) => c.slug === slug);
+
+/** Categories whose items fit specific tents (shown in the finder by tent model). */
+export const fitmentCategories = ["poles", "parts"];
 
 export const brands = [
   { slug: "the-north-face", name: "The North Face" },

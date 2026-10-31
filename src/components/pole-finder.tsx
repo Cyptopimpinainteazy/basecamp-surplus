@@ -36,7 +36,7 @@ export function PoleFinder({ models, compact }: { models: { model: string; count
             <option key={m.model} value={m.model} />
           ))}
         </datalist>
-        <button className="btn btn-blaze h-14 text-lg">Find my pole</button>
+        <button className="btn btn-blaze h-14 text-lg">Find parts</button>
       </form>
       {!compact && models.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">

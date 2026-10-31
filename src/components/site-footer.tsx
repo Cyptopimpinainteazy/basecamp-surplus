@@ -20,7 +20,7 @@ export function SiteFooter() {
           <ul className="space-y-2">
             {categories.map((c) => (
               <li key={c.slug}>
-                <Link href={c.slug === "poles" ? "/poles" : `/c/${c.slug}`} className="hover:text-glacier hover:underline">
+                <Link href={c.slug === "poles" ? "/poles" : c.slug === "parts" ? "/c/parts" : `/c/${c.slug}`} className="hover:text-glacier hover:underline">
                   {c.name}
                 </Link>
               </li>

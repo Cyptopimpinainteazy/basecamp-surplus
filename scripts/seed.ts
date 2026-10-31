@@ -164,6 +164,24 @@ const rows: NewProduct[] = [
     seoTitle: "Replacement Pole: The North Face Wawona 6", seoDescription: "Factory replacement hub pole for The North Face Wawona 6 tent. New. Ships from Denver.",
     images: img("pole-green", "Green tent pole set with label"), priceCents: 5900, quantity: 18, weightOz: 30, packagePreset: "pole-tube",
   }),
+  item({
+    key: "fly-stormbreak-2",
+    title: "Replacement Rainfly for The North Face Stormbreak 2 Tent",
+    brand: "The North Face", brandSlug: "the-north-face", model: "Stormbreak 2 rainfly", category: "parts", productType: "Rainfly",
+    condition: "new_without_tags", description: "Factory replacement rainfly for the Stormbreak 2. New, never pitched.",
+    fitment: ["The North Face Stormbreak 2"],
+    seoTitle: "Replacement Rainfly: The North Face Stormbreak 2", seoDescription: "Factory replacement rainfly for The North Face Stormbreak 2 tent. New. Ships from Denver.",
+    images: img("stormbreak-2", "Orange Stormbreak 2 rainfly"), priceCents: 6900, quantity: 8, weightOz: 30, packagePreset: "medium-box",
+  }),
+  item({
+    key: "footprint-stormbreak-2",
+    title: "The North Face Stormbreak 2 Footprint",
+    brand: "The North Face", brandSlug: "the-north-face", model: "Stormbreak 2 footprint", category: "parts", productType: "Footprint",
+    condition: "new_without_tags", description: "Footprint cut to the Stormbreak 2 floor. Protects the floor on rocky sites.",
+    fitment: ["The North Face Stormbreak 2"],
+    seoTitle: "The North Face Stormbreak 2 Footprint", seoDescription: "Footprint for The North Face Stormbreak 2 tent. New. Ships from Denver.",
+    images: img("stormbreak-2", "Stormbreak 2 footprint"), priceCents: 2900, quantity: 12, weightOz: 12, packagePreset: "coat-mailer",
+  }),
 ];
 
 async function main() {

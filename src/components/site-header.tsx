@@ -5,7 +5,7 @@ import { CartButton } from "./cart-drawer";
 const nav = [
   { href: "/c/tents", label: "Tents" },
   { href: "/c/jackets", label: "Jackets" },
-  { href: "/poles", label: "Tent poles" },
+  { href: "/poles", label: "Poles & parts" },
   { href: "/shop?condition=used", label: "Pre-owned" },
   { href: "/reviews", label: "Reviews" },
   { href: "/shop", label: "All gear" },

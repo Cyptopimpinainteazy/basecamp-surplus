@@ -83,7 +83,7 @@ const listingTool: Anthropic.Tool = {
         type: "string",
         description: "Official product/model name as printed on tags or as the brand sells it, e.g. 'Nuptse 1996 Retro', 'Stormbreak 2'.",
       },
-      productType: { type: "string", description: "Short type, e.g. 'Down jacket', 'Backpacking tent', 'Tent pole'." },
+      productType: { type: "string", description: "Short type, e.g. 'Down jacket', 'Backpacking tent', 'Tent pole', 'Rainfly', 'Footprint', 'Tent stakes'." },
       gender: { type: "string", enum: ["mens", "womens", "unisex", "kids", ""] },
       size: { type: "string", description: "Size exactly as on the tag (S, M, L, XL...). Empty for tents/poles." },
       color: { type: "string", description: "Brand color name if on tag, else plain color." },
@@ -126,7 +126,7 @@ const listingTool: Anthropic.Tool = {
       fitment: {
         type: "array",
         items: { type: "string" },
-        description: "Poles only: tent models this pole fits, e.g. 'The North Face Stormbreak 2'. Read pole tags/labels; include only models you have evidence for.",
+        description: "Poles and tent parts (rainflies, footprints, model-specific stakes or vestibules): the tent models it fits, e.g. 'The North Face Stormbreak 2'. Read tags, labels and printed style numbers; include only models you have evidence for.",
       },
       poleSpec: {
         type: ["object", "null"],
@@ -166,6 +166,7 @@ Rules:
 - Titles must fit in 80 characters for eBay/Poshmark.
 - SEO: target what buyers search: brand + model + type + size/gender, and for poles "replacement pole for <brand> <tent model>".
 - Never claim the item is from the brand directly or that the store is an authorized dealer. Brand names are used only to describe the product.
+- Rainflies, footprints and stakes sold on their own go in the parts category with fitment set. Titles: 'Replacement Rainfly for <Brand> <Model> Tent', '<Brand> <Model> Footprint'.
 - Categories: ${categories.map((c) => `${c.slug} (${c.name})`).join(", ")}.
 - Conditions: ${conditions.map((c) => `${c.value} = ${c.detail}`).join(" | ")}.
 - Known brands in stock: ${brands.map((b) => b.name).join(", ")}. Default conditions by brand: ${JSON.stringify(brandDefaultCondition)}.

@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, gt, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
 import { db } from "./db";
 import { products, type Product } from "./db/schema";
+import { fitmentCategories } from "./config";
 
 export type ProductQuery = {
   category?: string;
@@ -143,13 +144,13 @@ export async function sizesInCategory(category: string) {
     });
 }
 
-/** Tent models that have poles in stock, for the fitment finder. */
+/** Tent models that have poles or parts in stock, for the fitment finder. */
 export async function poleFitmentIndex() {
   const rows = await db
     .select({ fitment: products.fitment })
     .from(products)
     .where(
-      and(eq(products.status, "active"), gt(products.quantity, 0), eq(products.category, "poles")),
+      and(eq(products.status, "active"), gt(products.quantity, 0), inArray(products.category, fitmentCategories)),
     );
   const models = new Map<string, number>();
   for (const r of rows) for (const m of r.fitment) models.set(m, (models.get(m) ?? 0) + 1);
@@ -166,11 +167,11 @@ export async function polesForModel(model: string) {
       and(
         eq(products.status, "active"),
         gt(products.quantity, 0),
-        eq(products.category, "poles"),
+        inArray(products.category, fitmentCategories),
         sql`exists (select 1 from jsonb_array_elements_text(${products.fitment}) f where f ilike ${"%" + model.replace(/[%_]/g, "") + "%"})`,
       ),
     )
-    .orderBy(asc(products.priceCents));
+    .orderBy(asc(products.category), asc(products.priceCents));
 }
 
 export async function allActiveProducts() {
