@@ -15,6 +15,13 @@
       "when": 1793391368874,
       "tag": "0001_articles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793438855933,
+      "tag": "0002_article_managed_by",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import { ProductGrid } from "@/components/product-card";
 import { site } from "@/lib/config";
 import type { Product } from "@/lib/db/schema";
 import { listProducts, poleFitmentIndex, polesForModel } from "@/lib/products";
+import { publishedArticles, mentionsModel } from "@/lib/articles";
 
 type Props = { searchParams: Promise<{ model?: string }> };
 
@@ -62,6 +63,11 @@ export default async function PolesPage({ searchParams }: Props) {
     model ? Promise.resolve([]) : listProducts({ category: "poles", limit: 24 }),
   ]);
   const polesHost = await onPolesDomain();
+  const allReviews = await publishedArticles(200);
+  const guides = allReviews.filter((a) => a.category === "tents" || a.category === "poles").sort((a, b) => a.subject.localeCompare(b.subject));
+  const review = model
+    ? [...allReviews].sort((a, b) => b.stockQuery.length - a.stockQuery.length).find((a) => a.stockQuery && mentionsModel(model, a.stockQuery))
+    : undefined;
 
   return (
     <>
@@ -84,6 +90,19 @@ export default async function PolesPage({ searchParams }: Props) {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 pt-12 sm:px-6">
+        {review && (
+          <Link
+            href={`/reviews/${review.slug}`}
+            className="mb-8 flex items-center justify-between gap-4 rounded-[var(--radius-tag)] border-[1.5px] border-spruce/20 bg-snow p-4 hover:border-spruce"
+          >
+            <span>
+              <span className="block text-sm text-granite">Read our review</span>
+              <span className="font-semibold">{review.title}</span>
+            </span>
+            <span className="shrink-0 text-sm font-semibold text-blaze-deep">Specs, poles &amp; fit</span>
+          </Link>
+        )}
+
         {model && results && (
           <>
             {results.length > 0 ? (
@@ -133,6 +152,19 @@ export default async function PolesPage({ searchParams }: Props) {
             <h2 className="display mb-5 text-4xl">All poles in stock</h2>
             {all.length > 0 ? <ProductGrid items={all} /> : <p className="text-granite">Poles are being sorted and photographed now.</p>}
           </>
+        )}
+
+        {!model && guides.length > 0 && (
+          <section className="mt-16" aria-labelledby="guides">
+            <h2 id="guides" className="display text-4xl">Tent and pole guides</h2>
+            <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              {guides.map((g) => (
+                <li key={g.slug}>
+                  <Link href={`/reviews/${g.slug}`} className="block border-b border-ice py-2 hover:text-blaze-deep">{g.subject.replace(/^The North Face /, "")}</Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         <section className="mt-16 max-w-3xl" aria-labelledby="faq">

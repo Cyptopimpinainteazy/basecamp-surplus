@@ -1,10 +1,13 @@
+import Link from "next/link";
+import { reviewLinker } from "@/lib/articles";
 import { confidenceLabel, hubTents, tentsForDiameter } from "@/lib/tent-reference";
 
 /** "Which tents used a pole like this?" panel, driven by the published reference table. */
-export function TentCandidates({ diameterMm, shape, linkBase }: { diameterMm?: number; shape?: string; linkBase: string }) {
+export async function TentCandidates({ diameterMm, shape, linkBase }: { diameterMm?: number; shape?: string; linkBase: string }) {
   const isHub = shape === "hub";
   const list = diameterMm ? tentsForDiameter(diameterMm, { hub: isHub ? true : undefined }) : isHub ? hubTents() : [];
   if (!diameterMm && !isHub) return null;
+  const reviewFor = await reviewLinker();
   return (
     <section className="rounded-[var(--radius-tag)] bg-snow p-5" aria-labelledby="tc">
       <h2 id="tc" className="display text-3xl">Tents that used a pole like this</h2>
@@ -26,9 +29,14 @@ export function TentCandidates({ diameterMm, shape, linkBase }: { diameterMm?: n
                     .join(" · ")}
                 </span>
               </span>
-              <a href={t.source.url} target="_blank" rel="noopener nofollow" className="text-xs text-granite underline">
-                {confidenceLabel[t.confidence]}
-              </a>
+              <span className="flex gap-3 text-xs">
+                {reviewFor(t.model) && (
+                  <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-spruce underline">Review</Link>
+                )}
+                <a href={t.source.url} target="_blank" rel="noopener nofollow" className="text-granite underline">
+                  {confidenceLabel[t.confidence]}
+                </a>
+              </span>
             </li>
           ))}
         </ul>

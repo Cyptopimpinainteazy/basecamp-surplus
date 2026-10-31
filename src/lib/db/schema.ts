@@ -269,6 +269,8 @@ export const articles = pgTable(
     seoTitle: text("seo_title").notNull().default(""),
     seoDescription: text("seo_description").notNull().default(""),
     keywords: jsonb("keywords").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    /** "file" = synced from content/reviews on deploy; "admin" = edited in admin, never overwritten. */
+    managedBy: text("managed_by").notNull().default("admin"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     publishedAt: timestamp("published_at", { withTimezone: true }),

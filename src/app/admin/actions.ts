@@ -345,6 +345,7 @@ export async function saveArticle(_: unknown, form: FormData) {
       seoTitle: String(form.get("seoTitle") ?? "").trim().slice(0, 70),
       seoDescription: String(form.get("seoDescription") ?? "").trim().slice(0, 170),
       keywords: commaList(form.get("keywords")),
+      managedBy: "admin",
       status: publish ? "published" : current.status,
       publishedAt: publish && !current.publishedAt ? new Date() : current.publishedAt,
       updatedAt: new Date(),

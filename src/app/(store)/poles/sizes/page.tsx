@@ -6,6 +6,7 @@ import { money, slugify } from "@/lib/format";
 import { poleSizeChart } from "@/lib/products";
 import { SizeFilter } from "./size-filter";
 import { confidenceLabel, tentReference } from "@/lib/tent-reference";
+import { reviewLinker } from "@/lib/articles";
 
 export const revalidate = 600;
 
@@ -21,6 +22,7 @@ const cm = (n: number | null) => (n == null ? "" : `${Math.round(n * 2.54)} cm`)
 
 export default async function PoleSizesPage() {
   const groups = await buildSafe(() => poleSizeChart(), []);
+  const reviewFor = await buildSafe(() => reviewLinker(), (_: string) => null as string | null);
   const listed = groups.filter((g) => g.tent !== "Unmatched poles");
 
   return (
@@ -132,7 +134,7 @@ export default async function PoleSizesPage() {
             lengths come from the measured stock above.
           </p>
           <div className="mt-4 overflow-x-auto rounded-[var(--radius-tag)] bg-snow">
-            <table className="w-full min-w-[820px] text-left text-sm [font-variant-numeric:tabular-nums]">
+            <table className="w-full min-w-[900px] text-left text-sm [font-variant-numeric:tabular-nums]">
               <thead className="border-b border-ice text-granite">
                 <tr>
                   <th scope="col" className="p-3 font-medium">Tent</th>
@@ -142,6 +144,7 @@ export default async function PoleSizesPage() {
                   <th scope="col" className="p-3 font-medium">Pole system</th>
                   <th scope="col" className="p-3 font-medium">Notes</th>
                   <th scope="col" className="p-3 font-medium">Source</th>
+                  <th scope="col" className="p-3 font-medium">Review</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ice">
@@ -157,6 +160,13 @@ export default async function PoleSizesPage() {
                     <td className="max-w-xs p-3 text-granite">{t.notes}</td>
                     <td className="p-3">
                       <a href={t.source.url} target="_blank" rel="noopener nofollow" className="underline">{confidenceLabel[t.confidence]}</a>
+                    </td>
+                    <td className="p-3">
+                      {reviewFor(t.model) ? (
+                        <Link href={`/reviews/${reviewFor(t.model)}`} className="font-semibold text-spruce underline">Read review</Link>
+                      ) : (
+                        "–"
+                      )}
                     </td>
                   </tr>
                 ))}

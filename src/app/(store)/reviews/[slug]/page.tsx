@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { ProductCard } from "@/components/product-card";
 import { getCategory, site } from "@/lib/config";
-import { getArticle, mentionsModel, readingMinutes, renderArticle } from "@/lib/articles";
+import { getArticle, mentionsModel, readingMinutes, relatedArticles, renderArticle } from "@/lib/articles";
 import { money } from "@/lib/format";
 import { listProducts } from "@/lib/products";
 
@@ -15,21 +15,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const a = await getArticle(slug);
   if (!a || a.status !== "published") return {};
-  const stock = a.stockQuery ? await listProducts({ q: a.stockQuery, limit: 1 }) : [];
-  const image = a.heroImage ?? stock[0]?.images[0]?.url;
+  const base = a.seoTitle || a.title;
+  // Keep the brand suffix only when the whole title still fits Google's ~60-character display.
+  const title = `${base} | ${site.name}`.length <= 60 ? `${base} | ${site.name}` : base;
+  const card = `/og/review/${a.slug}`;
   return {
-    title: { absolute: `${a.seoTitle || a.title} | ${site.name}` },
+    title: { absolute: title },
     description: a.seoDescription || a.dek,
-    keywords: a.keywords,
     alternates: { canonical: `/reviews/${a.slug}` },
     openGraph: {
       type: "article",
       title: a.title,
       description: a.dek,
+      url: `/reviews/${a.slug}`,
       publishedTime: a.publishedAt?.toISOString(),
       modifiedTime: a.updatedAt.toISOString(),
-      images: image ? [{ url: image }] : undefined,
+      images: [{ url: a.heroImage ?? card, width: 1200, height: 630, alt: a.title }],
     },
+    twitter: { card: "summary_large_image", title: a.title, description: a.dek, images: [a.heroImage ?? card] },
   };
 }
 
@@ -40,6 +43,7 @@ export default async function ReviewPage({ params }: Props) {
   const a = await getArticle(slug);
   if (!a || a.status !== "published") notFound();
   const { html, toc } = renderArticle(a.body);
+  const related = await relatedArticles(a);
   const stock = a.stockQuery
     ? (await listProducts({ q: a.stockQuery, limit: 24 })).filter((p) => mentionsModel(`${p.title} ${p.model} ${p.fitment.join(" ")}`, a.stockQuery))
     : [];
@@ -63,7 +67,7 @@ export default async function ReviewPage({ params }: Props) {
             url,
             datePublished: a.publishedAt?.toISOString(),
             dateModified: updated.toISOString(),
-            image: a.heroImage ?? main[0]?.images[0]?.url,
+            image: [a.heroImage ?? main[0]?.images[0]?.url, `${site.url}/og/review/${a.slug}`].filter(Boolean),
             author: { "@type": "Organization", name: site.name, url: site.url },
             publisher: { "@type": "Organization", name: site.name, url: site.url },
             about: { "@type": "Product", name: a.subject },
@@ -149,6 +153,23 @@ export default async function ReviewPage({ params }: Props) {
                   </div>
                 ))}
               </dl>
+            </section>
+          )}
+
+          {related.length > 0 && (
+            <section aria-labelledby="more" className="mx-auto mt-14 max-w-[68ch]">
+              <h2 id="more" className="display text-4xl">More tent reviews</h2>
+              <ul className="mt-4 divide-y divide-ice rounded-[var(--radius-tag)] bg-snow">
+                {related.map((r) => (
+                  <li key={r.id}>
+                    <Link href={`/reviews/${r.slug}`} className="block px-4 py-3 hover:bg-glacier">
+                      <span className="font-semibold">{r.subject}</span>
+                      <span className="block text-sm text-granite">{r.dek.length > 120 ? `${r.dek.slice(0, 117).replace(/\s+\S*$/, "")}…` : r.dek}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <Link href="/reviews" className="mt-3 inline-block text-sm font-semibold underline underline-offset-4">All gear reviews</Link>
             </section>
           )}
 

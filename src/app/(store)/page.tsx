@@ -7,6 +7,7 @@ import { GearImage } from "@/components/gear-image";
 import { brands as knownBrands, policies, site } from "@/lib/config";
 import { buildSafe } from "@/lib/build-safe";
 import { brandsInStock, inventoryStats, listProducts, poleFitmentIndex } from "@/lib/products";
+import { publishedArticles } from "@/lib/articles";
 
 export const revalidate = 300;
 
@@ -26,6 +27,7 @@ export default async function Home() {
     [{ total: 0, byCategory: {} as Record<string, number> }, [], [], [], [], [], [], []] as const,
   );
 
+  const latestReviews = await buildSafe(() => publishedArticles(3), []);
   const brandNames = (brandRows.length ? brandRows.map((b) => b.brand) : knownBrands.map((b) => b.name)).filter(
     (b) => b !== "Patagonia",
   );
@@ -137,6 +139,25 @@ export default async function Home() {
               ))}
             </ul>
           </div>
+        </section>
+      )}
+
+      {latestReviews.length > 0 && (
+        <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" aria-labelledby="reviews-h">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <h2 id="reviews-h" className="display text-5xl">From the gear desk</h2>
+            <Link href="/reviews" className="font-semibold underline underline-offset-4 hover:text-blaze-deep">All reviews</Link>
+          </div>
+          <ul className="grid gap-5 md:grid-cols-3">
+            {latestReviews.map((r) => (
+              <li key={r.id}>
+                <Link href={`/reviews/${r.slug}`} className="block h-full rounded-[var(--radius-tag)] bg-snow p-5 hover:bg-ice/60">
+                  <p className="text-sm text-granite">{r.subject}</p>
+                  <h3 className="display mt-1 text-3xl">{r.title.split(/:\s+/)[1] ? r.title.split(/:\s+/)[1].replace(/^\w/, (c) => c.toUpperCase()) : r.title}</h3>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

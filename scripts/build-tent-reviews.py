@@ -725,9 +725,10 @@ def build(t):
     last_h, last_p = t["sections"][-1]
     body += f"\n\n## {last_h}\n\n{last_p}"
     specs = t["specs"] + pole_spec_rows(model)
-    seo_title = f"{model} Review: Poles, Specs & Who It Suits"
+    # Owners search "north face <model>", so keep the brand and put the model first.
+    seo_title = f"North Face {short} Review: Specs, Poles & Fit"
     if len(seo_title) > 60:
-        seo_title = f"{short} Review: Poles, Specs & Fit"
+        seo_title = f"North Face {short} Review: Specs & Poles"
     return {
         "slug": f"{slug(model)}-review",
         "title": t["title"],

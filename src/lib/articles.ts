@@ -18,6 +18,34 @@ export async function getArticle(slug: string) {
   return a ?? null;
 }
 
+/**
+ * Finds the review for a tent model name ("The North Face Madraque 33"): an exact
+ * subject match first, otherwise a review whose stock query names the model
+ * (the "Madraque" pole guide covers the Madraque 23 and 33).
+ */
+export async function reviewLinker() {
+  const rows = await db
+    .select({ subject: articles.subject, slug: articles.slug, stockQuery: articles.stockQuery })
+    .from(articles)
+    .where(eq(articles.status, "published"));
+  const bySubject = new Map(rows.map((r) => [r.subject.toLowerCase(), r.slug]));
+  const byQuery = rows.filter((r) => r.stockQuery).sort((a, b) => b.stockQuery.length - a.stockQuery.length);
+  return (model: string) => bySubject.get(model.toLowerCase()) ?? byQuery.find((r) => mentionsModel(model, r.stockQuery))?.slug ?? null;
+}
+
+/** Other published reviews, closest first: same category, then nearest capacity. */
+export async function relatedArticles(a: { id: string; category: string; specs: { label: string; value: string }[] }, limit = 4) {
+  const cap = (specs: { label: string; value: string }[]) => Number(specs.find((s) => s.label === "Capacity")?.value.match(/\d+/)?.[0] ?? 0);
+  const mine = cap(a.specs);
+  const rows = await publishedArticles(200);
+  return rows
+    .filter((r) => r.id !== a.id)
+    .map((r) => ({ r, score: (r.category === a.category ? 100 : 0) - Math.abs(cap(r.specs) - mine) * 10 }))
+    .sort((x, y) => y.score - x.score)
+    .slice(0, limit)
+    .map((x) => x.r);
+}
+
 export async function getArticleById(id: string) {
   const [a] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
   return a ?? null;
