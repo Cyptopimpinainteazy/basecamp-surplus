@@ -4,14 +4,16 @@ import { CartButton } from "./cart-drawer";
 import { LiveSearch } from "./live-search";
 import { ThemeToggle } from "./theme-toggle";
 
-const nav = [
+// `wide` links only appear once the header has room for them (they stay in the mobile row and footer).
+const nav: { href: string; label: string; wide?: string }[] = [
   { href: "/c/tents", label: "Tents" },
   { href: "/c/jackets", label: "Jackets" },
   { href: "/poles", label: "Poles & parts" },
   { href: "/shop?condition=used", label: "Pre-owned" },
   { href: "/custom", label: "Custom" },
+  { href: "/poles/field-guide", label: "Pole guide", wide: "hidden xl:block" },
   { href: "/reviews", label: "Reviews" },
-  { href: "/shop", label: "All gear" },
+  { href: "/shop", label: "All gear", wide: "hidden 2xl:block" },
 ];
 
 export function SiteHeader() {
@@ -27,7 +29,7 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Main" className="ml-4 hidden items-center gap-0.5 lg:flex xl:ml-6">
           {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="navlink whitespace-nowrap rounded-md px-2 py-2 font-medium xl:px-3 text-glacier/85 hover:text-glacier">
+            <Link key={n.href} href={n.href} className={`navlink whitespace-nowrap rounded-md px-2 py-2 font-medium text-glacier/85 hover:text-glacier xl:px-2.5 ${n.wide ?? ""}`}>
               {n.label}
             </Link>
           ))}
