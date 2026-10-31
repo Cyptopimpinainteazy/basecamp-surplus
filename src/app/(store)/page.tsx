@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PoleWorkbench } from "@/components/pole-workbench";
 import { GearRoom } from "@/components/gear-room";
 import { Hero } from "@/components/hero";
 import { JsonLd } from "@/components/json-ld";
@@ -69,6 +70,7 @@ export default async function Home() {
       <Hero inStock={stats.total} brandsLine={brandsLine} featured={fresh.find((p) => p.featured && p.msrpCents) ?? fresh[0] ?? null} />
 
       <GearRoom />
+      <PoleWorkbench />
 
       <section className="mx-auto max-w-7xl px-4 pt-14 sm:px-6" aria-labelledby="shelves">
         <h2 id="shelves" className="sr-only">Shop by category</h2>
